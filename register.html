@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สมัครสมาชิก</title>
+    <link rel="stylesheet" href="register-styles.css">
+</head>
+
+<body>
+    <nav name="navbar" class="navbar">
+        <img src="Logo\Logo.png" alt="โลโก้" class="logo">
+    </nav>
+    <div class="from-register">
+        <h1>Sign Up</h1>
+        <form action="">
+            <div class="from">
+                <div class="user_data">
+                    <h2>ข้อมูลผู้ใช้</h2>
+                </div>
+                <label for="Username">Username :</label>
+                <input type="text" id="Username" name="Username" required>
+
+                <label for="Password">Password :</label>
+                <input type="password" id="Password" name="Password" required>
+
+                <label for="ConfirmPassword">Confirm Password :</label>
+                <input type="password" id="ConfirmPassword" name="ConfirmPassword" required>
+
+                <div class="personal_data">
+                    <h2>ข้อมูลส่วนตัว</h2>
+                </div>
+
+                <label for="Name">ชื่อ :</label>
+                <input type="text" id="Name" name="Name" required>
+
+                <label for="LastName">นามสกุล :</label>
+                <input type="text" id="LastName" name="LastName" required>
+
+                <label for="gender">เพศ :</label>
+                <input type="radio" name="gender" value="หญิง" id="woman" required> หญิง
+                <input type="radio" name="gender" value="ชาย" id="man" required> ชาย
+                <input type="radio" name="gender" value="ไม่ระบุ" id="none" required> ไม่ระบุ
+
+                <label for="phon">เบอร์โทรศัพท์ :</label>
+                <input type="text" id="phon" name="phon" required>
+
+                <label for="email">Email :</label>
+                <input type="text" id="email" name="email" required>
+
+                <div class="location_data">
+                    <h2>ข้อมูลที่อยู่จัดส่ง</h2>
+                </div>
+
+                <label for="location">ที่อยู่จัดส่ง :</label>
+                <input type="text" id="location" name="location" required>
+
+                <label for="District ">เขต / อำเภอ :</label>
+                <input type="text" id="District" name="District" required>
+
+                <label for="province">จังหวัด :</label>
+                <select name="province" id="province">
+                    <option value="">จังหวัด</option>
+                    <option value="กรุงเทพมหานคร">กรุงเทพมหานคร</option>
+                    <option value="นนทบุรี">นนทบุรี</option>
+                    <option value="สมุทรปราการ">สมุทรปราการ</option>
+                    <option value="ปทุมธานี">ปทุมธานี</option>
+                    <option value="นครปฐม">นครปฐม</option>
+                    <option value="สมุทรสาคร">สมุทรสาคร</option>
+                    <option value="ระยอง">ระยอง</option>
+                </select>
+
+                <label for="zip_code">รหัสไปรษณีย์ :</label>
+                <input type="text" id="zip_code" name="zip_code" required>
+
+                
+            </div>
+        </form>
+
+    </div>
+</body>
+
+</html>
