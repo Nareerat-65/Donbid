@@ -4,19 +4,81 @@
     box-sizing: border-box;
 }
 
+@media screen and (max-width: 600px) {
+    .main {
+        padding: 40px 15px;
+        height: auto;
+    }
+    .human-icon {
+        top: -50px;
+    }
+}
+
+.forgot-password {
+    display: block;
+    margin-top: 10px;
+    font-size: 14px;
+    color: #FFA500;
+    text-decoration: none;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+    color: #e69500;
+}
+
+
+.options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 60%;
+    margin-top: 5px;
+    padding: 0 2px;
+    font-size: 14px;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #555;
+}
+
+.signup-link {
+    color: #FFA500;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.signup-link span {
+    text-decoration: underline;
+}
+.signup-link:hover {
+    text-decoration: underline;
+    color: #e69500;
+}
+
+
 .main {
     position: relative;
     border-radius: 25px;
     background: #FFEECE;
     padding: 60px 20px 20px;
     width: 700px;
-    height: 500px;
+    height: 400px;
     margin-top: 60px;
     display: flex;
     flex-direction: column;
     align-items: center; /* จัดเนื้อหาใน main ให้อยู่ตรงกลางแนวนอน */
     justify-content: flex-start; /* จัดเนื้อหาให้อยู่ด้านบน (หรือใช้ center หากต้องการให้อยู่กึ่งกลางแนวตั้ง) */
     text-align: center; /* จัดข้อความให้อยู่ตรงกลาง */
+}
+
+.main h1 {
+    font-size: 24px;
+    color: #000;
+    margin-bottom: 20px; /* เพิ่มระยะห่างด้านล่าง */
 }
 
 .navbar {
@@ -46,7 +108,7 @@
 
 .input-container {
     position: relative;
-    margin: 15px 0;
+    margin: 12px 0;
     display: flex;
     align-items: center;
 }
@@ -59,9 +121,25 @@
 }
 
 .input-container input {
-    width: 100%;
+    width: 400px;
     padding: 10px 10px 10px 40px; /* เพิ่ม padding ซ้ายเพื่อเว้นที่สำหรับไอคอน */
     border: 2px solid #FFA500;
     border-radius: 5px;
     font-size: 16px;
+}
+
+button {
+    margin-top: 30px;
+    background-color: #FFA500;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 12px 24px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #e69500;
 }
