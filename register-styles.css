@@ -6,96 +6,99 @@
 }
 
 body {
-    background-color: #fff;
-}
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to right, #FFEECE, #FFE4B2);
+  }
 
-nav {
+  .navbar {
     background-color: #FAF5E6;
     padding: 10px 20px;
-}
+    display: flex;
+    align-items: center;
+  }
 
-.logo {
-    width: 130px;
-    height: 130px;
-}
+  .navbar .logo {
+    height: 100px;
+    width: 100px;
+  }
 
-.from-register {
+  .from-register {
     max-width: 600px;
-    margin: 20px auto;
-    padding: 20px;
-}
+    background: #fff;
+    margin: 40px auto;
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
 
-.from-register h1 {
+  h1 {
     text-align: center;
-    margin-bottom: 20px;
-}
+    color: #FFA500;
+  }
 
-.from {
-    background-color: #FFEECE;
-    padding: 20px;
-    border-radius: 10px;
-}
-.user_data h2,
-.personal_data h2,
-.location_data h2 {
-    color: #000;
-    margin: 25px 0 20px;
-    background-color: white;
-    padding: 12px 20px;
-    border-radius: 8px;
-    text-align: center;
-    font-size: 20px;
-    position: relative;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
+  h2 {
+    margin-top: 30px;
+    color: #FF8C00;
+    border-bottom: 2px solid #FFEECE;
+    padding-bottom: 5px;
+  }
 
-label {
+  label {
     display: block;
-    margin: 10px 0 5px;
-}
+    margin-top: 15px;
+    font-weight: 500;
+    color: #333;
+  }
 
-input[type="text"],
-input[type="password"],
-select {
+  input[type="text"],
+  input[type="password"],
+  select {
     width: 100%;
-    padding: 8px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-input[type="radio"] {
-    margin: 0 5px 0 15px;
-}
-
-select {
-    width: 100%;
-    background-color: white;
-}
-
-.terms {
-    margin: 20px 0;
-    text-align: center;
-}
-
-.link-terms,
-.link-privacy {
-    color: #0066cc;
-    text-decoration: none;
-}
-
-.submit-btn {
-    display: block;
-    width: 200px;
-    margin: 20px auto;
     padding: 10px;
-    background-color: #ff9900;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-sizing: border-box;
+    background-color: #FFFAF0;
+  }
 
-.submit-btn:hover {
-    background-color: #ff8800;
-}
+  input[type="radio"] {
+    margin: 10px 5px 0 0;
+  }
+
+  .terms {
+    margin-top: 20px;
+  }
+
+  .terms-label {
+    font-size: 14px;
+  }
+
+  .terms-label a {
+    color: #FFA500;
+    text-decoration: none;
+  }
+
+  .submit-btn {
+    background-color: #FFA500;
+    color: white;
+    padding: 12px;
+    margin-top: 25px;
+    width: 100%;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+  .submit-btn:hover {
+    background-color: #e69500;
+  }
+
+  @media (max-width: 600px) {
+    .from-register {
+      padding: 20px;
+    }
+  }
