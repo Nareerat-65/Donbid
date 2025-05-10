@@ -13,14 +13,14 @@ body {
 
 .navbar {
   background-color: #FAF5E6;
-  padding: 10px 20px;
-  display: flex;
+  /* padding: 10px 20px;
+  display: flex; */
   align-items: center;
 }
 
 .navbar .logo {
-  height: 100px;
-  width: 100px;
+  height: 150px;
+  width: 150px;
 }
 
 .from-register {
