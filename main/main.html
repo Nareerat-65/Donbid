@@ -16,8 +16,83 @@
             <button>Log in</button>
         </div>
     </nav>
+    <div class="slider">
+        <div class="slides" id="slideContainer">
+            <img src="https://via.placeholder.com/600x300/FF6F61/fff?text=Slide+1" />
+            <img src="https://via.placeholder.com/600x300/6B5B95/fff?text=Slide+2" />
+            <img src="https://via.placeholder.com/600x300/88B04B/fff?text=Slide+3" />
+        </div>
+        <div class="nav">
+            <button onclick="moveSlide(-1)">❮</button>
+            <button onclick="moveSlide(1)">❯</button>
+        </div>
+        <div class="dots">
+            <span class="dot" onclick="goToSlide(0)"></span>
+            <span class="dot" onclick="goToSlide(1)"></span>
+            <span class="dot" onclick="goToSlide(2)"></span>
+        </div>
+    </div>
+    <div class="product-section">
+        <h1>สินค้าแนะนำ</h1>
+        <a href="#" class="all-product">สินค้าทั้งหมด >></a>
+    </div>
+    <div class="list-product">
+        <div class="product-card">
+            <img src="https://via.placeholder.com/300x150/FF6F61/fff?text=สินค้า+1" alt="สินค้า 1">
+            <div class="product-info">
+                <div class="product-name">สินค้า 1</div>
+                <div class="product-price">฿199</div>
+                <a href="#" class="buy-btn">สั่งซื้อ</a>
+            </div>
+        </div>
 
-    
+        <div class="product-card">
+            <img src="https://via.placeholder.com/300x150/6B5B95/fff?text=สินค้า+2" alt="สินค้า 2">
+            <div class="product-info">
+                <div class="product-name">สินค้า 2</div>
+                <div class="product-price">฿259</div>
+                <a href="#" class="buy-btn">สั่งซื้อ</a>
+            </div>
+        </div>
+
+        <div class="product-card">
+            <img src="https://via.placeholder.com/300x150/88B04B/fff?text=สินค้า+3" alt="สินค้า 3">
+            <div class="product-info">
+                <div class="product-name">สินค้า 3</div>
+                <div class="product-price">฿320</div>
+                <a href="#" class="buy-btn">สั่งซื้อ</a>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script>
+        let currentIndex = 0;
+        const slides = document.getElementById("slideContainer");
+        const dots = document.querySelectorAll(".dot");
+        const totalSlides = slides.children.length;
+
+        function updateSlider() {
+            slides.style.transform = `translateX(-${currentIndex * 100}%)`;
+            dots.forEach(dot => dot.classList.remove("active"));
+            dots[currentIndex].classList.add("active");
+        }
+
+        function moveSlide(step) {
+            currentIndex = (currentIndex + step + totalSlides) % totalSlides;
+            updateSlider();
+        }
+
+        function goToSlide(index) {
+            currentIndex = index;
+            updateSlider();
+        }
+
+        updateSlider();
+    </script>
+
+
 </body>
 
 </html>
