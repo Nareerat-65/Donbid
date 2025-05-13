@@ -1,0 +1,47 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: sans-serif;
+  background: #ffffff;
+  color: #333;
+}
+
+header {
+  background: #fcf7e9;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar {
+  background-color: #FAF5E6;
+  /* padding: 10px 20px;*/
+  display: flex; 
+  align-items: center;
+}
+
+.navbar .logo {
+  height: 150px;
+  width: 150px;
+  margin-left: 50px;
+  margin-right: 1450px;
+
+}
+
+.auth-buttons button {
+  margin-left: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: orange;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100px;
+  height: 40px;
+}
