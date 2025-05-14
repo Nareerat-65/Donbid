@@ -115,3 +115,18 @@ header {
     .buy-btn:hover {
       background: #e69500;
     }
+
+    .search{
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 20px;
+    }
+    .searchInput{
+      width: 900px;
+      height: 45px;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      margin-right: 10px;
+    }

@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="product-styles.css">
     <title>สินค้าทั้งหมด</title>
 </head>
+
 <body>
     <nav name="navbar" class="navbar">
         <img src="..\Logo\Logo.png" alt="โลโก้" class="logo">
@@ -15,13 +17,14 @@
         </div>
     </nav>
     <div class="search">
-        <input type="text" id="searchInput" placeholder="ค้นหาสินค้า...">
+        <input type="text" class="searchInput" id="searchInput" placeholder="ค้นหาสินค้า...">
         <button id="searchButton">ค้นหา</button>
+        <div class="product-fillter">
+            <button id="fillterhButton">กรองสินค้า</button>
+        </div>
     </div>
-    <div class="product-fillter">
-        <button id="fillterhButton">กรองสินค้า</button>
-    </div>
-    <div class = "product-list">
+
+    <div class="product-list">
         <div class="product-card">
             <img src="https://via.placeholder.com/300x150/FF6F61/fff?text=สินค้า+1" alt="สินค้า 1">
             <div class="product-info">
@@ -45,4 +48,5 @@
         <!-- Add more product cards as needed -->
     </div>
 </body>
+
 </html>
