@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สมัครสมาชิก</title>
+    <link rel="stylesheet" href="register-styles.css">
+</head>
+
+<body>
+    <nav name="navbar" class="navbar">
+        <img src="../Logo\Logo.png" alt="โลโก้" class="logo">
+    </nav>
+    <div class="from-register">
+        <h1>Sign Up</h1>
+        <form action="">
+            <div class="from">
+                <div class="user_data">
+                    <h2>ข้อมูลผู้ใช้</h2>
+                </div>
+                <label for="Username">Username </label>
+                <input type="text" id="Username" name="Username" required>
+
+                <label for="Password">Password </label>
+                <input type="password" id="Password" name="Password" required>
+
+                <label for="ConfirmPassword">Confirm Password </label>
+                <input type="password" id="ConfirmPassword" name="ConfirmPassword" required>
+
+                <div class="personal_data">
+                    <h2>ข้อมูลส่วนตัว</h2>
+                </div>
+
+                <label for="Name">ชื่อ </label>
+                <input type="text" id="Name" name="Name" required>
+
+                <label for="LastName">นามสกุล </label>
+                <input type="text" id="LastName" name="LastName" required>
+
+                <label for="gender">เพศ </label>
+                <input type="radio" name="gender" value="หญิง" id="woman" required> หญิง
+                <input type="radio" name="gender" value="ชาย" id="man" required> ชาย
+                <input type="radio" name="gender" value="ไม่ระบุ" id="none" required> ไม่ระบุ
+
+                <label for="phon">เบอร์โทรศัพท์ </label>
+                <input type="text" id="phon" name="phon" required>
+
+                <label for="email">Email </label>
+                <input type="text" id="email" name="email" required>
+
+                <div class="location_data">
+                    <h2>ข้อมูลที่อยู่จัดส่ง</h2>
+                </div>
+
+                <label for="location">ที่อยู่จัดส่ง </label>
+                <input type="text" id="location" name="location" required>
+
+                <label for="District ">เขต / อำเภอ </label>
+                <input type="text" id="District" name="District" required>
+
+                <label for="province">จังหวัด </label>
+                <select name="province" id="province">
+                    <option value="">จังหวัด</option>
+                    <option value="กระบี่">กระบี่</option>
+                    <option value="กรุงเทพมหานคร">กรุงเทพมหานคร</option>
+                    <option value="กาญจนบุรี">กาญจนบุรี</option>
+                    <option value="กาฬสินธุ์">กาฬสินธุ์</option>
+                    <option value="กำแพงเพชร">กำแพงเพชร</option>
+                    <option value="ขอนแก่น">ขอนแก่น</option>
+                    <option value="จันทบุรี">จันทบุรี</option>
+                    <option value="ฉะเชิงเทรา">ฉะเชิงเทรา</option>
+                    <option value="ชลบุรี">ชลบุรี</option>
+                    <option value="ชัยนาท">ชัยนาท</option>
+                    <option value="ชัยภูมิ">ชัยภูมิ</option>
+                    <option value="ชุมพร">ชุมพร</option>
+                    <option value="เชียงราย">เชียงราย</option>
+                    <option value="เชียงใหม่">เชียงใหม่</option>
+                    <option value="ตรัง">ตรัง</option>
+                    <option value="ตราด">ตราด</option>
+                    <option value="ตาก">ตาก</option>
+                    <option value="นครนายก">นครนายก</option>
+                    <option value="นครปฐม">นครปฐม</option>
+                    <option value="นครพนม">นครพนม</option>
+                    <option value="นครราชสีมา">นครราชสีมา</option>
+                    <option value="นครศรีธรรมราช">นครศรีธรรมราช</option>
+                    <option value="นครสวรรค์">นครสวรรค์</option>
+                    <option value="นนทบุรี">นนทบุรี</option>
+                    <option value="นราธิวาส">นราธิวาส</option>
+                    <option value="น่าน">น่าน</option>
+                    <option value="บึงกาฬ">บึงกาฬ</option>
+                    <option value="บุรีรัมย์">บุรีรัมย์</option>
+                    <option value="ปทุมธานี">ปทุมธานี</option>
+                    <option value="ประจวบคีรีขันธ์">ประจวบคีรีขันธ์</option>
+                    <option value="ปราจีนบุรี">ปราจีนบุรี</option>
+                    <option value="ปัตตานี">ปัตตานี</option>
+                    <option value="พระนครศรีอยุธยา">พระนครศรีอยุธยา</option>
+                    <option value="พะเยา">พะเยา</option>
+                    <option value="พังงา">พังงา</option>
+                    <option value="พัทลุง">พัทลุง</option>
+                    <option value="พิจิตร">พิจิตร</option>
+                    <option value="พิษณุโลก">พิษณุโลก</option>
+                    <option value="เพชรบุรี">เพชรบุรี</option>
+                    <option value="เพชรบูรณ์">เพชรบูรณ์</option>
+                    <option value="แพร่">แพร่</option>
+                    <option value="ภูเก็ต">ภูเก็ต</option>
+                    <option value="มหาสารคาม">มหาสารคาม</option>
+                    <option value="มุกดาหาร">มุกดาหาร</option>
+                    <option value="แม่ฮ่องสอน">แม่ฮ่องสอน</option>
+                    <option value="ยโสธร">ยโสธร</option>
+                    <option value="ยะลา">ยะลา</option>
+                    <option value="ร้อยเอ็ด">ร้อยเอ็ด</option>
+                    <option value="ระนอง">ระนอง</option>
+                    <option value="ระยอง">ระยอง</option>
+                    <option value="ราชบุรี">ราชบุรี</option>
+                    <option value="ลพบุรี">ลพบุรี</option>
+                    <option value="ลำปาง">ลำปาง</option>
+                    <option value="ลำพูน">ลำพูน</option>
+                    <option value="เลย">เลย</option>
+                    <option value="ศรีสะเกษ">ศรีสะเกษ</option>
+                    <option value="สกลนคร">สกลนคร</option>
+                    <option value="สงขลา">สงขลา</option>
+                    <option value="สตูล">สตูล</option>
+                    <option value="สมุทรปราการ">สมุทรปราการ</option>
+                    <option value="สมุทรสงคราม">สมุทรสงคราม</option>
+                    <option value="สมุทรสาคร">สมุทรสาคร</option>
+                    <option value="สระแก้ว">สระแก้ว</option>
+                    <option value="สระบุรี">สระบุรี</option>
+                    <option value="สิงห์บุรี">สิงห์บุรี</option>
+                    <option value="สุโขทัย">สุโขทัย</option>
+                    <option value="สุพรรณบุรี">สุพรรณบุรี</option>
+                    <option value="สุราษฎร์ธานี">สุราษฎร์ธานี</option>
+                    <option value="สุรินทร์">สุรินทร์</option>
+                    <option value="หนองคาย">หนองคาย</option>
+                    <option value="หนองบัวลำภู">หนองบัวลำภู</option>
+                    <option value="อ่างทอง">อ่างทอง</option>
+                    <option value="อำนาจเจริญ">อำนาจเจริญ</option>
+                    <option value="อุดรธานี">อุดรธานี</option>
+                    <option value="อุตรดิตถ์">อุตรดิตถ์</option>
+                    <option value="อุทัยธานี">อุทัยธานี</option>
+                    <option value="อุบลราชธานี">อุบลราชธานี</option>
+                </select>
+
+                <label for="zip_code">รหัสไปรษณีย์ </label>
+                <input type="text" id="zip_code" name="zip_code" required>
+
+                <div class="lower">
+                    <div class="terms">
+                        <label class="terms-label">
+                            <input type="checkbox" id="accept-terms" required>
+                            ข้าพเจ้ายอมรับ
+                            <a href="termsAndPrivacy\terms.html" class="link-terms">ข้อกำหนดและเงื่อนไขการใช้งาน</a>
+                            และ
+                            <a href="#" class="link-privacy">นโยบายความเป็นส่วนตัว</a>
+                        </label>                        
+                    </div>
+                    <div class="login">
+                        <p>มีบัญชีอยู่แล้ว? <a href="login/login.html">เข้าสู่ระบบ</a></p>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">สมัครสมาชิก</button>
+            </div>
+    </div>
+    </form>
+
+    </div>
+</body>
+
+</html>

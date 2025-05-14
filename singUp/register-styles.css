@@ -1,0 +1,128 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(to right, #FFEECE, #FFE4B2);
+}
+
+.navbar {
+  background-color: #FAF5E6;
+  /* padding: 10px 20px;
+  display: flex; */
+  align-items: center;
+}
+
+.navbar .logo {
+  height: 150px;
+  width: 150px;
+}
+
+.from-register {
+  max-width: 600px;
+  background: #fff;
+  margin: 40px auto;
+  padding: 30px 40px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  text-align: center;
+  color: #FFA500;
+}
+
+h2 {
+  margin-top: 30px;
+  color: #FF8C00;
+  border-bottom: 2px solid #FFEECE;
+  padding-bottom: 5px;
+}
+
+label {
+  display: block;
+  margin-top: 15px;
+  font-weight: 500;
+  color: #333;
+}
+
+input[type="text"],
+input[type="password"],
+select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-sizing: border-box;
+  background-color: #FFFAF0;
+}
+
+input[type="radio"] {
+  margin: 10px 5px 0 0;
+}
+
+.lower {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* จัดให้อยู่ตรงกลางแนวนอน */
+  justify-content: center;
+  text-align: center;
+}
+
+.lower a {
+  color: #FFA500;
+  text-decoration: none;
+}
+
+.terms {
+  display: flex;
+  align-items: center;
+  /* ให้ checkbox และ label อยู่ตรงกลางแนวตั้ง */
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.terms-label {
+  margin-left: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.login {
+  margin-left: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+
+
+
+.submit-btn {
+  background-color: #FFA500;
+  color: white;
+  padding: 12px;
+  margin-top: 25px;
+  width: 100%;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.submit-btn:hover {
+  background-color: #e69500;
+}
+
+@media (max-width: 600px) {
+  .from-register {
+    padding: 20px;
+  }
+}
