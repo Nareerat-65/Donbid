@@ -106,6 +106,10 @@ header {
       background-color: #FFA500;
     }
 
+    .all-product{
+      color: rgba(0, 0, 0, .5);
+    }
+
     .product-section{
       display: flex;
       width: 100%;
@@ -141,6 +145,8 @@ header {
       transition: transform 0.2s ease;
       width: 300px;
       height: 350px;
+      text-align: center;
+
       
     }
 
@@ -152,6 +158,7 @@ header {
       width: 100%;
       height: 150px;
       object-fit: cover;
+      margin-bottom: 160px;
     }
 
     .product-info {
@@ -167,19 +174,22 @@ header {
     .product-price {
       color: #e53935;
       font-weight: bold;
+      margin-bottom: 10px;
     }
 
     .buy-btn {
       display: inline-block;
       margin-top: 10px;
-      background: #2196f3;
+      background: #FFA500;
       color: white;
       padding: 8px 12px;
       border-radius: 6px;
       text-decoration: none;
-      font-size: 0.9em;
+      font-size: 16px;
+      height: 40px;
+      width: 200px;
     }
 
     .buy-btn:hover {
-      background: #1976d2;
+      background: #e69500;
     }
