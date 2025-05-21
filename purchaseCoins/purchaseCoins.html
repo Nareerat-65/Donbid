@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เติมเงิน</title>
+    <link rel="stylesheet" href="purchaseCoins-styles.css">
+</head>
+
+<body>
+    <nav name="navbar" class="navbar">
+        <img src="../Logo/Logo.png" alt="โลโก้" class="logo" width="150" height="150">
+    </nav>
+    <div class="content">
+        <h2>เลือกแพ็คเกจเติมคอยน์</h2>
+        <!-- Repeat this process for each package you want to add -->
+        <div class="packages">
+            <div class="package">
+                <h3>Starter</h3>
+                <div class="coins">20 คอยน์</div>
+                <div class="price">20 บาท</div>
+                <button class="btn" onclick="selectPackage(20)">เติมเงิน</button>
+            </div>
+            <div class="package">
+                <h3>Basic</h3>
+                <div class="coins">55 คอยน์</div>
+                <div class="price">50 บาท</div>
+                <div class="bonus">โบนัส +5</div>
+                <button class="btn" onclick="selectPackage(50)">เติมเงิน</button>
+            </div>
+            <div class="package">
+                <h3>Standard</h3>
+                <div class="coins">115 คอยน์</div>
+                <div class="price">100 บาท</div>
+                <div class="bonus">โบนัส +15</div>
+                <button class="btn" onclick="selectPackage(100)">เติมเงิน</button>
+            </div>
+            <div class="package">
+                <h3>Pro</h3>
+                <div class="coins">240 คอยน์</div>
+                <div class="price">200 บาท</div>
+                <div class="bonus">โบนัส +40</div>
+                <button class="btn" onclick="selectPackage(200)">เติมเงิน</button>
+            </div>
+            <div class="package">
+                <h3>Premium</h3>
+                <div class="coins">625 คอยน์</div>
+                <div class="price">500 บาท</div>
+                <div class="bonus">โบนัส +125</div>
+                <button class="btn" onclick="selectPackage(500)">เติมเงิน</button>
+            </div>
+            <div class="package">
+                <h3>Ultimate</h3>
+                <div class="coins">1,300 คอยน์</div>
+                <div class="price">1,000 บาท</div>
+                <div class="bonus">โบนัส +300</div>
+                <button class="btn" onclick="selectPackage(1000)">เติมเงิน</button>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

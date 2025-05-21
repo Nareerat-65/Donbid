@@ -1,0 +1,74 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.content {
+    margin-top: 20px;
+}
+
+.navbar {
+    background-color: #FAF5E6;
+}
+
+h2 {
+    text-align: center;
+}
+
+.packages {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;           /* จัดให้อยู่กึ่งกลางแนวนอน */
+    padding: 20px;
+}
+
+.package {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.2s;
+}
+
+.package:hover {
+    transform: translateY(-5px);
+}
+
+.package h3 {
+    margin: 0;
+    color: #2c3e50;
+}
+
+.coins {
+    font-size: 24px;
+    color: #f39c12;
+    margin: 10px 0;
+}
+
+.price {
+    font-size: 20px;
+    margin: 10px 0;
+}
+
+.bonus {
+    color: #27ae60;
+    font-weight: bold;
+}
+
+.btn {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background: #2980b9;
+}
