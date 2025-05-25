@@ -121,6 +121,7 @@ header {
       justify-content: center;
       align-items: center;
       margin-top: 20px;
+      gap: 10px;
     }
     .searchInput{
       width: 900px;
@@ -129,4 +130,37 @@ header {
       border-radius: 5px;
       border: 1px solid #ccc;
       margin-right: 10px;
+    }
+    .searchButton{
+      padding: 10px 20px;
+      background-color: #FFA500;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .searchButton:hover {
+      background: #e69500;
+    }
+
+    .fillterhButton{
+      padding: 10px 20px;
+      background-color: #FFA500;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-left: 10px;
+      font-size: 16px;
+    }
+    .fillterhButton:hover {
+      background: #e69500;
+    }
+    .product-section{
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 30px;
+      margin-bottom: 30px;
     }
