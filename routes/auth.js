@@ -1,0 +1,93 @@
+const express = require('express');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const multer = require('multer');
+const path = require('path');
+const db = require('../utils/db');
+
+const router = express.Router();
+
+// ตั้งค่า multer สำหรับอัปโหลด avatar
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/'); // ไปยัง /uploads
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname);
+    const unique = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, `avatar-${unique}${ext}`);
+  }
+});
+const upload = multer({ storage });
+
+// REGISTER
+router.post('/register', upload.single('avatar'), async (req, res) => {
+  const {
+    username, email, password,
+    full_name, gender, birthdate, phone, address
+  } = req.body;
+
+  const avatar_url = req.file ? `/uploads/${req.file.filename}` : null;
+
+  try {
+    const [existing] = await db.query(
+      'SELECT * FROM users WHERE email = ? OR username = ?',
+      [email, username]
+    );
+    if (existing.length > 0)
+      return res.status(400).json({ message: 'อีเมลหรือชื่อผู้ใช้ซ้ำ' });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const [userResult] = await db.query(
+      'INSERT INTO users (username, email, password_hash, role, is_active) VALUES (?, ?, ?, ?, 1)',
+      [username, email, hashedPassword, 'bidder']
+    );
+
+    const userId = userResult.insertId;
+
+    await db.query(
+      `INSERT INTO user_profiles 
+        (user_id, full_name, gender, birthdate, phone, address, avatar_url)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [userId, full_name, gender, birthdate, phone, address, avatar_url]
+    );
+
+    res.status(201).json({ message: 'สมัครสมาชิกสำเร็จ', userId });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// LOGIN
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const [users] = await db.query(
+      'SELECT * FROM users WHERE email = ?',
+      [email]
+    );
+
+    if (users.length === 0)
+      return res.status(400).json({ message: 'ไม่พบผู้ใช้งาน' });
+
+    const user = users[0];
+    const match = await bcrypt.compare(password, user.password_hash);
+    if (!match)
+      return res.status(401).json({ message: 'รหัสผ่านไม่ถูกต้อง' });
+
+    const token = jwt.sign(
+      { id: user.id, username: user.username, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '2h' }
+    );
+
+    res.status(200).json({ message: 'เข้าสู่ระบบสำเร็จ', token });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+module.exports = router;

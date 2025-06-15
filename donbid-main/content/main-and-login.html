@@ -4,18 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/content/main-styles.css">
+    <link rel="stylesheet" href="/content/main-and-login-style.css">
     <title>หน้าหลัก</title>
 </head>
 
 <body>
     <nav name="navbar" class="navbar">
         <div>
-            <img src="../pic/Logo.png" alt="โลโก้" class="logo">
+            <a href="../content/main.html" class="logo-link">
+                <img src="../pic/Logo.png" alt="โลโก้" class="logo">
+            </a>
         </div>
-        <div class="auth-buttons">
-            <a href="..\singUp\register.html"><button>Sing Up</button></a>
-            <a href="..\login\login.html"><button>Log in</button></a>
+        <div class="personal-icon">
+            <a href="" class="logo-link">
+                <img src="../pic/personal-icon.png" alt="ไอค่อน" class="personal-icon">
+            </a>
+            <span id="usernameDisplay" style="margin-left: 10px; font-weight: bold;"></span>
         </div>
     </nav>
     <div class="slider">
@@ -70,8 +74,6 @@
         </div>
     </div>
 
-
-
     <script>
         let currentIndex = 0;
         const slides = document.getElementById("slideContainer");
@@ -95,11 +97,47 @@
         }
 
         updateSlider();
+
+        function parseJwt(token) {
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+
+                return JSON.parse(jsonPayload);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        window.onload = function () {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('กรุณาเข้าสู่ระบบก่อน');
+                window.location.href = '/login/login.html';
+                return;
+            }
+
+            const payload = parseJwt(token);
+            if (payload && payload.username) {
+                const iconLink = document.querySelector('.personal-icon a');
+                if (iconLink) {
+                    iconLink.setAttribute('title', `คุณ ${payload.username}`);
+                }
+                const nameSpan = document.getElementById('usernameDisplay');
+                if (nameSpan) {
+                    nameSpan.textContent = `คุณ ${payload.username}`;
+                }
+            } else {
+                alert('Token ไม่ถูกต้อง');
+                localStorage.removeItem('token');
+                window.location.href = '/login/login.html';
+            }
+        }
     </script>
 
-
 </body>
-
-
 
 </html>

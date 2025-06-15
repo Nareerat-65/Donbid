@@ -12,22 +12,23 @@
     <nav name="navbar" class="navbar">
         <div>
             <a href="../content/main.html" class="logo-link">
-                <img src="../Logo\Logo.png" alt="โลโก้" class="logo">
+                <img src="../pic/Logo.png" alt="โลโก้" class="logo">
             </a>
         </div>
     </nav>
     <div class="from-register">
         <h1>Sign Up</h1>
-        <form action="">
+        <form id="registerForm">
             <div class="from">
                 <div class="user_data">
                     <h2>ข้อมูลผู้ใช้</h2>
                 </div>
-                <label for="Username">Username </label>
-                <input type="text" id="Username" name="Username" required>
 
-                <label for="Password">Password </label>
-                <input type="password" id="Password" name="Password" required>
+                <label for="username">Username </label>
+                <input type="text" id="username" name="username" required>
+
+                <label for="password">Password </label>
+                <input type="password" id="password" name="password" required>
 
                 <label for="ConfirmPassword">Confirm Password </label>
                 <input type="password" id="ConfirmPassword" name="ConfirmPassword" required>
@@ -47,8 +48,8 @@
                 <input type="radio" name="gender" value="ชาย" id="man" required> ชาย
                 <input type="radio" name="gender" value="ไม่ระบุ" id="none" required> ไม่ระบุ
 
-                <label for="phon">เบอร์โทรศัพท์ </label>
-                <input type="text" id="phon" name="phon" required>
+                <label for="phone">เบอร์โทรศัพท์ </label>
+                <input type="text" id="phone" name="phone" required>
 
                 <label for="email">Email </label>
                 <input type="text" id="email" name="email" required>
@@ -156,7 +157,7 @@
                             <a href="../termsAndPrivacy/terms.html" class="link-terms">ข้อกำหนดและเงื่อนไขการใช้งาน</a>
                             และ
                             <a href="../termsAndPrivacy/privacy.html" class="link-privacy">นโยบายความเป็นส่วนตัว</a>
-                        </label>                        
+                        </label>
                     </div>
                     <div class="login">
                         <p>มีบัญชีอยู่แล้ว? <a href="../login/login.html">เข้าสู่ระบบ</a></p>
@@ -165,10 +166,56 @@
 
                 <button type="submit" class="submit-btn">สมัครสมาชิก</button>
             </div>
-    </div>
-    </form>
-
+        </form>
     </div>
 </body>
+
+<script>
+
+    document.getElementById('registerForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData.entries());
+
+        // ตรวจสอบว่ารหัสผ่านและยืนยันรหัสผ่านตรงกัน
+        if (data.password !== this.ConfirmPassword.value) {
+            alert("รหัสผ่านไม่ตรงกัน");
+            return;
+        }
+
+        // เช็คเบอร์โทรศัพท์
+        if (!/^\d{9,10}$/.test(data.phone)) {
+            alert("กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง");
+            return;
+        }
+
+
+        // รวมชื่อและที่อยู่
+        data.full_name = data.Name + ' ' + data.LastName;
+        data.address = `${data.location} ${data.District} ${data.province} ${data.zip_code}`;
+
+        delete data.Name;
+        delete data.LastName;
+        delete data.location;
+        delete data.District;
+        delete data.province;
+        delete data.zip_code;
+        delete data.ConfirmPassword;
+
+        const response = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            alert('สมัครสมาชิกสำเร็จ');
+            window.location.href = '/login/login.html';
+        } else {
+            alert(result.message || result.error || 'เกิดข้อผิดพลาด');
+        }
+    });
+</script>
 
 </html>

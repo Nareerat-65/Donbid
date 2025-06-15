@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,16 +8,17 @@
     <link rel="stylesheet" href="login-styles.css">
     <script src="https://kit.fontawesome.com/71703b7c85.js" crossorigin="anonymous"></script>
 </head>
+
 <body>
     <nav name="navbar" class="navbar">
         <div>
             <a href="../content/main.html" class="logo-link">
-                <img src="../Logo/Logo.png" alt="โลโก้" class="logo" width="150" height="150">
+                <img src="../pic/Logo.png" alt="โลโก้" class="logo" width="150" height="150">
             </a>
         </div>
     </nav>
     <div class="container">
-        <form action="" method="post" class="form">
+        <form id="loginForm" class="form">
             <div class="human-icon">
                 <span style="color: #FFA500;">
                     <i class="fa-solid fa-circle-user fa-10x"></i>
@@ -26,12 +28,12 @@
                 <h1>Sign in to DonBid</h1>
                 <div class="input-container">
                     <i class="fa-solid fa-user"></i>
-                    <input type="text" placeholder="Username" required>
+                    <input type="email" name="email" placeholder="Email" required>
                 </div>
 
                 <div class="input-container">
                     <i class="fa-solid fa-lock"></i>
-                    <input type="password" placeholder="Password" required>
+                    <input type="password" name="password" placeholder="Password" required>
                 </div>
 
                 <div class="options">
@@ -40,7 +42,7 @@
                     </label>
                     <a href="..\singUp\register.html" class="signup-link">ไม่มีสมาชิกหรอ? <span>Sign up</span></a>
                 </div>
-                
+
                 <button type="submit">Login</button>
 
                 <a href="#" class="forgot-password">ลืมรหัสผ่าน?</a>
@@ -48,5 +50,31 @@
             </div>
         </form>
     </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const email = document.querySelector('input[name="email"]').value;
+            const password = document.querySelector('input[name="password"]').value;
+
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+
+            const result = await res.json();
+            if (res.ok && result.token) {
+                localStorage.setItem('token', result.token);
+                alert('เข้าสู่ระบบสำเร็จ');
+                window.location.href = '/content/main-and-login.html'; // หรือ main-and-login.html
+            } else {
+                alert(result.message || 'เข้าสู่ระบบล้มเหลว');
+            }
+        });
+    </script>
+
 </body>
+
 </html>

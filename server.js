@@ -1,24 +1,32 @@
-// server.js
 const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
-const path = require('path');
-
 const app = express();
+const http = require('http');
 const server = http.createServer(app);
+const { Server } = require('socket.io');
 const io = new Server(server);
+const path = require('path');
+require('dotenv').config();
 
-// เสิร์ฟ static content เดิม (HTML/CSS/JS)
-app.use(express.static(path.join(__dirname, 'Donbid-main')));
+const authRoutes = require('./routes/auth');
 
-// WebSocket
+app.use(express.static(path.join(__dirname, 'donbid-main')));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// เส้นทางอัปโหลดไฟล์รูป
+// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Auth API
+app.use('/api/auth', authRoutes);
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'donbid-main', 'content', 'main.html'));
+});
+
 io.on('connection', socket => {
   console.log('🔗 Client connected');
-  socket.on('bid', data => {
-    io.emit('new-bid', data); // Broadcast
-  });
 });
 
 server.listen(3000, () => {
-  console.log('✅ Server running: http://localhost:3000/content/main.html');
+  console.log('✅ Server started on http://localhost:3000');
 });
