@@ -5,16 +5,15 @@ const server = http.createServer(app);
 const { Server } = require('socket.io');
 const io = new Server(server);
 const path = require('path');
-const authMiddleware = require('../middlewares/auth');
+const authMiddleware = require('./middlewares/auth');
 require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
-const userRoutes = require('./routes/user');
 
 app.use(express.static(path.join(__dirname, 'donbid-main')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/api', userRoutes);
+
 
 // เส้นทางอัปโหลดไฟล์รูป
 // app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

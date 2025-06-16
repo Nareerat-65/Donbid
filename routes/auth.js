@@ -91,12 +91,31 @@ router.post('/login', async (req, res) => {
 });
 
 // CHANGE ROLE TO SELLER
-const authMiddleware = require('../middlewares/auth'); // ✅ เพิ่มบรรทัดนี้
+const authMiddleware = require('../middlewares/auth');
 
 router.post('/user/upgrade-role', authMiddleware, async (req, res) => {
-  const userId = req.user.id;
-  await db.query("UPDATE users SET role = 'seller' WHERE id = ?", [userId]);
-  res.json({ message: 'อัปเกรดเป็นผู้ขายแล้ว' });
+  try {
+    const userId = req.user.id;
+
+    // อัปเดต role ในฐานข้อมูล
+    await db.query("UPDATE users SET role = 'seller' WHERE id = ?", [userId]);
+
+    // ดึงข้อมูลผู้ใช้ที่อัปเดตมาใหม่
+    const [updatedUser] = await db.query("SELECT * FROM users WHERE id = ?", [userId]);
+
+    const token = jwt.sign({
+      id: updatedUser[0].id,
+      username: updatedUser[0].username,
+      email: updatedUser[0].email,
+      role: updatedUser[0].role
+    }, process.env.JWT_SECRET, { expiresIn: '1d' });
+
+    res.json({ message: 'อัปเกรดเป็นผู้ขายแล้ว', token });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'เกิดข้อผิดพลาดในการอัปเกรด' });
+  }
 });
+
 
 module.exports = router;

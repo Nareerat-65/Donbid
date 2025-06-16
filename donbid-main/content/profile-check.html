@@ -153,22 +153,22 @@
 
     document.getElementById('change-role').onclick = async () => {
       const token = localStorage.getItem('token');
-      const res = await fetch('/api/user/upgrade-role', {
+      const res = await fetch('/api/auth/user/upgrade-role', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': 'Bearer ' + token
         }
       });
 
       const result = await res.json();
-      if (res.ok) {
-        alert(result.message || 'อัปเกรดสำเร็จ');
-        window.location.reload(); // โหลดใหม่เพื่อแสดง role ใหม่
+      if (res.ok && result.token) {
+        localStorage.setItem('token', result.token); // 💡 ใช้ token ใหม่
+        alert(result.message);
+        location.reload(); // reload เพื่อแสดง role ใหม่
       } else {
-        alert(result.message || 'ไม่สามารถอัปเกรดได้');
+        alert(result.error || result.message || 'อัปเกรดไม่สำเร็จ');
       }
     };
-
 
   </script>
 </body>
