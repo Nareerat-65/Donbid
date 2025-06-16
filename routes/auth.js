@@ -79,15 +79,24 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'รหัสผ่านไม่ถูกต้อง' });
 
     const token = jwt.sign(
-      { id: user.id, username: user.username, role: user.role },
+      { id: user.id, username: user.username, role: user.role, email: user.email },
       process.env.JWT_SECRET,
-      { expiresIn: '2h' }
+      { expiresIn: '1d' }
     );
 
     res.status(200).json({ message: 'เข้าสู่ระบบสำเร็จ', token });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+// CHANGE ROLE TO SELLER
+const authMiddleware = require('../middlewares/auth'); // ✅ เพิ่มบรรทัดนี้
+
+router.post('/user/upgrade-role', authMiddleware, async (req, res) => {
+  const userId = req.user.id;
+  await db.query("UPDATE users SET role = 'seller' WHERE id = ?", [userId]);
+  res.json({ message: 'อัปเกรดเป็นผู้ขายแล้ว' });
 });
 
 module.exports = router;

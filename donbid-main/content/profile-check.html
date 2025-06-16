@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>โปรไฟล์ผู้ใช้</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background-color: #f4f4f4;
+    }
+
+    .header {
+      background-color: #FAF5E6;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 32px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: #009688;
+    }
+
+    .balance {
+      font-size: 18px;
+      color: #333;
+    }
+
+    .profile-container {
+      max-width: 700px;
+      background: white;
+      margin: -40px auto 40px auto;
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .profile-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: #ccc;
+      margin: auto;
+    }
+
+    .profile-name {
+      margin-top: 12px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 32px;
+    }
+
+    .profile-box {
+      padding: 16px;
+      background: #f0f0f0;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    #logout-btn {
+      margin-top: 32px;
+      padding: 12px 24px;
+      background: #e53935;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #logout-btn:hover {
+      background: #c62828;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <div>
+      <a href="../content/main-and-login.html" class="logo-link">
+        <img src="../pic/Logo.png" alt="โลโก้" class="logo" width="150" height="150">
+      </a>
+    </div>
+    <div class="balance">💰 <span id="balance">1,000,000</span> บาท</div>
+  </div>
+
+  <div class="profile-container">
+    <div class="profile-avatar"></div>
+    <div class="profile-name" id="username">ชื่อผู้ใช้</div>
+    <div class="profile-grid">
+      <div class="profile-box">ID: <span id="userId">-</span></div>
+      <div class="profile-box">บทบาท: <span id="role">-</span></div>
+      <div class="profile-box">Email: <span id="email">-</span></div>
+      <div class="profile-box">สถานะ: <span id="status">เปิดใช้งาน</span></div>
+    </div>
+    <button id="logout-btn">ออกจากระบบ</button>
+    <button id="change-role">สมัครเป็นผู้ขาย</button>
+  </div>
+
+  <script>
+    function parseJwt(token) {
+      try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    window.onload = () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('กรุณาเข้าสู่ระบบก่อน');
+        window.location.href = '/login/login.html';
+        return;
+      }
+
+      const payload = parseJwt(token);
+      if (!payload) {
+        alert('Token ไม่ถูกต้อง');
+        localStorage.removeItem('token');
+        window.location.href = '/login/login.html';
+        return;
+      }
+
+      document.getElementById('username').textContent = payload.username || '-';
+      document.getElementById('userId').textContent = payload.id || '-';
+      document.getElementById('role').textContent = payload.role || '-';
+      document.getElementById('email').textContent = payload.email || '-';
+    };
+
+    document.getElementById('logout-btn').onclick = () => {
+      localStorage.removeItem('token');
+      window.location.href = '/login/login.html';
+    };
+
+    document.getElementById('change-role').onclick = async () => {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/user/upgrade-role', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const result = await res.json();
+      if (res.ok) {
+        alert(result.message || 'อัปเกรดสำเร็จ');
+        window.location.reload(); // โหลดใหม่เพื่อแสดง role ใหม่
+      } else {
+        alert(result.message || 'ไม่สามารถอัปเกรดได้');
+      }
+    };
+
+
+  </script>
+</body>
+
+</html>
