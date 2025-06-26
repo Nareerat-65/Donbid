@@ -25,6 +25,13 @@ header {
   align-items: center;
 }
 
+.buy-btn.disabled {
+  pointer-events: none;
+  background-color: gray;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .navbar .logo {
   height: 150px;
   width: 150px;

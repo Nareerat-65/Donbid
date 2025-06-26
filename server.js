@@ -8,18 +8,19 @@ const path = require('path');
 const authMiddleware = require('./middlewares/auth');
 require('dotenv').config();
 
-const authRoutes = require('./routes/auth');
-
-app.use(express.static(path.join(__dirname, 'donbid-main')));
+// ✅ Middleware ก่อน static
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// ✅ Routes
+const authRoutes = require('./routes/auth');
+const productRouter = require('./routes/products');
 
-// เส้นทางอัปโหลดไฟล์รูป
-// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-// Auth API
 app.use('/api/auth', authRoutes);
+app.use('/api/products', productRouter);
+
+// ✅ static ควรอยู่ท้ายสุด (หลัง API)
+app.use(express.static(path.join(__dirname, 'donbid-main')));
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'donbid-main', 'content', 'main.html'));

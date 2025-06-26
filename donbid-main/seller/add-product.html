@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>เพิ่มสินค้า</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 30px;
+      background-color: #f8f8f8;
+    }
+
+    h2 {
+      color: #333;
+    }
+
+    form {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 500px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>เพิ่มสินค้าเพื่อประมูล</h2>
+
+  <form id="addProductForm">
+    <label>ชื่อสินค้า:
+      <input type="text" name="name" required>
+    </label>
+
+    <label>รายละเอียดสินค้า:
+      <textarea name="description" required></textarea>
+    </label>
+
+    <label>ราคาเริ่มต้น:
+      <input type="number" name="start_price" step="0.01" required>
+    </label>
+
+    <label>เวลาที่เริ่มประมูล:
+      <input type="datetime-local" name="start_time" required>
+    </label>
+
+    <label>เวลาที่สิ้นสุดประมูล:
+      <input type="datetime-local" name="end_time" required>
+    </label>
+
+    <button type="submit">เพิ่มสินค้า</button>
+  </form>
+
+  <script>
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      alert('กรุณาเข้าสู่ระบบ');
+      window.location.href = '/login/login.html';
+    }
+
+    document.getElementById('addProductForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData.entries());
+
+      const res = await fetch('/api/products', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        alert('เพิ่มสินค้าสำเร็จ!');
+        window.location.href = '/content/main-and-login.html'; // หรือหน้า seller dashboard
+      } else {
+        alert(result.message || 'เกิดข้อผิดพลาด');
+      }
+    });
+  </script>
+</body>
+</html>
