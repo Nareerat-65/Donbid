@@ -45,4 +45,30 @@ router.get('/', async (req, res) => {
   }
 });
 
+// products.js (หรือไฟล์ router ที่ดูแล endpoint /api/products/:id)
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [rows] = await db.query(`
+      SELECT 
+        p.*, 
+        u.username AS seller_username
+      FROM products p
+      JOIN users u ON p.created_by = u.id
+      WHERE p.id = ?
+    `, [id]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'ไม่พบสินค้า' });
+    }
+
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'เกิดข้อผิดพลาด' });
+  }
+});
+
+
 module.exports = router;
+
