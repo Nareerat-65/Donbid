@@ -16,10 +16,13 @@ app.use(express.urlencoded({ extended: true }));
 const authRoutes = require('./routes/auth');
 const productRouter = require('./routes/products');
 const bidsRoute = require('./routes/bids');
+const coinRoutes = require('./routes/coins');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRouter);
 app.use('/api/bids', bidsRoute);
+app.use('/api/coins', coinRoutes);
+
 
 // ✅ static ควรอยู่ท้ายสุด (หลัง API)
 app.use(express.static(path.join(__dirname, 'donbid-main')));

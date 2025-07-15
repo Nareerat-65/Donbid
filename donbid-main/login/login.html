@@ -67,7 +67,7 @@
             const result = await res.json();
             if (res.ok && result.token) {
                 localStorage.setItem('token', result.token);
-                alert('เข้าสู่ระบบสำเร็จ');
+                <!-- alert('เข้าสู่ระบบสำเร็จ'); -->
                 window.location.href = '/content/main-and-login.html'; // หรือ main-and-login.html
             } else {
                 alert(result.message || 'เข้าสู่ระบบล้มเหลว');

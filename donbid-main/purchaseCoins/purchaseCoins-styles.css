@@ -9,7 +9,18 @@
 }
 
 .navbar {
-    background-color: #FAF5E6;
+  background-color: #FAF5E6;
+  /* padding: 10px 20px;*/
+  display: flex;
+  align-items: center;
+}
+
+.navbar .logo {
+  height: 150px;
+  width: 150px;
+  margin-left: 50px;
+  margin-right: 1300px;
+
 }
 
 h2 {

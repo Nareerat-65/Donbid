@@ -10,8 +10,14 @@
 
 <body>
     <nav name="navbar" class="navbar">
-        <img src="../Logo/Logo.png" alt="โลโก้" class="logo" width="150" height="150">
+        <div>
+            <a href="../content/main-and-login.html" class="logo-link">
+                <img src="../pic/Logo.png" alt="โลโก้" class="logo">
+            </a>
+        </div>
+        <div class="balance">💰 Coin: <span id="coinBalance">0.00</span></div>
     </nav>
+
     <div class="content">
         <h2>เลือกแพ็คเกจเติมคอยน์</h2>
         <!-- Repeat this process for each package you want to add -->
@@ -60,13 +66,55 @@
         </div>
     </div>
     <script>
-    function selectPackage(amount) {
-      // ส่งข้อมูลไปยัง backend หรือหน้า QR/ชำระเงิน
-      alert("คุณเลือกเติมเงิน " + amount + " บาท");
-      // ตัวอย่างการ redirect:
-      // window.location.href = "payment.php?amount=" + amount;
-    }
-  </script>
+        async function selectPackage(amount) {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert("กรุณาเข้าสู่ระบบก่อนเติมเงิน");
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/coins/topup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ amount })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    if (data.token) {
+                        localStorage.setItem('token', data.token); // อัปเดต token ใหม่
+                    }
+        
+                    alert(`เติมเงินสำเร็จ ยอดคงเหลือใหม่: ${Number(data.coin_balance).toFixed(2)} คอยน์`);
+                    document.getElementById('coinBalance').textContent = Number(data.coin_balance).toFixed(2);
+
+                } else {
+                    alert(data.message || 'เกิดข้อผิดพลาด');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('เชื่อมต่อกับเซิร์ฟเวอร์ไม่ได้');
+            }
+        }
+        window.onload = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+
+            const res = await fetch('/api/coins/balance', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            const data = await res.json();
+            document.getElementById('coinBalance').textContent = Number(data.coin_balance).toFixed(2);
+        };
+
+    </script>
+
 </body>
 
 </html>
