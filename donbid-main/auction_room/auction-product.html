@@ -61,8 +61,8 @@
                 <div class="bid-section">
                     <div class="custom-bid">
                         <label>การเสนอราคา</label>
-                        <input type="number" class="bid" placeholder="กรอกราคาที่ต้องการเสนอ" />
-                        <button class="btn-orange">เสนอ</button>
+                        <input type="number" class="bid" id="customBid" placeholder="กรอกราคาที่ต้องการเสนอ" />
+                        <button id="customBidBtn" class="btn-orange">เสนอ</button>
                     </div>
 
                     <div class="quick-bid">
@@ -90,6 +90,7 @@
         <div class="product-details">
             <h1 id="productName">ชื่อสินค้า</h1>
             <p id="productPrice">฿0.00</p>
+            <p id="highestBid">ราคาสูงสุด: กำลังโหลด...</p>
             <p>รายละเอียด : <span id="productDescription">-</span></p>
             <p id="productSeller">ผู้ขาย: กำลังโหลด...</p>
         </div>
@@ -120,6 +121,59 @@
             }
         }
 
+        async function loadHighestBid(productId) {
+            try {
+                const res = await fetch(`/api/bids/highest?product_id=${productId}`);
+                const data = await res.json();
+                document.getElementById("highestBid").textContent = `ราคาสูงสุด: ฿${data.highest}`;
+            } catch (err) {
+                console.error("โหลดราคาสูงสุดล้มเหลว", err);
+            }
+        }
+
+
+        document.getElementById('customBidBtn').addEventListener('click', async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert("กรุณาเข้าสู่ระบบก่อน");
+                return;
+            }
+
+            const bidInput = document.querySelector('.custom-bid input');
+            const bidAmount = parseFloat(bidInput.value);
+            if (isNaN(bidAmount) || bidAmount <= 0) {
+                alert("กรุณาใส่จำนวนเงินที่ถูกต้อง");
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/bids', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        product_id: productId,
+                        bid_price: bidAmount
+                    })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    alert("เสนอราคาสำเร็จ");
+                    await loadHighestBid(productId);
+                    // TODO: โหลดประวัติการเสนอราคาหลังจากเสนอ
+                } else {
+                    alert(data.message || "เกิดข้อผิดพลาดในการเสนอราคา");
+                }
+            } catch (err) {
+                console.error("เกิดข้อผิดพลาดในการเสนอราคา:", err);
+                alert("ระบบขัดข้อง");
+            }
+        });
+
+
         function startCountdown(endTimeStr, element) {
             const interval = setInterval(() => {
                 const now = new Date();
@@ -143,6 +197,8 @@
         }
 
         loadProductDetails();
+        loadHighestBid(productId); // ✅ เพิ่มบรรทัดนี้
+
     </script>
 
 </body>
