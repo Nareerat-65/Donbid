@@ -15,9 +15,10 @@
                 <img src="../pic/Logo.png" alt="โลโก้" class="logo">
             </a>
         </div>
-        <div class="coin-icon">
-            <h1>coin</h1>
-        </div>
+        
+        <div class="balance">💰 Coin: <span id="coinBalance">0.00</span></div>
+        <button onclick="location.href='/purchaseCoins/purchaseCoins.html'">+</button>
+
         <div class="personal-icon">
             <a href="../content/profile-check.html" class="logo-link">
                 <img src="../pic/personal-icon.png" alt="ไอค่อน" class="personal-icon">
@@ -96,7 +97,7 @@
                 productList.innerHTML = '';
 
                 products.forEach(p => {
-                    
+
                     const now = new Date();
                     const end = new Date(p.end_time)
 
@@ -219,6 +220,10 @@
                 if (iconLink) iconLink.setAttribute('title', `คุณ ${payload.username}`);
                 const nameSpan = document.getElementById('usernameDisplay');
                 if (nameSpan) nameSpan.textContent = `คุณ ${payload.username}`;
+                const coinSpan = document.getElementById('coinBalance');
+                if (coinSpan && payload.coin !== undefined) {
+                    coinSpan.textContent = parseFloat(payload.coin).toFixed(2);
+                }
                 if (payload.role === 'seller') {
                     const addBtn = document.getElementById("addProductBtnContainer");
                     if (addBtn) addBtn.style.display = "block";

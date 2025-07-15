@@ -53,6 +53,13 @@ router.post('/register', upload.single('avatar'), async (req, res) => {
       [userId, full_name, gender, birthdate, phone, address, avatar_url]
     );
 
+    // หลังบันทึก user profile แล้ว ให้สร้าง user_wallet ด้วยยอดเริ่มต้น 0.00
+    await db.query(
+      'INSERT INTO user_wallet (user_id, coin_balance) VALUES (?, ?)',
+      [userId, 0.00]
+    );
+
+
     res.status(201).json({ message: 'สมัครสมาชิกสำเร็จ', userId });
   } catch (err) {
     console.error(err);
@@ -78,8 +85,14 @@ router.post('/login', async (req, res) => {
     if (!match)
       return res.status(401).json({ message: 'รหัสผ่านไม่ถูกต้อง' });
 
+    const [walletRows] = await db.query(
+      'SELECT coin_balance FROM user_wallets WHERE user_id = ?',
+      [user.id]
+    );
+    const coinBalance = walletRows.length > 0 ? walletRows[0].coin_balance : 0.00;
+
     const token = jwt.sign(
-      { id: user.id, username: user.username, role: user.role, email: user.email },
+      { id: user.id, username: user.username, role: user.role, email: user.email, coin: coinBalance },
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
     );
