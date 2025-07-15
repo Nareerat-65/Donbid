@@ -163,6 +163,7 @@
                 if (res.ok) {
                     alert("เสนอราคาสำเร็จ");
                     await loadHighestBid(productId);
+                    await updateQuickBidButtons(productId);
                     // TODO: โหลดประวัติการเสนอราคาหลังจากเสนอ
                 } else {
                     alert(data.message || "เกิดข้อผิดพลาดในการเสนอราคา");
@@ -173,6 +174,26 @@
             }
         });
 
+        async function updateQuickBidButtons(productId) {
+            try {
+                const res = await fetch(`/api/bids/highest?product_id=${productId}`);
+                const data = await res.json();
+
+                const currentPrice = data.highest || parseFloat(document.getElementById("productPrice").textContent.replace("฿", ""));
+
+                const quickButtons = document.querySelectorAll('.quick-bid .btn-orange');
+                const percents = [10, 20, 30]; // ปรับเปอร์เซนต์ตรงนี้
+
+                quickButtons.forEach((btn, index) => {
+                    const percent = percents[index];
+                    const bid = Math.ceil(currentPrice * (1 + percent / 100));
+                    btn.textContent = bid;
+                    btn.dataset.bid = bid;
+                });
+            } catch (err) {
+                console.error("อัปเดตปุ่ม Quick Bid ล้มเหลว", err);
+            }
+        }
 
         function startCountdown(endTimeStr, element) {
             const interval = setInterval(() => {
@@ -197,7 +218,17 @@
         }
 
         loadProductDetails();
-        loadHighestBid(productId); // ✅ เพิ่มบรรทัดนี้
+        loadHighestBid(productId);
+        updateQuickBidButtons(productId); // ✅ เพิ่มบรรทัดนี้
+
+        document.querySelectorAll('.quick-bid .btn-orange').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const bid = parseFloat(btn.dataset.bid);
+                document.getElementById('customBid').value = bid; // แสดงในช่อง
+                document.getElementById('customBidBtn').click();  // ส่ง bid เลย
+            });
+        });
+
 
     </script>
 
