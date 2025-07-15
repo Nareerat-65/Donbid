@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="auction-product-style.css">
+    <title>ประมูล</title>
+</head>
+
+<body>
+    <nav name="navbar" class="navbar">
+        <div>
+            <a href="" class="logo-link">
+                <img src="../pic/Logo.png" alt="โลโก้" class="logo">
+            </a>
+        </div>
+        <div class="coin-icon">
+            <h1>coin</h1>
+        </div>
+        <div class="personal-icon">
+            <a href="../content/profile-check.html" class="logo-link">
+                <img src="../pic/personal-icon.png" alt="ไอค่อน" class="personal-icon">
+            </a>
+            <span id="usernameDisplay" style="margin-left: 10px; font-weight: bold;"></span>
+        </div>
+
+        <!-- เพิ่มสินค้าเฉพาะ Seller -->
+        <div id="addProductBtnContainer" style="text-align: right; padding: 10px; display: none;">
+            <button onclick="location.href='/seller/add-product.html'"
+                style="padding: 10px 20px; background-color: #ff9900; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                + เพิ่มสินค้า
+            </button>
+        </div>
+    </nav>
+
+    <div class="auction-container">
+        <div class="auction-content">
+            <!-- รูป/วิดีโอสินค้า -->
+            <div class="media-carousel">
+                <button class="arrow left">❮</button>
+                <div class="media-display">
+                    <img id="productImage" src="" alt="รูปสินค้า" />
+                </div>
+                <button class="arrow right">❯</button>
+                <div class="dots">
+                    <span class="dot active"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+            </div>
+
+            <!-- รายละเอียดสินค้า -->
+            <div class="auction">
+                <div class="AI-box">
+                    <div class="timer">
+                        <p><span id="productTimeRemaining">-- : -- : --</span></p>
+                    </div>
+                </div>
+                <button class="btn-orange full">ประวัติการเสนอราคา</button>
+                <div class="bid-section">
+                    <div class="custom-bid">
+                        <label>การเสนอราคา</label>
+                        <input type="number" class="bid" placeholder="กรอกราคาที่ต้องการเสนอ" />
+                        <button class="btn-orange">เสนอ</button>
+                    </div>
+
+                    <div class="quick-bid">
+                        <span>เสนอราคาทันที</span>
+                        <button class="btn-orange">550</button>
+                        <button class="btn-orange">625</button>
+                        <button class="btn-orange">750</button>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="participant-count">
+            ผู้เข้าร่วม 12 คน
+            <span class="avatars">
+                <img src="https://i.pravatar.cc/24?img=1" />
+                <img src="https://i.pravatar.cc/24?img=2" />
+                <img src="https://i.pravatar.cc/24?img=3" />
+                <img src="https://i.pravatar.cc/24?img=4" />
+                <span class="more">+8</span>
+            </span>
+        </div>
+        <div class="product-details">
+            <h1 id="productName">ชื่อสินค้า</h1>
+            <p id="productPrice">฿0.00</p>
+            <p>รายละเอียด : <span id="productDescription">-</span></p>
+            <p id="productSeller">ผู้ขาย: กำลังโหลด...</p>
+        </div>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const productId = params.get("id");
+
+        async function loadProductDetails() {
+            try {
+                const res = await fetch(`/api/products/${productId}`);
+                const product = await res.json();
+
+                // แสดงข้อมูลสินค้า
+                console.log(product);
+                document.getElementById("productName").textContent = product.name;
+                document.getElementById("productPrice").textContent = `฿${product.start_price}`;
+                document.getElementById("productDescription").textContent = product.description || "-";
+                document.getElementById("productSeller").textContent = `ผู้ขาย: ${product.seller_username}`;
+
+                // เวลาที่เหลือ
+                const timeElem = document.getElementById("productTimeRemaining");
+                startCountdown(product.end_time, timeElem);
+
+            } catch (err) {
+                console.error("โหลดข้อมูลสินค้าไม่สำเร็จ", err);
+            }
+        }
+
+        function startCountdown(endTimeStr, element) {
+            const interval = setInterval(() => {
+                const now = new Date();
+                const end = new Date(endTimeStr);
+                const diff = end - now;
+
+                if (diff <= 0) {
+                    element.textContent = "หมดเวลาแล้ว";
+                    clearInterval(interval);
+                } else {
+                    const hrs = Math.floor(diff / 1000 / 60 / 60);
+                    const mins = Math.floor((diff / 1000 / 60) % 60);
+                    const secs = Math.floor((diff / 1000) % 60);
+                    element.textContent = `${pad(hrs)} : ${pad(mins)} : ${pad(secs)}`;
+                }
+            }, 1000);
+        }
+
+        function pad(n) {
+            return n.toString().padStart(2, '0');
+        }
+
+        loadProductDetails();
+    </script>
+
+</body>
+
+</html>

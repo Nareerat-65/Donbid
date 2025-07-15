@@ -70,6 +70,7 @@ router.post('/register', upload.single('avatar'), async (req, res) => {
 // LOGIN
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
+  console.log('Login attempt:', { email });
 
   try {
     const [users] = await db.query(
@@ -99,6 +100,7 @@ router.post('/login', async (req, res) => {
 
     res.status(200).json({ message: 'เข้าสู่ระบบสำเร็จ', token });
   } catch (err) {
+    console.error('Login error:', err);
     res.status(500).json({ error: err.message });
   }
 });
