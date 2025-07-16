@@ -15,7 +15,7 @@
                 <img src="../pic/Logo.png" alt="โลโก้" class="logo">
             </a>
         </div>
-        
+
         <div class="balance">💰 Coin: <span id="coinBalance">0.00</span></div>
         <button onclick="location.href='/purchaseCoins/purchaseCoins.html'">+</button>
 
@@ -56,35 +56,6 @@
         <a href="product.html" class="all-product">สินค้าทั้งหมด >></a>
     </div>
     <div class="product-list">
-        <div class="product-card">
-            <img src="https://via.placeholder.com/300x150/FF6F61/fff?text=สินค้า+1" alt="สินค้า 1">
-            <div class="product-info">
-                <div class="product-name">สินค้า 1</div>
-                <div class="product-price">฿199</div>
-                <div class="product-time">00:00:00</div>
-                <a href="#" class="buy-btn">เริ่มประมูล</a>
-            </div>
-        </div>
-
-        <div class="product-card">
-            <img src="https://via.placeholder.com/300x150/6B5B95/fff?text=สินค้า+2" alt="สินค้า 2">
-            <div class="product-info">
-                <div class="product-name">สินค้า 2</div>
-                <div class="product-price">฿259</div>
-                <div class="product-time">00:00:00</div>
-                <a href="#" class="buy-btn">เริ่มประมูล</a>
-            </div>
-        </div>
-
-        <div class="product-card">
-            <img src="https://via.placeholder.com/300x150/88B04B/fff?text=สินค้า+3" alt="สินค้า 3">
-            <div class="product-info">
-                <div class="product-name">สินค้า 3</div>
-                <div class="product-price">฿320</div>
-                <div class="product-time">00:00:00</div>
-                <a href="#" class="buy-btn">เริ่มประมูล</a>
-            </div>
-        </div>
     </div>
 
     <script>
@@ -112,7 +83,7 @@
                         <img src="${p.image_url || 'https://via.placeholder.com/300x150'}" alt="${p.name}">
                         <div class="product-info">
                             <div class="product-name">${p.name}</div>
-                            <div class="product-price">฿${p.start_price}</div>
+                            <div class="product-price">฿${Number(p.current_price).toFixed(2)}</div>
                             <div class="product-time">กำลังโหลด...</div>
                             <a href="../auction_room/auction-product.html?id=${p.id}" class="buy-btn ${!isAuctionStarted ? 'disabled' : ''}">
                                 เริ่มประมูล

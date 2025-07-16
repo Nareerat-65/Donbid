@@ -33,9 +33,15 @@ router.post('/', authMiddleware, async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const [rows] = await db.query(`
-      SELECT * FROM products
-      WHERE status = 'upcoming'
-      ORDER BY start_time DESC
+      SELECT 
+        p.*, 
+        COALESCE(
+          (SELECT MAX(b.bid_price) FROM bids b WHERE b.product_id = p.id),
+          p.start_price
+        ) AS current_price
+      FROM products p
+      WHERE p.status = 'upcoming'
+      ORDER BY p.start_time DESC
       LIMIT 10
     `);
     res.json(rows);
@@ -44,6 +50,7 @@ router.get('/', async (req, res) => {
     res.status(500).json({ message: 'เกิดข้อผิดพลาด' });
   }
 });
+
 
 // products.js (หรือไฟล์ router ที่ดูแล endpoint /api/products/:id)
 router.get('/:id', async (req, res) => {
