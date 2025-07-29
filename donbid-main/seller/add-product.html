@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <meta charset="UTF-8">
   <title>เพิ่มสินค้า</title>
@@ -19,7 +20,7 @@
       padding: 20px;
       border-radius: 10px;
       max-width: 500px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
 
     label {
@@ -27,7 +28,8 @@
       margin-top: 15px;
     }
 
-    input, textarea {
+    input,
+    textarea {
       width: 100%;
       padding: 10px;
       margin-top: 5px;
@@ -48,8 +50,16 @@
     button:hover {
       background-color: #218838;
     }
+
+    #preview img {
+      width: 100px;
+      margin: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
   </style>
 </head>
+
 <body>
 
   <h2>เพิ่มสินค้าเพื่อประมูล</h2>
@@ -62,6 +72,10 @@
     <label>รายละเอียดสินค้า:
       <textarea name="description" required></textarea>
     </label>
+
+    <label>รูปภาพสินค้า:</label>
+    <input type="file" id="file-input" name="image" accept="image/*" multiple required>
+    <div id="preview" style="margin-top: 10px;"></div>
 
     <label>ราคาเริ่มต้น:
       <input type="number" name="start_price" step="0.01" required>
@@ -86,6 +100,29 @@
       window.location.href = '/login/login.html';
     }
 
+    document.getElementById('file-input').addEventListener('change', function (event) {
+      const preview = document.getElementById('preview');
+      preview.innerHTML = ''; // ล้าง preview เก่าทั้งหมด
+
+      const files = event.target.files;
+      if (!files) return;
+
+      Array.from(files).forEach(file => {
+        if (!file.type.startsWith('image/')) return; // ตรวจเฉพาะไฟล์ภาพ
+
+        const img = document.createElement('img');
+        img.alt = file.name;
+
+        const reader = new FileReader();
+        reader.onload = e => {
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+
+        preview.appendChild(img);
+      });
+    });
+
     document.getElementById('addProductForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const formData = new FormData(e.target);
@@ -109,6 +146,9 @@
         alert(result.message || 'เกิดข้อผิดพลาด');
       }
     });
+
+
   </script>
 </body>
+
 </html>
