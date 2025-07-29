@@ -57,7 +57,17 @@
                         <p><span id="productTimeRemaining">-- : -- : --</span></p>
                     </div>
                 </div>
-                <button class="btn-orange full">ประวัติการเสนอราคา</button>
+
+                <button id="openHistoryBtn" class="btn-orange full">ประวัติการเสนอราคา</button>
+                <!-- MODAL -->
+                <div id="bidHistoryModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        <h3>ประวัติการเสนอราคา</h3>
+                        <ul id="bidHistoryList" style="list-style: none; padding: 0;"></ul>
+                    </div>
+                </div>
+
                 <div class="bid-section">
                     <div class="custom-bid">
                         <label>การเสนอราคา</label>
@@ -67,9 +77,9 @@
 
                     <div class="quick-bid">
                         <span>เสนอราคาทันที</span>
-                        <button class="btn-orange">550</button>
-                        <button class="btn-orange">625</button>
-                        <button class="btn-orange">750</button>
+                        <button class="btn-orange">-</button>
+                        <button class="btn-orange">-</button>
+                        <button class="btn-orange">-</button>
                     </div>
                 </div>
 
@@ -89,8 +99,8 @@
         </div>
         <div class="product-details">
             <h1 id="productName">ชื่อสินค้า</h1>
-            <p id="productPrice">฿0.00</p>
-            <p id="highestBid">ราคาสูงสุด: กำลังโหลด...</p>
+            <p id="highestBid">฿0.00</p>
+            <p id="productPrice">ราคาเริ่มต้น: กำลังโหลด...</p>
             <p>รายละเอียด : <span id="productDescription">-</span></p>
             <p id="productSeller">ผู้ขาย: กำลังโหลด...</p>
         </div>
@@ -108,7 +118,7 @@
                 // แสดงข้อมูลสินค้า
                 console.log(product);
                 document.getElementById("productName").textContent = product.name;
-                document.getElementById("productPrice").textContent = `฿${product.start_price}`;
+                document.getElementById("productPrice").textContent = `ราคาเริ่มต้น : ${product.start_price}`;
                 document.getElementById("productDescription").textContent = product.description || "-";
                 document.getElementById("productSeller").textContent = `ผู้ขาย: ${product.seller_username}`;
 
@@ -125,7 +135,7 @@
             try {
                 const res = await fetch(`/api/bids/highest?product_id=${productId}`);
                 const data = await res.json();
-                document.getElementById("highestBid").textContent = `ราคาสูงสุด: ฿${data.highest}`;
+                document.getElementById("highestBid").textContent = `฿${data.highest}`;
             } catch (err) {
                 console.error("โหลดราคาสูงสุดล้มเหลว", err);
             }
@@ -164,6 +174,7 @@
                     alert("เสนอราคาสำเร็จ");
                     await loadHighestBid(productId);
                     await updateQuickBidButtons(productId);
+                    await loadBidHistory(productId);
                     // TODO: โหลดประวัติการเสนอราคาหลังจากเสนอ
                 } else {
                     alert(data.message || "เกิดข้อผิดพลาดในการเสนอราคา");
@@ -195,6 +206,45 @@
             }
         }
 
+        // เปิด-ปิด modal
+        document.getElementById("openHistoryBtn").addEventListener("click", () => {
+            document.getElementById("bidHistoryModal").style.display = "block";
+            loadBidHistory(productId); // โหลดข้อมูลทุกครั้งที่เปิด
+        });
+        document.querySelector(".modal .close").addEventListener("click", () => {
+            document.getElementById("bidHistoryModal").style.display = "none";
+        });
+        window.addEventListener("click", (e) => {
+            const modal = document.getElementById("bidHistoryModal");
+            if (e.target === modal) modal.style.display = "none";
+        });
+
+
+        async function loadBidHistory(productId) {
+            try {
+                const res = await fetch(`/api/bids/history?product_id=${productId}`);
+                const data = await res.json();
+
+                const list = document.getElementById('bidHistoryList');
+                list.innerHTML = ""; // เคลียร์รายการก่อน
+
+                data.forEach(bid => {
+                    const li = document.createElement('li');
+                    li.style.marginBottom = '5px';
+                    li.textContent = `${bid.username} เสนอราคา ฿${bid.bid_price} เวลา ${formatDate(bid.created_at)}`;
+                    list.appendChild(li);
+                });
+            } catch (err) {
+                console.error("โหลดประวัติการเสนอราคาไม่สำเร็จ", err);
+            }
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+        }
+
+
         function startCountdown(endTimeStr, element) {
             const interval = setInterval(() => {
                 const now = new Date();
@@ -219,7 +269,8 @@
 
         loadProductDetails();
         loadHighestBid(productId);
-        updateQuickBidButtons(productId); // ✅ เพิ่มบรรทัดนี้
+        updateQuickBidButtons(productId);
+        loadBidHistory(productId);// ✅ เพิ่มบรรทัดนี้
 
         document.querySelectorAll('.quick-bid .btn-orange').forEach(btn => {
             btn.addEventListener('click', () => {

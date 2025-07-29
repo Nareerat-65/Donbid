@@ -55,7 +55,7 @@ router.post('/register', upload.single('avatar'), async (req, res) => {
 
     // หลังบันทึก user profile แล้ว ให้สร้าง user_wallet ด้วยยอดเริ่มต้น 0.00
     await db.query(
-      'INSERT INTO user_wallet (user_id, coin_balance) VALUES (?, ?)',
+      'INSERT INTO user_wallets (user_id, coin_balance) VALUES (?, ?)',
       [userId, 0.00]
     );
 

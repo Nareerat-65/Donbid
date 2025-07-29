@@ -53,4 +53,24 @@ router.post('/', auth, async (req, res) => {
   }
 });
 
+router.get('/history', async (req, res) => {
+  const { product_id } = req.query;
+
+  try {
+    const [rows] = await db.query(`
+      SELECT b.bid_price, b.created_at, u.username
+      FROM bids b
+      JOIN users u ON b.user_id = u.id
+      WHERE b.product_id = ?
+      ORDER BY b.created_at DESC
+    `, [product_id]);
+
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'เกิดข้อผิดพลาดในการดึงประวัติการเสนอราคา' });
+  }
+});
+
+
 module.exports = router;
