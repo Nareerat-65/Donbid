@@ -26,46 +26,84 @@
                 <h3>Starter</h3>
                 <div class="coins">20 คอยน์</div>
                 <div class="price">20 บาท</div>
-                <button class="btn" onclick="selectPackage(20)">เติมเงิน</button>
+                <button class="btn" onclick="openPopup('Starter', 20)">เติมเงิน</button>
             </div>
             <div class="package">
                 <h3>Basic</h3>
                 <div class="coins">55 คอยน์</div>
                 <div class="price">50 บาท</div>
                 <div class="bonus">โบนัส +5</div>
-                <button class="btn" onclick="selectPackage(50)">เติมเงิน</button>
+                <button class="btn" onclick="openPopup('Basic', 50)">เติมเงิน</button>
             </div>
             <div class="package">
                 <h3>Standard</h3>
                 <div class="coins">115 คอยน์</div>
                 <div class="price">100 บาท</div>
                 <div class="bonus">โบนัส +15</div>
-                <button class="btn" onclick="selectPackage(100)">เติมเงิน</button>
+                <button class="btn" onclick="openPopup('Standard', 100)">เติมเงิน</button>
             </div>
             <div class="package">
                 <h3>Pro</h3>
                 <div class="coins">240 คอยน์</div>
                 <div class="price">200 บาท</div>
                 <div class="bonus">โบนัส +40</div>
-                <button class="btn" onclick="selectPackage(200)">เติมเงิน</button>
+                <button class="btn" onclick="openPopup('Pro', 200)">เติมเงิน</button>
             </div>
             <div class="package">
                 <h3>Premium</h3>
                 <div class="coins">625 คอยน์</div>
                 <div class="price">500 บาท</div>
                 <div class="bonus">โบนัส +125</div>
-                <button class="btn" onclick="selectPackage(500)">เติมเงิน</button>
+                <button class="btn" onclick="openPopup('Premium', 500)">เติมเงิน</button>
             </div>
             <div class="package">
                 <h3>Ultimate</h3>
                 <div class="coins">1,300 คอยน์</div>
                 <div class="price">1,000 บาท</div>
                 <div class="bonus">โบนัส +300</div>
-                <button class="btn" onclick="selectPackage(1000)">เติมเงิน</button>
+                <button class="btn" onclick="openPopup('Ultimate', 1000)">เติมเงิน</button>
             </div>
         </div>
     </div>
+    <div class="overlay" id="paymentPopup">
+        <div class="popup">
+            <div class="close-btn" onclick="closePopup()">×</div>
+            <h2>ชำระเงิน</h2>
+            <p>แพ็คเกจ: <span id="popupPackage"></span></p>
+            <p>จำนวนเงิน: <span id="popupAmount"></span> บาท</p>
+
+            <div class="payment-methods">
+                <button>บัตรเครดิต</button>
+                <button>TrueMoney</button>
+                <button>PromptPay</button>
+                <button>PayPal</button>
+            </div>
+
+            <div class="payment-summary">
+                <p>รวมทั้งสิ้น: <b id="popupTotal"></b> บาท</p>
+                <p>เมื่อกด “ทำการชำระเงิน” ระบบจะทำการเติมคอยน์เข้าสู่บัญชีของคุณ</p>
+            </div>
+
+            <button class="confirm-btn" onclick="confirmPayment()">ทำการชำระเงิน</button>
+        </div>
+    </div>
     <script>
+        // 🆕 ตัวแปรสำหรับเก็บยอดที่เลือก
+        let selectedAmount = 0;
+
+        // 🆕 เปิด popup พร้อมแสดงข้อมูล
+        function openPopup(packageName, amount) {
+            selectedAmount = amount;
+            document.getElementById('popupPackage').textContent = packageName;
+            document.getElementById('popupAmount').textContent = amount.toFixed(2);
+            document.getElementById('popupTotal').textContent = amount.toFixed(2);
+            document.getElementById('paymentPopup').style.display = 'flex';
+        }
+
+        // 🆕 ปิด popup
+        function closePopup() {
+            document.getElementById('paymentPopup').style.display = 'none';
+        }
         async function selectPackage(amount) {
             const token = localStorage.getItem('token');
             if (!token) {
@@ -89,7 +127,7 @@
                     if (data.token) {
                         localStorage.setItem('token', data.token); // อัปเดต token ใหม่
                     }
-        
+
                     alert(`เติมเงินสำเร็จ ยอดคงเหลือใหม่: ${Number(data.coin_balance).toFixed(2)} คอยน์`);
                     document.getElementById('coinBalance').textContent = Number(data.coin_balance).toFixed(2);
 
@@ -101,6 +139,43 @@
                 alert('เชื่อมต่อกับเซิร์ฟเวอร์ไม่ได้');
             }
         }
+
+        async function confirmPayment() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert("กรุณาเข้าสู่ระบบก่อนเติมเงิน");
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/coins/topup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ amount: selectedAmount })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    if (data.token) {
+                        localStorage.setItem('token', data.token);
+                    }
+
+                    alert(`เติมเงินสำเร็จ ยอดคงเหลือใหม่: ${Number(data.coin_balance).toFixed(2)} คอยน์`);
+                    document.getElementById('coinBalance').textContent = Number(data.coin_balance).toFixed(2);
+                    closePopup(); // 🆕 ปิด popup หลังเติมสำเร็จ
+                } else {
+                    alert(data.message || 'เกิดข้อผิดพลาด');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('เชื่อมต่อกับเซิร์ฟเวอร์ไม่ได้');
+            }
+        }
+
         window.onload = async () => {
             const token = localStorage.getItem('token');
             if (!token) return;
