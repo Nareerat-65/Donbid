@@ -58,6 +58,19 @@
                     <div class="timer">
                         <p><span id="productTimeRemaining">-- : -- : --</span></p>
                     </div>
+
+                    <!-- ✅ ช่องแสดงข้อความ AI -->
+                    <div id="ai-message"
+                        style="max-width:500px;margin:30px auto;background:#fce6c5;border-radius:10px;padding:20px;min-height:60px;font-size:1.1em;">
+                        <!-- ข้อความ AI จะถูกแสดงที่นี่ -->
+                    </div>
+                    <!-- ✅ ปุ่มให้ AI แนะนำสินค้า -->
+                    <div style="text-align:center;margin-top:10px;">
+                        <button id="ai-suggest-btn"
+                            style="background:#3498db;color:#fff;border:none;border-radius:6px;padding:10px 20px;cursor:pointer;">
+                            AI แนะนำสินค้า
+                        </button>
+                    </div>
                 </div>
 
                 <button id="openHistoryBtn" class="btn-orange full">ประวัติการเสนอราคา</button>
@@ -144,6 +157,58 @@
         }
 
 
+        // ✅ ฟังก์ชันแสดงข้อความ AI
+        function showAIMessage(msg) {
+            document.getElementById('ai-message').textContent = msg;
+        }
+
+        // ตัวอย่าง: แสดงข้อความ AI เมื่อเปิดหน้า
+        window.addEventListener('DOMContentLoaded', () => {
+            showAIMessage('ยินดีต้อนรับสู่การประมูล! อย่าพลาดโอกาสดี ๆ ในการประมูลสินค้าเด็ด ๆ วันนี้');
+        });
+
+        // ✅ ปุ่ม AI แนะนำสินค้า
+        document.getElementById('ai-suggest-btn').addEventListener('click', async function () {
+            // ดึงข้อมูลสินค้า
+            try {
+                const res = await fetch(`/api/products/${productId}`);
+                const product = await res.json();
+                // ปรับ prompt ให้เหมือนคนพูดและเน้นเฉพาะสินค้า
+                const prompt = `แนะนำสินค้าให้ดูน่าสนใจในประโยคที่ไม่ยาวมาก แบบผู้ดำเนินการประมูล ไม่ต้องพูดถึง AI หรือระบบ ไม่ต้องมีสัญลักษณ์พิเศษ โดยนำเสนอชื่อสินค้า, รายละเอียดสินค้า และ ราคาเริ่มต้น:\n` +
+                    `ชื่อสินค้า: ${product.name}\n` +
+                    `รายละเอียด: ${product.description}\n` +
+                    `ราคาเริ่มต้น: ${product.start_price} บาท`;
+
+                showAIMessage('AI กำลังประมวลผล...');
+                const aiRes = await fetch('/api/ai/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: prompt })
+                });
+                const aiData = await aiRes.json();
+                showAIMessage(aiData.reply || 'AI ไม่สามารถแนะนำสินค้าได้ในขณะนี้');
+            } catch (err) {
+                showAIMessage('เกิดข้อผิดพลาดในการขอคำแนะนำจาก AI');
+            }
+        });
+
+        // ✅ เมื่อมีการเสนอราคาใหม่ ให้ AI ประกาศชื่อผู้เสนอและจำนวนเงิน
+        async function announceBidAI(username, amount) {
+            const prompt = `แจ้งให้ทุกคนทราบแบบไม่ยาวมาก ${username} เพิ่งเสนอราคา ${amount} บาท สำหรับสินค้านี้ แบบผู้ดำเนินการประมูลพร้อมกระตุ้นให้ผู้เข้าร่วมประมูลคนอื่น ๆ รู้สึกตื่นเต้นและอยากเข้าร่วมการประมูลนี้ ไม่ต้องมีสัญลักษณ์พิเศษ`;
+            showAIMessage('AI กำลังประมวลผล...');
+            try {
+                const aiRes = await fetch('/api/ai/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: prompt })
+                });
+                const aiData = await aiRes.json();
+                showAIMessage(aiData.reply || `${username} เพิ่งเสนอราคา ${amount} บาท`);
+            } catch (err) {
+                showAIMessage(`${username} เพิ่งเสนอราคา ${amount} บาท`);
+            }
+        }
+
         document.getElementById('customBidBtn').addEventListener('click', async () => {
             const token = localStorage.getItem('token');
             if (!token) {
@@ -177,7 +242,11 @@
                     await loadHighestBid(productId);
                     await updateQuickBidButtons(productId);
                     await loadBidHistory(productId);
-                    // TODO: โหลดประวัติการเสนอราคาหลังจากเสนอ
+                    // ✅ ประกาศผ่าน AI
+                    const payload = parseJwt(token);
+                    if (payload && payload.username) {
+                        announceBidAI(payload.username, bidAmount);
+                    }
                 } else {
                     alert(data.message || "เกิดข้อผิดพลาดในการเสนอราคา");
                 }
@@ -311,6 +380,20 @@
             }
 
             loadProducts();
+        }
+
+        // ✅ เพิ่มฟังก์ชัน parseJwt
+        function parseJwt(token) {
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+                return JSON.parse(jsonPayload);
+            } catch (e) {
+                return null;
+            }
         }
     </script>
 
