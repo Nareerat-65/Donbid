@@ -4,31 +4,54 @@ const db = require('../utils/db');
 const authMiddleware = require('../middlewares/auth'); // ต้องมี middleware ตรวจ token
 
 // เพิ่มสินค้าใหม่
-router.post('/', authMiddleware, async (req, res) => {
-  const user = req.user;
+const upload = require('../middlewares/upload');
 
-  if (user.role !== 'seller') {
-    return res.status(403).json({ message: 'เฉพาะผู้ขายเท่านั้นที่เพิ่มสินค้าได้' });
+router.post(
+  '/',
+  authMiddleware,
+  upload.array('images', 5), // <-- รองรับหลายไฟล์ชื่อ images[]
+  async (req, res) => {
+    const user = req.user;
+    const { name, description, start_price, start_time, end_time } = req.body;
+
+    if (user.role !== 'seller') return res.status(403).json({ message: 'เฉพาะผู้ขายเท่านั้นที่เพิ่มสินค้าได้' });
+
+    if (!name || !description || !start_price || !start_time || !end_time)
+      return res.status(400).json({ message: 'กรุณากรอกข้อมูลให้ครบถ้วน' });
+
+    const conn = await db.getConnection();
+
+    try {
+      await conn.beginTransaction();
+
+      const [result] = await conn.query(
+        `INSERT INTO products (name, description, start_price, start_time, end_time, status, created_by)
+         VALUES (?, ?, ?, ?, ?, 'upcoming', ?)`,
+        [name, description, start_price, start_time, end_time, user.id]
+      );
+
+      const productId = result.insertId;
+
+      if (req.files && req.files.length > 0) {
+        const values = req.files.map(file => [productId, file.filename]);
+        await conn.query(
+          `INSERT INTO product_images (product_id, image_path) VALUES ?`,
+          [values]
+        );
+      }
+
+      await conn.commit();
+      res.json({ message: 'เพิ่มสินค้าสำเร็จ' });
+    } catch (err) {
+      await conn.rollback();
+      console.error(err);
+      res.status(500).json({ message: 'เกิดข้อผิดพลาดในการเพิ่มสินค้า' });
+    } finally {
+      conn.release();
+    }
   }
+);
 
-  const { name, description, start_price, start_time, end_time } = req.body;
-
-  if (!name || !description || !start_price || !start_time || !end_time) {
-    return res.status(400).json({ message: 'กรุณากรอกข้อมูลให้ครบถ้วน' });
-  }
-
-  try {
-    await db.query(`
-      INSERT INTO products (name, description, start_price, start_time, end_time, status, created_by)
-      VALUES (?, ?, ?, ?, ?, 'upcoming', ?)
-    `, [name, description, start_price, start_time, end_time, user.id]);
-
-    res.json({ message: 'เพิ่มสินค้าสำเร็จ' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'เกิดข้อผิดพลาดในระบบ' });
-  }
-});
 
 router.get('/', async (req, res) => {
   try {
@@ -44,7 +67,19 @@ router.get('/', async (req, res) => {
       ORDER BY p.start_time DESC
       LIMIT 10
     `);
-    res.json(rows);
+
+    // 🔁 ดึงรูปภาพของแต่ละสินค้า
+    const productsWithImages = await Promise.all(rows.map(async (product) => {
+      const [images] = await db.query(
+        `SELECT image_path FROM product_images WHERE product_id = ?`,
+        [product.id]
+      );
+      return {
+        ...product,
+        images: images.map(img => img.image_path)
+      };
+    }));
+    res.json(productsWithImages);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'เกิดข้อผิดพลาด' });

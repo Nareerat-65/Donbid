@@ -64,7 +64,7 @@
 
   <h2>เพิ่มสินค้าเพื่อประมูล</h2>
 
-  <form id="addProductForm">
+  <form id="addProductForm" enctype="multipart/form-data" method="POST">
     <label>ชื่อสินค้า:
       <input type="text" name="name" required>
     </label>
@@ -74,7 +74,7 @@
     </label>
 
     <label>รูปภาพสินค้า:</label>
-    <input type="file" id="file-input" name="image" accept="image/*" multiple required>
+    <input type="file" id="file-input" name="images" accept="image/*" multiple required>
     <div id="preview" style="margin-top: 10px;"></div>
 
     <label>ราคาเริ่มต้น:
@@ -125,16 +125,16 @@
 
     document.getElementById('addProductForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const formData = new FormData(e.target);
-      const data = Object.fromEntries(formData.entries());
+      const form = e.target;
+      const formData = new FormData(form);
 
       const res = await fetch('/api/products', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+
         },
-        body: JSON.stringify(data)
+        body: formData
       });
 
       const result = await res.json();
