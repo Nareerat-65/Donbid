@@ -8,7 +8,7 @@
 body {
   margin: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(to right, #FFEECE, #FFE4B2);
+  background: linear-gradient(to right, #ffffff, #ffffff);
 }
 
 .navbar {
@@ -25,7 +25,7 @@ body {
 
 .from-register {
   max-width: 600px;
-  background: #fff;
+  background: #ffebc7;
   margin: 40px auto;
   padding: 30px 40px;
   border-radius: 12px;
@@ -34,12 +34,12 @@ body {
 
 h1 {
   text-align: center;
-  color: #FFA500;
+  color: #272626;
 }
 
 h2 {
   margin-top: 30px;
-  color: #FF8C00;
+  color: #232323;
   border-bottom: 2px solid #FFEECE;
   padding-bottom: 5px;
 }

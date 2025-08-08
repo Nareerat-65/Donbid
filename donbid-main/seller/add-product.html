@@ -4,65 +4,34 @@
 <head>
   <meta charset="UTF-8">
   <title>เพิ่มสินค้า</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      padding: 30px;
-      background-color: #f8f8f8;
-    }
-
-    h2 {
-      color: #333;
-    }
-
-    form {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 500px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-
-    label {
-      display: block;
-      margin-top: 15px;
-    }
-
-    input,
-    textarea {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-
-    button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      background-color: #28a745;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #218838;
-    }
-
-    #preview img {
-      width: 100px;
-      margin: 5px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-  </style>
+  <link rel="stylesheet" href="add-product-style.css">
 </head>
 
 <body>
+  <nav name="navbar" class="navbar">
+        <div>
+            <a href="" class="logo-link">
+                <img src="../pic/Logo.png" alt="โลโก้" class="logo">
+            </a>
+        </div>
+        <div class="coin-icon">
+            <h1>coin</h1>
+        </div>
+        <div class="personal-icon">
+            <a href="../content/profile-check.html" class="logo-link">
+                <img src="../pic/personal-icon.png" alt="ไอค่อน" class="personal-icon">
+            </a>
+            <span id="usernameDisplay" style="margin-left: 10px; font-weight: bold;"></span>
+        </div>
 
-  <h2>เพิ่มสินค้าเพื่อประมูล</h2>
+        <!-- เพิ่มสินค้าเฉพาะ Seller -->
+        <div id="addProductBtnContainer" style="text-align: right; padding: 10px; display: none;">
+            <button onclick="location.href='/seller/add-product.html'"
+                style="padding: 10px 20px; background-color: #ff9900; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                + เพิ่มสินค้า
+            </button>
+        </div>
+    </nav>
 
   <form id="addProductForm" enctype="multipart/form-data" method="POST">
     <label>ชื่อสินค้า:
