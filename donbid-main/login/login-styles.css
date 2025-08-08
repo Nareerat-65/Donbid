@@ -4,13 +4,35 @@
     box-sizing: border-box;
 }
 
+@media (max-width: 900px) {
+    .main {
+        width: 400px;
+        height: auto;
+        padding: 30px 10px 10px;
+    }
+    .input-container input {
+        width: 220px;
+        font-size: 14px;
+    }
+}
+
 @media screen and (max-width: 600px) {
     .main {
         padding: 40px 15px;
         height: auto;
+        width: 95vw;
+    }
+    .input-container input {
+        width: 120px;
+        font-size: 12px;
     }
     .human-icon {
         top: -50px;
+        padding: 5px;
+    }
+    .navbar .logo {
+        height: 40px;
+        width: 40px;
     }
 }
 
