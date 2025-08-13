@@ -121,7 +121,21 @@
         </div>
     </div>
 
+    <script src="/socket.io/socket.io.js"></script>
     <script>
+    // ====== Socket.IO Real-time Auction ======
+    const socket = io();
+
+    // เมื่อมี bid ใหม่จาก server ให้ update UI
+    socket.on('new bid', function(data) {
+        if (data.productId === productId) {
+            document.getElementById("highestBid").textContent = `฿${data.bidAmount}`;
+            loadBidHistory(productId);
+            updateQuickBidButtons(productId);
+            // ประกาศผ่าน AI (ถ้ามี username)
+            if (data.username) announceBidAI(data.username, data.bidAmount);
+        }
+    });
         const params = new URLSearchParams(window.location.search);
         const productId = params.get("id");
 
@@ -239,14 +253,13 @@
                 const data = await res.json();
                 if (res.ok) {
                     alert("เสนอราคาสำเร็จ");
-                    await loadHighestBid(productId);
-                    await updateQuickBidButtons(productId);
-                    await loadBidHistory(productId);
-                    // ✅ ประกาศผ่าน AI
+                    // ส่ง event ไป server เพื่อ broadcast ให้ทุก client
                     const payload = parseJwt(token);
-                    if (payload && payload.username) {
-                        announceBidAI(payload.username, bidAmount);
-                    }
+                    socket.emit('bid placed', {
+                        productId,
+                        bidAmount,
+                        username: payload && payload.username ? payload.username : undefined
+                    });
                 } else {
                     alert(data.message || "เกิดข้อผิดพลาดในการเสนอราคา");
                 }

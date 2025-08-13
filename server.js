@@ -68,6 +68,12 @@ app.post('/api/ai/chat', async (req, res) => {
 
 io.on('connection', socket => {
   console.log('🔗 Client connected');
+
+  // รับ event ประมูลจาก client แล้ว broadcast ให้ทุก client
+  socket.on('bid placed', (data) => {
+    // data: { productId, bidAmount, username }
+    io.emit('new bid', data);
+  });
 });
 
 server.listen(3000, () => {
