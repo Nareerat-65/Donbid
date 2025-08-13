@@ -121,8 +121,34 @@ input[type="radio"] {
   background-color: #e69500;
 }
 
+@media (max-width: 900px) {
+  .from-register {
+    max-width: 350px;
+    padding: 15px 10px;
+  }
+  .navbar .logo {
+    height: 80px;
+    width: 80px;
+  }
+  input[type="text"],
+  input[type="password"],
+  select {
+    font-size: 14px;
+  }
+}
+
 @media (max-width: 600px) {
   .from-register {
-    padding: 20px;
+    max-width: 95vw;
+    padding: 10px 2vw;
+  }
+  .navbar .logo {
+    height: 40px;
+    width: 40px;
+  }
+  input[type="text"],
+  input[type="password"],
+  select {
+    font-size: 12px;
   }
 }

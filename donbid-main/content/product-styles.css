@@ -187,3 +187,68 @@ header {
       margin-top: 30px;
       margin-bottom: 30px;
     }
+
+    @media (max-width: 1200px) {
+  .navbar .logo {
+    margin-right: 200px;
+  }
+  .product-list {
+    max-width: 1000px;
+  }
+}
+
+@media (max-width: 900px) {
+  .navbar .logo {
+    height: 100px;
+    width: 100px;
+    margin-left: 10px;
+    margin-right: 20px;
+  }
+  .product-list {
+    max-width: 700px;
+    height: 250px;
+  }
+  .product-card {
+    width: 180px;
+    height: 220px;
+  }
+  .searchInput {
+    width: 300px;
+  }
+}
+
+@media (max-width: 600px) {
+  header {
+    flex-direction: column;
+    padding: 0.5rem 1rem;
+  }
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .navbar .logo {
+    height: 60px;
+    width: 60px;
+    margin: 0 0 10px 0;
+  }
+  .product-list {
+    flex-direction: column;
+    max-width: 95vw;
+    height: auto;
+    margin-top: 10px;
+    gap: 10px;
+  }
+  .product-card {
+    width: 120px;
+    height: 150px;
+    font-size: 12px;
+  }
+  .searchInput {
+    width: 120px;
+    font-size: 12px;
+  }
+  .searchButton, .fillterhButton {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+}

@@ -28,6 +28,8 @@ app.use('/api/coins', coinRoutes);
 // ✅ static ควรอยู่ท้ายสุด (หลัง API)
 app.use(express.static(path.join(__dirname, 'donbid-main')));
 
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'donbid-main', 'content', 'main.html'));
 });

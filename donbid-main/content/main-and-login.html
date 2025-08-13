@@ -77,10 +77,13 @@
                     const card = document.createElement('div');
                     const start = new Date(p.start_time);
                     const isAuctionStarted = now >= start;
+                    const imageGallery = p.images?.length
+                        ? p.images.map(img => `<img src="/uploads/${img}" alt="${p.name}" class="product-image">`).join('')
+                        : `<img src="https://via.placeholder.com/300x150" alt="${p.name}" class="product-image">`;
 
                     card.className = 'product-card';
                     card.innerHTML = `
-                        <img src="${p.image_url || 'https://via.placeholder.com/300x150'}" alt="${p.name}">
+                        <div class="images">${imageGallery}</div>
                         <div class="product-info">
                             <div class="product-name">${p.name}</div>
                             <div class="product-price">฿${Number(p.current_price).toFixed(2)}</div>
