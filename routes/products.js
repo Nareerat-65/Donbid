@@ -112,5 +112,42 @@ router.get('/:id', async (req, res) => {
 });
 
 
+
+// ปิดการประมูลและบันทึกผลลง auction_results
+router.post('/close/:id', authMiddleware, async (req, res) => {
+  const productId = req.params.id;
+  try {
+    // ตรวจสอบว่าสินค้ามีอยู่และยังไม่ปิด
+    const [products] = await db.query('SELECT * FROM products WHERE id = ? AND status != "closed"', [productId]);
+    if (products.length === 0) {
+      return res.status(404).json({ message: 'ไม่พบสินค้าหรือสินค้าถูกปิดแล้ว' });
+    }
+
+    // หาผู้ชนะการประมูล (bid สูงสุด)
+    const [bids] = await db.query('SELECT user_id, bid_price FROM bids WHERE product_id = ? ORDER BY bid_price DESC, created_at DESC LIMIT 1', [productId]);
+    if (bids.length === 0) {
+      // ไม่มีผู้เสนอราคา
+      await db.query('UPDATE products SET status = "closed" WHERE id = ?', [productId]);
+      return res.json({ message: 'ปิดการประมูลแล้วแต่ไม่มีผู้ชนะ' });
+    }
+    const winnerUserId = bids[0].user_id;
+    const finalPrice = bids[0].bid_price;
+    const closedAt = new Date();
+
+    // เพิ่มข้อมูลลง auction_results
+    await db.query(
+      'INSERT INTO auction_results (product_id, winner_user_id, final_price, closed_at) VALUES (?, ?, ?, ?)',
+      [productId, winnerUserId, finalPrice, closedAt]
+    );
+    // อัปเดตสถานะสินค้า
+    await db.query('UPDATE products SET status = "closed" WHERE id = ?', [productId]);
+
+    res.json({ message: 'ปิดการประมูลและบันทึกผลสำเร็จ', winner_user_id: winnerUserId, final_price: finalPrice });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'เกิดข้อผิดพลาดในการปิดการประมูล' });
+  }
+});
+
 module.exports = router;
 

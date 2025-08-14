@@ -330,15 +330,36 @@
 
 
         function startCountdown(endTimeStr, element) {
-            const interval = setInterval(() => {
+            let called = false;
+            const interval = setInterval(async () => {
                 const now = new Date();
                 const end = new Date(endTimeStr);
                 const diff = end - now;
 
-                if (diff <= 0) {
+                if (diff <= 0 && !called) {
                     element.textContent = "หมดเวลาแล้ว";
                     clearInterval(interval);
-                } else {
+                    called = true;
+                    // เรียก API ปิดการประมูล
+                    try {
+                        const token = localStorage.getItem('token');
+                        const res = await fetch(`/api/products/close/${productId}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                            }
+                        });
+                        const data = await res.json();
+                        if (res.ok) {
+                            alert(data.message || "บันทึกผลการประมูลสำเร็จ");
+                        } else {
+                            alert(data.message || "เกิดข้อผิดพลาดในการบันทึกผลการประมูล");
+                        }
+                    } catch (err) {
+                        alert("เกิดข้อผิดพลาดในการบันทึกผลการประมูล");
+                    }
+                } else if (diff > 0) {
                     const hrs = Math.floor(diff / 1000 / 60 / 60);
                     const mins = Math.floor((diff / 1000 / 60) % 60);
                     const secs = Math.floor((diff / 1000) % 60);
