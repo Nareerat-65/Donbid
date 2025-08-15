@@ -20,9 +20,13 @@
     </nav>
     <div class="slider">
         <div class="slides" id="slideContainer">
-            <img src="https://via.placeholder.com/600x300/FF6F61/fff?text=Slide+1" />
-            <img src="https://via.placeholder.com/600x300/6B5B95/fff?text=Slide+2" />
-            <img src="https://via.placeholder.com/600x300/88B04B/fff?text=Slide+3" />
+            <img src="https://placehold.co/1000x400/transparent/F00.png?text=Sample+Text" alt="Transparent Image">
+
+            <img src="https://placehold.co/1000x400/000000/FFFFFF.png?text=Hello+World" alt="Placeholder Image">
+
+            <img src="https://placehold.co/1000x400@2x.png" alt="High Resolution Image">
+
+
         </div>
         <div class="nav">
             <button onclick="moveSlide(-1)">❮</button>
@@ -36,9 +40,9 @@
     </div>
     <div class="product-section">
         <h1>สินค้าแนะนำ</h1>
-        <a href="product.html" class="all-product">สินค้าทั้งหมด >></a>
+        <a href="#" class="all-product">สินค้าทั้งหมด >></a>
     </div>
-    <div class="product-list">
+    <!-- <div class="product-list">
         <div class="product-card">
             <img src="https://via.placeholder.com/300x150/FF6F61/fff?text=สินค้า+1" alt="สินค้า 1">
             <div class="product-info">
@@ -68,15 +72,25 @@
                 <a href="#" class="buy-btn">เริ่มประมูล</a>
             </div>
         </div>
-    </div>
+    </div> -->
 
 
 
     <script>
         let currentIndex = 0;
         const slides = document.getElementById("slideContainer");
-        const dots = document.querySelectorAll(".dot");
         const totalSlides = slides.children.length;
+        const dotsContainer = document.querySelector(".dots");
+
+        // สร้างจุดสไลด์อัตโนมัติ
+        const dots = [];
+        for (let i = 0; i < totalSlides; i++) {
+            const dot = document.createElement("span");
+            dot.classList.add("dot");
+            dot.addEventListener("click", () => goToSlide(i));
+            dotsContainer.appendChild(dot);
+            dots.push(dot);
+        }
 
         function updateSlider() {
             slides.style.transform = `translateX(-${currentIndex * 100}%)`;
@@ -93,6 +107,11 @@
             currentIndex = index;
             updateSlider();
         }
+
+        // สไลด์อัตโนมัติทุก 3 วินาที
+        setInterval(() => {
+            moveSlide(1);
+        }, 5000);
 
         updateSlider();
     </script>
