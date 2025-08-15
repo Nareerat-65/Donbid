@@ -123,11 +123,18 @@ router.post('/close/:id', authMiddleware, async (req, res) => {
       return res.status(404).json({ message: 'ไม่พบสินค้าหรือสินค้าถูกปิดแล้ว' });
     }
 
+    // ตรวจสอบว่ามีผลการประมูลใน auction_results แล้วหรือยัง
+    const [results] = await db.query('SELECT * FROM auction_results WHERE product_id = ?', [productId]);
+    if (results.length > 0) {
+      // มีข้อมูลอยู่แล้ว ไม่ต้องบันทึกซ้ำ
+      return res.json({ message: 'มีการบันทึกผลผู้ชนะแล้ว', winner_user_id: results[0].winner_user_id, final_price: results[0].final_price });
+    }
+
     // หาผู้ชนะการประมูล (bid สูงสุด)
     const [bids] = await db.query('SELECT user_id, bid_price FROM bids WHERE product_id = ? ORDER BY bid_price DESC, created_at DESC LIMIT 1', [productId]);
     if (bids.length === 0) {
       // ไม่มีผู้เสนอราคา
-      await db.query('UPDATE products SET status = "closed" WHERE id = ?', [productId]);
+      await db.query('UPDATE products SET status = "ended" WHERE id = ?', [productId]);
       return res.json({ message: 'ปิดการประมูลแล้วแต่ไม่มีผู้ชนะ' });
     }
     const winnerUserId = bids[0].user_id;
@@ -140,7 +147,7 @@ router.post('/close/:id', authMiddleware, async (req, res) => {
       [productId, winnerUserId, finalPrice, closedAt]
     );
     // อัปเดตสถานะสินค้า
-    await db.query('UPDATE products SET status = "closed" WHERE id = ?', [productId]);
+    await db.query('UPDATE products SET status = "ended" WHERE id = ?', [productId]);
 
     res.json({ message: 'ปิดการประมูลและบันทึกผลสำเร็จ', winner_user_id: winnerUserId, final_price: finalPrice });
   } catch (err) {

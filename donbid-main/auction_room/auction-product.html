@@ -352,7 +352,36 @@
                         });
                         const data = await res.json();
                         if (res.ok) {
-                            alert(data.message || "บันทึกผลการประมูลสำเร็จ");
+                            // ประกาศผู้ชนะผ่าน AI
+                            if (data.winner_user_id && data.final_price) {
+                                let winnerName = '';
+                                // ดึงชื่อผู้ชนะจากประวัติการ bid
+                                try {
+                                    const resHistory = await fetch(`/api/bids/history?product_id=${productId}`);
+                                    const history = await resHistory.json();
+                                    const winnerBid = history.find(bid => bid.bid_price == data.final_price);
+                                    winnerName = winnerBid ? winnerBid.username : '';
+                                } catch {}
+                                if (winnerName) {
+                                    const prompt = `ขอแสดงความยินดีกับ ${winnerName} ที่ชนะการประมูลสินค้านี้ในราคา ${data.final_price} บาท!`;
+                                    showAIMessage('AI กำลังประมวลผล...');
+                                    try {
+                                        const aiRes = await fetch('/api/ai/chat', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ message: prompt })
+                                        });
+                                        const aiData = await aiRes.json();
+                                        showAIMessage(aiData.reply || prompt);
+                                    } catch {
+                                        showAIMessage(prompt);
+                                    }
+                                } else {
+                                    showAIMessage(`ขอแสดงความยินดีกับผู้ชนะที่ชนะการประมูลในราคา ${data.final_price} บาท!`);
+                                }
+                            } else {
+                                showAIMessage(data.message || "ไม่มีผู้ชนะการประมูล");
+                            }
                         } else {
                             alert(data.message || "เกิดข้อผิดพลาดในการบันทึกผลการประมูล");
                         }
