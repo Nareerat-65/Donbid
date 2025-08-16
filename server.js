@@ -7,6 +7,7 @@ const io = new Server(server);
 const path = require('path');
 const authMiddleware = require('./middlewares/auth');
 const axios = require('axios'); // เพิ่ม axios สำหรับเรียก Gemini API
+const sdk = require('microsoft-cognitiveservices-speech-sdk');
 require('dotenv').config();
 
 // ✅ Middleware ก่อน static
@@ -65,6 +66,42 @@ app.post('/api/ai/chat', async (req, res) => {
       detail = JSON.stringify(err.response.data);
     }
     res.status(500).json({ error: 'AI error', detail });
+  }
+});
+
+// ✅ TTS Endpoint
+app.post('/api/ai/tts', async (req, res) => {
+  const { text } = req.body;
+  if (!text) return res.status(400).json({ error: 'Missing text' });
+
+  const speechConfig = sdk.SpeechConfig.fromSubscription(
+    process.env.AZURE_SPEECH_KEY,
+    process.env.AZURE_SPEECH_REGION
+  );
+
+  // ตั้งค่าเสียงภาษาไทย (เลือกได้จากเสียงด้านล่าง)
+  speechConfig.speechSynthesisVoiceName = "th-TH-PremwadeeNeural"; // เสียงหญิง
+  // หรือ "th-TH-NiwatNeural" สำหรับเสียงชาย
+
+  // ใน server.js ก่อนสร้าง synthesizer
+  speechConfig.speechSynthesisOutputFormat = sdk.SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3;
+  try {
+    const synthesizer = new sdk.SpeechSynthesizer(speechConfig);
+    synthesizer.speakTextAsync(text, result => {
+      if (result) {
+        res.set('Content-Type', 'audio/mpeg');
+        res.send(result.audioData);
+      } else {
+        res.status(500).json({ error: 'TTS synthesis failed' });
+      }
+      synthesizer.close();
+    }, error => {
+      console.error("TTS Error:", error);
+      res.status(500).json({ error: 'TTS error', detail: error });
+      synthesizer.close();
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'TTS processing error', detail: err.message });
   }
 });
 

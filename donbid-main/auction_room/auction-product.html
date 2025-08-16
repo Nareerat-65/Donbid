@@ -175,6 +175,28 @@
         function showAIMessage(msg) {
             document.getElementById('ai-message').textContent = msg;
         }
+        
+        function fetchAIMessage(prompt, fallbackMsg) {
+            showAIMessage('AI กำลังประมวลผล...');
+            fetch('/api/ai/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: prompt })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.reply) {
+                    showAIMessage(data.reply);
+                    // playTTS(data.reply); // ถ้าใช้ TTS
+                } else {
+                    showAIMessage(fallbackMsg);
+                }
+            })
+            .catch(err => {
+                console.error("เกิดข้อผิดพลาดในการเรียก AI:", err);
+                showAIMessage(fallbackMsg);
+            });
+        }
 
         // ตัวอย่าง: แสดงข้อความ AI เมื่อเปิดหน้า
         window.addEventListener('DOMContentLoaded', () => {
@@ -184,7 +206,7 @@
         // ✅ ปุ่ม AI แนะนำสินค้า
         document.getElementById('ai-suggest-btn').addEventListener('click', async function () {
             // ดึงข้อมูลสินค้า
-            try {
+            
                 const res = await fetch(`/api/products/${productId}`);
                 const product = await res.json();
                 // ปรับ prompt ให้เหมือนคนพูดและเน้นเฉพาะสินค้า
@@ -193,34 +215,13 @@
                     `รายละเอียด: ${product.description}\n` +
                     `ราคาเริ่มต้น: ${product.start_price} บาท`;
 
-                showAIMessage('AI กำลังประมวลผล...');
-                const aiRes = await fetch('/api/ai/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: prompt })
-                });
-                const aiData = await aiRes.json();
-                showAIMessage(aiData.reply || 'AI ไม่สามารถแนะนำสินค้าได้ในขณะนี้');
-            } catch (err) {
-                showAIMessage('เกิดข้อผิดพลาดในการขอคำแนะนำจาก AI');
-            }
-        });
+                    fetchAIMessage(prompt, 'AI ไม่สามารถให้คำแนะนำได้ในขณะนี้ กรุณาลองใหม่อีกครั้งในภายหลัง');
+            })
 
         // ✅ เมื่อมีการเสนอราคาใหม่ ให้ AI ประกาศชื่อผู้เสนอและจำนวนเงิน
         async function announceBidAI(username, amount) {
             const prompt = `แจ้งให้ทุกคนทราบแบบไม่ยาวมาก ${username} เพิ่งเสนอราคา ${amount} บาท สำหรับสินค้านี้ แบบผู้ดำเนินการประมูลพร้อมกระตุ้นให้ผู้เข้าร่วมประมูลคนอื่น ๆ รู้สึกตื่นเต้นและอยากเข้าร่วมการประมูลนี้ ไม่ต้องมีสัญลักษณ์พิเศษ`;
-            showAIMessage('AI กำลังประมวลผล...');
-            try {
-                const aiRes = await fetch('/api/ai/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: prompt })
-                });
-                const aiData = await aiRes.json();
-                showAIMessage(aiData.reply || `${username} เพิ่งเสนอราคา ${amount} บาท`);
-            } catch (err) {
-                showAIMessage(`${username} เพิ่งเสนอราคา ${amount} บาท`);
-            }
+            fetchAIMessage(prompt, `ขอแสดงความยินดี ${username} ที่เสนอราคา ${amount} บาท!`);
         }
 
         document.getElementById('customBidBtn').addEventListener('click', async () => {
