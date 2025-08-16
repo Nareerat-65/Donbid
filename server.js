@@ -89,8 +89,10 @@ app.post('/api/ai/tts', async (req, res) => {
     const synthesizer = new sdk.SpeechSynthesizer(speechConfig);
     synthesizer.speakTextAsync(text, result => {
       if (result) {
+        // สร้าง Blob แบบ Uint8Array
+        const audioBuffer = Buffer.from(result.audioData); // สำหรับ Node.js
         res.set('Content-Type', 'audio/mpeg');
-        res.send(result.audioData);
+        res.send(audioBuffer);
       } else {
         res.status(500).json({ error: 'TTS synthesis failed' });
       }
@@ -100,6 +102,7 @@ app.post('/api/ai/tts', async (req, res) => {
       res.status(500).json({ error: 'TTS error', detail: error });
       synthesizer.close();
     });
+
   } catch (err) {
     res.status(500).json({ error: 'TTS processing error', detail: err.message });
   }

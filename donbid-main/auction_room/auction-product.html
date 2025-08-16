@@ -121,21 +121,23 @@
         </div>
     </div>
 
+    <audio id="ttsAudio"></audio>
+
     <script src="/socket.io/socket.io.js"></script>
     <script>
-    // ====== Socket.IO Real-time Auction ======
-    const socket = io();
+        // ====== Socket.IO Real-time Auction ======
+        const socket = io();
 
-    // เมื่อมี bid ใหม่จาก server ให้ update UI
-    socket.on('new bid', function(data) {
-        if (data.productId === productId) {
-            document.getElementById("highestBid").textContent = `฿${data.bidAmount}`;
-            loadBidHistory(productId);
-            updateQuickBidButtons(productId);
-            // ประกาศผ่าน AI (ถ้ามี username)
-            if (data.username) announceBidAI(data.username, data.bidAmount);
-        }
-    });
+        // เมื่อมี bid ใหม่จาก server ให้ update UI
+        socket.on('new bid', function (data) {
+            if (data.productId === productId) {
+                document.getElementById("highestBid").textContent = `฿${data.bidAmount}`;
+                loadBidHistory(productId);
+                updateQuickBidButtons(productId);
+                // ประกาศผ่าน AI (ถ้ามี username)
+                if (data.username) announceBidAI(data.username, data.bidAmount);
+            }
+        });
         const params = new URLSearchParams(window.location.search);
         const productId = params.get("id");
 
@@ -170,12 +172,37 @@
             }
         }
 
+        async function playTTS(text) {
+            try {
+                const res = await fetch('/api/ai/tts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text })
+                });
+
+                if (!res.ok) throw new Error('TTS API error');
+
+                const arrayBuffer = await res.arrayBuffer(); // รับเป็น binary
+                const blob = new Blob([arrayBuffer], { type: 'audio/mpeg' }); // สร้าง Blob
+                const url = URL.createObjectURL(blob);
+
+                const audioElem = document.getElementById('ttsAudio');
+                audioElem.src = url;
+
+                await audioElem.play().catch(err => {
+                    console.warn('Autoplay blocked, trying after user interaction:', err);
+                });
+            } catch (err) {
+                console.error('TTS play error:', err);
+                alert('เกิดข้อผิดพลาดในการเล่นเสียง TTS');
+            }
+        }
 
         // ✅ ฟังก์ชันแสดงข้อความ AI
         function showAIMessage(msg) {
             document.getElementById('ai-message').textContent = msg;
         }
-        
+
         function fetchAIMessage(prompt, fallbackMsg) {
             showAIMessage('AI กำลังประมวลผล...');
             fetch('/api/ai/chat', {
@@ -183,19 +210,16 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: prompt })
             })
-            .then(res => res.json())
-            .then(data => {
-                if (data.reply) {
-                    showAIMessage(data.reply);
-                    // playTTS(data.reply); // ถ้าใช้ TTS
-                } else {
+                .then(res => res.json())
+                .then(data => {
+                    const msg = data.reply || fallbackMsg;
+                    showAIMessage(msg);
+                    playTTS(msg);
+                })
+                .catch(err => {
+                    console.error("เกิดข้อผิดพลาดในการเรียก AI:", err);
                     showAIMessage(fallbackMsg);
-                }
-            })
-            .catch(err => {
-                console.error("เกิดข้อผิดพลาดในการเรียก AI:", err);
-                showAIMessage(fallbackMsg);
-            });
+                });
         }
 
         // ตัวอย่าง: แสดงข้อความ AI เมื่อเปิดหน้า
@@ -205,18 +229,22 @@
 
         // ✅ ปุ่ม AI แนะนำสินค้า
         document.getElementById('ai-suggest-btn').addEventListener('click', async function () {
-            // ดึงข้อมูลสินค้า
-            
+            try {
                 const res = await fetch(`/api/products/${productId}`);
                 const product = await res.json();
-                // ปรับ prompt ให้เหมือนคนพูดและเน้นเฉพาะสินค้า
-                const prompt = `แนะนำสินค้าให้ดูน่าสนใจในประโยคที่ไม่ยาวมาก แบบผู้ดำเนินการประมูล ไม่ต้องพูดถึง AI หรือระบบ ไม่ต้องมีสัญลักษณ์พิเศษ โดยนำเสนอชื่อสินค้า, รายละเอียดสินค้า และ ราคาเริ่มต้น:\n` +
+
+                const prompt = `แนะนำสินค้าให้ดูน่าสนใจในประโยคสั้น ๆ แบบผู้ดำเนินการประมูล ไม่พูดถึง AI หรือระบบ ไม่ใช้สัญลักษณ์พิเศษ:\n` +
                     `ชื่อสินค้า: ${product.name}\n` +
                     `รายละเอียด: ${product.description}\n` +
                     `ราคาเริ่มต้น: ${product.start_price} บาท`;
 
-                    fetchAIMessage(prompt, 'AI ไม่สามารถให้คำแนะนำได้ในขณะนี้ กรุณาลองใหม่อีกครั้งในภายหลัง');
-            })
+                // เรียก AI + TTS
+                fetchAIMessage(prompt, 'AI ไม่สามารถให้คำแนะนำได้ตอนนี้');
+            } catch (err) {
+                console.error(err);
+                fetchAIMessage('เกิดข้อผิดพลาดในการขอคำแนะนำจาก AI');
+            }
+        });
 
         // ✅ เมื่อมีการเสนอราคาใหม่ ให้ AI ประกาศชื่อผู้เสนอและจำนวนเงิน
         async function announceBidAI(username, amount) {
@@ -356,32 +384,23 @@
                             // ประกาศผู้ชนะผ่าน AI
                             if (data.winner_user_id && data.final_price) {
                                 let winnerName = '';
-                                // ดึงชื่อผู้ชนะจากประวัติการ bid
                                 try {
                                     const resHistory = await fetch(`/api/bids/history?product_id=${productId}`);
                                     const history = await resHistory.json();
                                     const winnerBid = history.find(bid => bid.bid_price == data.final_price);
                                     winnerName = winnerBid ? winnerBid.username : '';
-                                } catch {}
+                                } catch { }
+
                                 if (winnerName) {
                                     const prompt = `ขอแสดงความยินดีกับ ${winnerName} ที่ชนะการประมูลสินค้านี้ในราคา ${data.final_price} บาท!`;
-                                    showAIMessage('AI กำลังประมวลผล...');
-                                    try {
-                                        const aiRes = await fetch('/api/ai/chat', {
-                                            method: 'POST',
-                                            headers: { 'Content-Type': 'application/json' },
-                                            body: JSON.stringify({ message: prompt })
-                                        });
-                                        const aiData = await aiRes.json();
-                                        showAIMessage(aiData.reply || prompt);
-                                    } catch {
-                                        showAIMessage(prompt);
-                                    }
+                                    fetchAIMessage(prompt, `ขอแสดงความยินดีกับ ${winnerName} ที่ชนะการประมูลสินค้านี้ในราคา ${data.final_price} บาท!`);
                                 } else {
-                                    showAIMessage(`ขอแสดงความยินดีกับผู้ชนะที่ชนะการประมูลในราคา ${data.final_price} บาท!`);
+                                    const fallbackMsg = `ขอแสดงความยินดีกับผู้ชนะที่ชนะการประมูลในราคา ${data.final_price} บาท!`;
+                                    fetchAIMessage(fallbackMsg, fallbackMsg);
                                 }
                             } else {
-                                showAIMessage(data.message || "ไม่มีผู้ชนะการประมูล");
+                                const fallbackMsg = data.message || "ไม่มีผู้ชนะการประมูล";
+                                fetchAIMessage(fallbackMsg, fallbackMsg);
                             }
                         } else {
                             alert(data.message || "เกิดข้อผิดพลาดในการบันทึกผลการประมูล");
@@ -402,11 +421,6 @@
             return n.toString().padStart(2, '0');
         }
 
-        loadProductDetails();
-        loadHighestBid(productId);
-        updateQuickBidButtons(productId);
-        loadBidHistory(productId);// ✅ เพิ่มบรรทัดนี้
-
         document.querySelectorAll('.quick-bid .btn-orange').forEach(btn => {
             btn.addEventListener('click', () => {
                 const bid = parseFloat(btn.dataset.bid);
@@ -414,6 +428,11 @@
                 document.getElementById('customBidBtn').click();  // ส่ง bid เลย
             });
         });
+
+        loadProductDetails();
+        loadHighestBid(productId);
+        updateQuickBidButtons(productId);
+        loadBidHistory(productId);
 
         window.onload = function () {
             const token = localStorage.getItem('token');
@@ -442,8 +461,6 @@
                 localStorage.removeItem('token');
                 window.location.href = '/login/login.html';
             }
-
-            loadProducts();
         }
 
         // ✅ เพิ่มฟังก์ชัน parseJwt
