@@ -27,6 +27,7 @@
     "express": "^5.1.0",
     "groq-sdk": "^0.29.0",
     "jsonwebtoken": "^9.0.2",
+    "microsoft-cognitiveservices-speech-sdk": "^1.45.0",
     "multer": "^2.0.2",
     "mysql2": "^3.14.1",
     "socket.io": "^4.8.1"
