@@ -16,13 +16,16 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap; /* ให้ย่อเมื่อจอเล็ก */
 }
 
 .navbar {
   background-color: #FAF5E6;
-  /* padding: 10px 20px;*/
   display: flex;
   align-items: center;
+  flex-wrap: wrap; /* ให้ย่อ */
+  justify-content: space-between;
+  width: 100%;
 }
 
 .buy-btn.disabled {
@@ -34,16 +37,17 @@ header {
 
 .navbar .logo {
   height: 150px;
-  width: 150px;
-  margin-left: 50px;
-  margin-right: 1300px;
+  width: auto; /* ให้กว้างอัตโนมัติ */
+  margin: 0 20px 0 20px; /* ลด margin ตายตัว */
+}
 
+.balance {
+  margin-left: auto;
 }
 
 .personal-icon {
   max-width: 90px;
   max-height: 90px;
-  margin-left: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -57,25 +61,25 @@ header {
 }
 
 .slider {
-  width: 100%;
-  max-width: 1500px;
-  height: 400px;
-  margin: auto;
+  width: 95%;
+  max-width: 1000px;
+  height: auto; /* ให้สูงตามเนื้อหา */
+  margin: 30px auto 0;
   overflow: hidden;
   position: relative;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  margin-top: 30px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 .slides {
   display: flex;
   transition: transform 0.5s ease-in-out;
-  width: 100%;
 }
 
 .slides img {
   width: 100%;
+  height: auto;
+  object-fit: cover;
   border-radius: 12px;
 }
 
@@ -99,7 +103,7 @@ header {
 
 .dots {
   text-align: center;
-  margin-top: 350px;
+  margin-top: 1rem;
 }
 
 .dot {
@@ -122,29 +126,22 @@ header {
 
 .product-section {
   display: flex;
-  width: 100%;
+  flex-wrap: wrap; /* ให้ย่ออัตโนมัติ */
+  justify-content: space-between;
+  width: 95%;
   max-width: 1500px;
-  height: 50px;
-  margin: auto;
-  /* overflow: hidden; */
-  position: relative;
-  border-radius: 12px;
-  margin-top: 30px;
-  gap: 1200px;
+  margin: 30px auto 0;
+  gap: 20px; /* ลด gap ให้อยู่ในสัดส่วน */
 }
 
 .product-list {
   display: flex;
-  gap: 30px;
+  flex-wrap: wrap;
+  gap: 20px;
   width: 100%;
   max-width: 1500px;
-  height: 400px;
   margin: auto;
-  /* overflow: hidden; */
   position: relative;
-  border-radius: 12px;
-  margin-top: 30px;
-
 }
 
 .product-card {
@@ -153,11 +150,10 @@ header {
   overflow: hidden;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease;
-  width: 300px;
-  height: 350px;
+  width: calc(33.333% - 20px); /* 3 columns */
+  min-width: 150px; /* ป้องกันเล็กเกินไป */
+  height: auto;
   text-align: center;
-
-
 }
 
 .product-card:hover {
@@ -172,12 +168,12 @@ header {
 }
 
 .product-card .product-image {
-  width: 120px;
+  width: 100%;
+  max-width: 120px;
   height: auto;
   border-radius: 5px;
   object-fit: cover;
 }
-
 
 .product-info {
   padding: 15px;
@@ -205,52 +201,34 @@ header {
   text-decoration: none;
   font-size: 16px;
   height: 40px;
-  width: 200px;
+  width: 100%;
+  max-width: 200px;
 }
 
 .buy-btn:hover {
   background: #e69500;
 }
 
+/* Responsive */
 @media (max-width: 1200px) {
   .navbar .logo {
-    margin-right: 200px;
+    margin-right: 20px;
   }
-  .product-section {
-    gap: 200px;
-  }
-  .slider,
-  .product-list {
-    max-width: 1000px;
+  .product-section, .product-list {
+    gap: 15px;
   }
 }
 
 @media (max-width: 900px) {
   .navbar .logo {
     height: 100px;
-    width: 100px;
     margin-left: 10px;
-    margin-right: 20px;
   }
-  .slider,
-  .product-list {
-    max-width: 700px;
-    height: 250px;
-  }
-  .product-section {
-    gap: 30px;
-    max-width: 700px;
+  .slider, .product-list {
+    max-width: 90%;
   }
   .product-card {
-    width: 180px;
-    height: 220px;
-  }
-  .product-card .product-image {
-    width: 80px;
-  }
-  .personal-icon {
-    max-width: 50px;
-    max-height: 50px;
+    width: calc(50% - 15px); /* 2 columns */
   }
 }
 
@@ -265,35 +243,16 @@ header {
   }
   .navbar .logo {
     height: 60px;
-    width: 60px;
     margin: 0 0 10px 0;
   }
-  .slider,
-  .product-list {
-    max-width: 95vw;
-    height: 120px;
-    margin-top: 10px;
-  }
-  .product-section {
-    flex-direction: column;
-    gap: 10px;
-    max-width: 95vw;
-    height: auto;
-    margin-top: 10px;
+  .slider, .product-list {
+    max-width: 95%;
   }
   .product-card {
-    width: 120px;
-    height: 150px;
+    width: 100%; /* 1 column */
     font-size: 12px;
   }
-  .product-card .product-image {
-    width: 50px;
-  }
-  .personal-icon {
-    max-width: 30px;
-    max-height: 30px;
-  }
   .dots {
-    margin-top: 100px;
+    margin-top: 10px;
   }
 }
