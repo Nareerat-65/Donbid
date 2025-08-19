@@ -360,61 +360,102 @@
 
         function startCountdown(endTimeStr, element) {
             let called = false;
-            const interval = setInterval(async () => {
-                const now = new Date();
-                const end = new Date(endTimeStr);
-                const diff = end - now;
+            let interval;
+            let countdownActive = false;
 
-                if (diff <= 0 && !called) {
-                    element.textContent = "หมดเวลาแล้ว";
-                    clearInterval(interval);
-                    called = true;
-                    // เรียก API ปิดการประมูล
-                    try {
-                        const token = localStorage.getItem('token');
-                        const res = await fetch(`/api/products/close/${productId}`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-                            }
-                        });
-                        const data = await res.json();
-                        if (res.ok) {
-                            // ประกาศผู้ชนะผ่าน AI
-                            if (data.winner_user_id && data.final_price) {
-                                let winnerName = '';
-                                try {
-                                    const resHistory = await fetch(`/api/bids/history?product_id=${productId}`);
-                                    const history = await resHistory.json();
-                                    const winnerBid = history.find(bid => bid.bid_price == data.final_price);
-                                    winnerName = winnerBid ? winnerBid.username : '';
-                                } catch { }
+            // ⏱ นับเวลาปกติ (ตาม end_time)
+            function normalCountdown() {
+                interval = setInterval(() => {
+                    const now = new Date();
+                    const end = new Date(endTimeStr);
+                    const diff = end - now;
 
-                                if (winnerName) {
-                                    const prompt = `ขอแสดงความยินดีกับ ${winnerName} ที่ชนะการประมูลสินค้านี้ในราคา ${data.final_price} บาท!`;
-                                    fetchAIMessage(prompt, `ขอแสดงความยินดีกับ ${winnerName} ที่ชนะการประมูลสินค้านี้ในราคา ${data.final_price} บาท!`);
-                                } else {
-                                    const fallbackMsg = `ขอแสดงความยินดีกับผู้ชนะที่ชนะการประมูลในราคา ${data.final_price} บาท!`;
-                                    fetchAIMessage(fallbackMsg, fallbackMsg);
-                                }
+                    if (diff <= 0 && !called) {
+                        clearInterval(interval);
+                        startFinalCountdown(10); // เข้าสู่ soft close 10 วิ
+                    } else if (diff > 0) {
+                        const hrs = Math.floor(diff / 1000 / 60 / 60);
+                        const mins = Math.floor((diff / 1000 / 60) % 60);
+                        const secs = Math.floor((diff / 1000) % 60);
+                        element.textContent = `${pad(hrs)} : ${pad(mins)} : ${pad(secs)}`;
+                    }
+                }, 1000);
+            }
+
+            // 🚨 Soft Close Countdown
+            function startFinalCountdown(seconds) {
+                let timeLeft = seconds;
+                countdownActive = true;
+                element.textContent = `กำลังจะปิดใน ${timeLeft}`;
+
+                interval = setInterval(() => {
+                    timeLeft--;
+                    if (timeLeft > 0) {
+                        element.textContent = `กำลังจะปิดใน ${timeLeft}`;
+                    } else {
+                        clearInterval(interval);
+                        countdownActive = false;
+                        if (!called) {
+                            called = true;
+                            closeAuction(); // ปิดประมูลจริง
+                        }
+                    }
+                }, 1000);
+            }
+
+            // 🏁 ปิดประมูลจริง
+            async function closeAuction() {
+                element.textContent = "หมดเวลาแล้ว";
+                try {
+                    const token = localStorage.getItem('token');
+                    const res = await fetch(`/api/products/close/${productId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                        }
+                    });
+                    const data = await res.json();
+
+                    if (res.ok) {
+                        if (data.winner_user_id && data.final_price) {
+                            let winnerName = '';
+                            try {
+                                const resHistory = await fetch(`/api/bids/history?product_id=${productId}`);
+                                const history = await resHistory.json();
+                                const winnerBid = history.find(bid => bid.bid_price == data.final_price);
+                                winnerName = winnerBid ? winnerBid.username : '';
+                            } catch { }
+
+                            if (winnerName) {
+                                const prompt = `ขอแสดงความยินดีกับ ${winnerName} ที่ชนะการประมูลสินค้านี้ในราคา ${data.final_price} บาท!`;
+                                fetchAIMessage(prompt, prompt);
                             } else {
-                                const fallbackMsg = data.message || "ไม่มีผู้ชนะการประมูล";
+                                const fallbackMsg = `ขอแสดงความยินดีกับผู้ชนะที่ชนะการประมูลในราคา ${data.final_price} บาท!`;
                                 fetchAIMessage(fallbackMsg, fallbackMsg);
                             }
                         } else {
-                            alert(data.message || "เกิดข้อผิดพลาดในการบันทึกผลการประมูล");
+                            const fallbackMsg = data.message || "ไม่มีผู้ชนะการประมูล";
+                            fetchAIMessage(fallbackMsg, fallbackMsg);
                         }
-                    } catch (err) {
-                        alert("เกิดข้อผิดพลาดในการบันทึกผลการประมูล");
+                    } else {
+                        alert(data.message || "เกิดข้อผิดพลาดในการบันทึกผลการประมูล");
                     }
-                } else if (diff > 0) {
-                    const hrs = Math.floor(diff / 1000 / 60 / 60);
-                    const mins = Math.floor((diff / 1000 / 60) % 60);
-                    const secs = Math.floor((diff / 1000) % 60);
-                    element.textContent = `${pad(hrs)} : ${pad(mins)} : ${pad(secs)}`;
+                } catch (err) {
+                    alert("เกิดข้อผิดพลาดในการบันทึกผลการประมูล");
                 }
-            }, 1000);
+            }
+
+            // 🔄 ถ้ามี bid ใหม่ระหว่าง soft close → รีเซ็ตเวลา
+            socket.on('new bid', function (data) {
+                if (data.productId === productId && countdownActive && !called) {
+                    clearInterval(interval);
+                    startFinalCountdown(10); // ต่อเวลาอีก 10 วิ
+                }
+            });
+
+            // เริ่มนับปกติ
+            normalCountdown();
         }
 
         function pad(n) {
