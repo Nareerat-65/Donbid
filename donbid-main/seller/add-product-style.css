@@ -50,53 +50,112 @@ body {
 }
 
 
-h2 {
-    color: #333;
+/* Form */
+form {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  max-width: 500px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  margin: auto;
+  transition: all 0.3s ease;
 }
 
-form {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    max-width: 500px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+form:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+h2 {
+  color: #333;
+  margin-bottom: 15px;
 }
 
 label {
-    display: block;
-    margin-top: 15px;
+  display: block;
+  margin-top: 15px;
+  font-weight: 500;
 }
 
 input,
 textarea {
-    width: 100%;
-    padding: 10px;
-    margin-top: 5px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
+  width: 100%;
+  padding: 12px;
+  margin-top: 5px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
 }
 
+input:focus,
+textarea:focus {
+  border-color: #28a745;
+  outline: none;
+  box-shadow: 0 0 5px rgba(40, 167, 69, 0.4);
+}
+
+/* Buttons */
 button {
-    margin-top: 20px;
-    padding: 10px 20px;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 button:hover {
-    background-color: #218838;
+  background-color: #218838;
+  transform: translateY(-2px);
+}
+
+.buy-btn.disabled {
+  pointer-events: none;
+  background-color: gray;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Image preview */
+#preview {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 10px;
 }
 
 #preview img {
-    width: 100px;
-    margin: 5px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  margin: 5px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  transition: transform 0.3s ease;
 }
 
+#preview img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Add product form section */
 .add-product-form {
-  margin-top: 20px;
+  margin-top: 30px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .navbar .logo {
+    margin-right: 0;
+  }
+  form {
+    padding: 20px;
+  }
 }
