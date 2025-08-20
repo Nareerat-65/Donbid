@@ -172,61 +172,7 @@
             }
         }
 
-        function splitThaiText(text, maxLength = 50) {
-            let sentences = text.split(/(?<=[ๆ,.!?…])/);
-            let chunks = [];
-            let buffer = "";
-
-            for (let s of sentences) {
-                if ((buffer + s).length > maxLength) {
-                    chunks.push(buffer.trim());
-                    buffer = s;
-                } else {
-                    buffer += s;
-                }
-            }
-            if (buffer.trim()) chunks.push(buffer.trim());
-
-            return chunks;
-        }
-
         async function playTTS(text) {
-            const audioElem = document.getElementById('ttsAudio');
-            const chunks = splitThaiText(text, 50);
-
-            // ✅ โหลดไฟล์เสียงทุก chunk พร้อมกัน
-            const audioUrls = await Promise.all(
-                chunks.map(async chunk => {
-                    const res = await fetch('/api/ai/tts', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ text: chunk })
-                    });
-                    if (!res.ok) throw new Error('TTS API error');
-
-                    const arrayBuffer = await res.arrayBuffer();
-                    const blob = new Blob([arrayBuffer], { type: 'audio/mpeg' });
-                    return URL.createObjectURL(blob);
-                })
-            );
-
-            let index = 0;
-
-            function playNext() {
-                if (index >= audioUrls.length) return;
-                audioElem.src = audioUrls[index++];
-                audioElem.play().catch(err => {
-                    console.warn('Autoplay blocked:', err);
-                });
-            }
-
-            audioElem.onended = playNext;
-
-            // 🔥 เริ่มเล่นอันแรกเลย
-            playNext();
-        }
-
-        <!-- async function playTTS(text) {
             try {
                 const res = await fetch('/api/ai/tts', {
                     method: 'POST',
@@ -250,7 +196,7 @@
                 console.error('TTS play error:', err);
                 alert('เกิดข้อผิดพลาดในการเล่นเสียง TTS');
             }
-        } -->
+        } 
 
         // ✅ ฟังก์ชันแสดงข้อความ AI
         function showAIMessage(msg) {
