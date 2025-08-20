@@ -84,7 +84,7 @@ app.post('/api/ai/tts', async (req, res) => {
   // หรือ "th-TH-NiwatNeural" สำหรับเสียงชาย
 
   // ใน server.js ก่อนสร้าง synthesizer
-  speechConfig.speechSynthesisOutputFormat = sdk.SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3;
+  speechConfig.speechSynthesisOutputFormat = sdk.SpeechSynthesisOutputFormat.Audio16Khz16KBitRateMonoMp3;
   try {
     const synthesizer = new sdk.SpeechSynthesizer(speechConfig);
     synthesizer.speakTextAsync(text, result => {
