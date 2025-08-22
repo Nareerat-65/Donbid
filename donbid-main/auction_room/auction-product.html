@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="auction-product-style.css">
+    <link href='https://fonts.googleapis.com/css?family=Kanit&subset=thai,latin' rel='stylesheet' type='text/css'>
     <title>ประมูล</title>
 </head>
 
@@ -60,20 +61,19 @@
                     </div>
 
                     <!-- ✅ ช่องแสดงข้อความ AI -->
-                    <div id="ai-message"
-                        style="max-width:500px;margin:30px auto;background:#fce6c5;border-radius:10px;padding:20px;min-height:60px;font-size:1.1em;">
-                        <!-- ข้อความ AI จะถูกแสดงที่นี่ -->
+                    <div class="ai-message-container">
+                        <div id="ai-message">
+                            <!-- ข้อความ AI จะถูกแสดงที่นี่ -->
+                        </div>
                     </div>
+
                     <!-- ✅ ปุ่มให้ AI แนะนำสินค้า -->
-                    <div style="text-align:center;margin-top:10px;">
-                        <button id="ai-suggest-btn"
-                            style="background:#ff9900;color:#fff;border:none;border-radius:6px;padding:10px 20px;cursor:pointer;">
-                            AI แนะนำสินค้า
-                        </button>
+                    <div class="ai-suggest-btn-container">
+                        <button id="ai-suggest-btn">AI แนะนำสินค้า</button>
                     </div>
                 </div>
 
-                <button id="openHistoryBtn" class="btn-orange full">ประวัติการเสนอราคา</button>
+                <button id="openHistoryBtn" class="btn-history">ประวัติการเสนอราคา</button>
                 <!-- MODAL -->
                 <div id="bidHistoryModal" class="modal">
                     <div class="modal-content">
@@ -87,14 +87,14 @@
                     <div class="custom-bid">
                         <label>การเสนอราคา</label>
                         <input type="number" class="bid" id="customBid" placeholder="กรอกราคาที่ต้องการเสนอ" />
-                        <button id="customBidBtn" class="btn-orange">เสนอ</button>
+                        <button id="customBidBtn" class="btn-bid">เสนอ</button>
                     </div>
 
                     <div class="quick-bid">
                         <span>เสนอราคาทันที</span>
-                        <button class="btn-orange">-</button>
-                        <button class="btn-orange">-</button>
-                        <button class="btn-orange">-</button>
+                        <button class="btn-bid">-</button>
+                        <button class="btn-bid">-</button>
+                        <button class="btn-bid">-</button>
                     </div>
                 </div>
 
@@ -305,7 +305,7 @@
 
                 const currentPrice = data.highest || parseFloat(document.getElementById("productPrice").textContent.replace("฿", ""));
 
-                const quickButtons = document.querySelectorAll('.quick-bid .btn-orange');
+                const quickButtons = document.querySelectorAll('.quick-bid .btn-bid');
                 const percents = [10, 20, 30]; // ปรับเปอร์เซนต์ตรงนี้
 
                 quickButtons.forEach((btn, index) => {
@@ -490,9 +490,11 @@
             popup.classList.add('popup-overlay');
             popup.innerHTML = `
         <div class="popup">
-            <h2>🎉 ขอแสดงความยินดี ${winnerName}!</h2>
-            <p>คุณชนะการประมูลในราคา <b>${finalPrice} บาท</b></p>
-            <button id="goConfirmBtn">ไปยืนยันที่อยู่</button>
+            <div class="popup-content">
+                <h2>🎉 ขอแสดงความยินดี ${winnerName}!</h2>
+                <p>คุณชนะการประมูลในราคา <b>${finalPrice} บาท</b></p>
+                <button id="goConfirmBtn">ไปยืนยันที่อยู่</button>
+            </div>
         </div>
     `;
             document.body.appendChild(popup);
@@ -507,7 +509,7 @@
             return n.toString().padStart(2, '0');
         }
 
-        document.querySelectorAll('.quick-bid .btn-orange').forEach(btn => {
+        document.querySelectorAll('.quick-bid .btn-bid').forEach(btn => {
             btn.addEventListener('click', () => {
                 const bid = parseFloat(btn.dataset.bid);
                 document.getElementById('customBid').value = bid; // แสดงในช่อง
