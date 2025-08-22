@@ -196,7 +196,7 @@
                 console.error('TTS play error:', err);
                 alert('เกิดข้อผิดพลาดในการเล่นเสียง TTS');
             }
-        } 
+        }
 
         // ✅ ฟังก์ชันแสดงข้อความ AI
         function showAIMessage(msg) {
@@ -408,6 +408,7 @@
                 element.textContent = "หมดเวลาแล้ว";
                 try {
                     const token = localStorage.getItem('token');
+                    const payload = parseJwt(token); // token ของ user ปัจจุบัน
                     const res = await fetch(`/api/products/close/${productId}`, {
                         method: 'POST',
                         headers: {
@@ -417,27 +418,50 @@
                     });
                     const data = await res.json();
 
+                    console.log("DEBUG: closeAuction triggered", data);
                     if (res.ok) {
                         if (data.winner_user_id && data.final_price) {
-                            let winnerName = '';
-                            try {
-                                const resHistory = await fetch(`/api/bids/history?product_id=${productId}`);
-                                const history = await resHistory.json();
-                                const winnerBid = history.find(bid => bid.bid_price == data.final_price);
-                                winnerName = winnerBid ? winnerBid.username : '';
-                            } catch { }
+                            console.log("DEBUG payload:", payload);
+                            console.log("DEBUG winner_user_id:", data.winner_user_id, typeof data.winner_user_id);
+                            console.log("DEBUG payload.user_id:", payload ? payload.user_id : null, typeof (payload ? payload.user_id : null));
 
-                            if (winnerName) {
-                                const prompt = `ขอแสดงความยินดีกับ ${winnerName} ที่ชนะการประมูลสินค้านี้ในราคา ${data.final_price} บาท!`;
-                                fetchAIMessage(prompt, prompt);
-                            } else {
-                                const fallbackMsg = `ขอแสดงความยินดีกับผู้ชนะที่ชนะการประมูลในราคา ${data.final_price} บาท!`;
-                                fetchAIMessage(fallbackMsg, fallbackMsg);
+                            if (payload && Number(payload.id) === Number(data.winner_user_id)) {
+                                let winnerName = '';
+                                try {
+                                    const resHistory = await fetch(`/api/bids/history?product_id=${productId}`);
+                                    const history = await resHistory.json();
+                                    console.log("DEBUG: history data", history);
+                                    console.log("DEBUG: final price from API", data.final_price, typeof data.final_price);
+
+                                    let winnerBid = history.find(bid => Number(bid.bid_price) === Number(data.final_price));
+                                    console.log("DEBUG: winnerBid found?", winnerBid);
+                                    // ถ้าอยากให้ชัวร์ว่าใช้ bid ล่าสุด
+                                    if (!winnerBid && history.length > 0) {
+                                        console.log("DEBUG: fallback to latest history");
+                                        winnerBid = history[0];
+                                    }
+
+                                    winnerName = winnerBid ? winnerBid.username : '';
+                                    console.log("DEBUG: winnerName", winnerName);
+
+                                } catch { }
+
+                                if (winnerName) {
+                                    const winnerId = data.winner_user_id;   // เอามาจาก API
+                                    const finalPrice = data.final_price;    // เอามาจาก API
+                                    const prompt = `ขอแสดงความยินดีกับ ${winnerName} ที่ชนะการประมูลสินค้านี้ในราคา ${finalPrice} บาท!`;
+
+                                    fetchAIMessage(prompt, prompt);  // ✅ ประกาศด้วย AI
+                                    console.log("DEBUG: calling showWinnerPopup with", winnerName, data.final_price);
+                                    showWinnerPopup(winnerName, finalPrice, `/confirm?winner=${winnerId}`); // ✅ แสดง popup
+                                }
                             }
+
                         } else {
                             const fallbackMsg = data.message || "ไม่มีผู้ชนะการประมูล";
-                            fetchAIMessage(fallbackMsg, fallbackMsg);
+                            fetchAIMessage(fallbackMsg, fallbackMsg); // ✅ กรณีไม่มีผู้ชนะ
                         }
+
                     } else {
                         alert(data.message || "เกิดข้อผิดพลาดในการบันทึกผลการประมูล");
                     }
@@ -457,6 +481,27 @@
             // เริ่มนับปกติ
             normalCountdown();
         }
+        function showWinnerPopup(winnerName, finalPrice, confirmUrl) {
+            // ถ้ามี popup เดิม ให้ลบออกก่อน
+            const existingPopup = document.querySelector('.popup-overlay');
+            if (existingPopup) existingPopup.remove();
+
+            const popup = document.createElement('div');
+            popup.classList.add('popup-overlay');
+            popup.innerHTML = `
+        <div class="popup">
+            <h2>🎉 ขอแสดงความยินดี ${winnerName}!</h2>
+            <p>คุณชนะการประมูลในราคา <b>${finalPrice} บาท</b></p>
+            <button id="goConfirmBtn">ไปยืนยันที่อยู่</button>
+        </div>
+    `;
+            document.body.appendChild(popup);
+
+            document.getElementById('goConfirmBtn').addEventListener('click', () => {
+                window.location.href = 'confirm-product.html';
+            });
+        }
+
 
         function pad(n) {
             return n.toString().padStart(2, '0');
