@@ -3,9 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="stylesheet" href="confirm-product.css">
+    <link href='https://fonts.googleapis.com/css?family=Kanit&subset=thai,latin' rel='stylesheet' type='text/css'>
+    <title>ยืนยันสินค้า</title>
 </head>
 <body>
-    <h1>ยืนยันการประมูล</h1>
+    <nav name="navbar" class="navbar">
+        <div>
+            <a href="../content/main-and-login.html" class="logo-link">
+                <img src="../pic/Logo.png" alt="โลโก้" class="logo">
+            </a>
+        </div>
+
+        <div class="balance">💰 Coin: <span id="coinBalance">0.00</span></div>
+        <button onclick="location.href='/purchaseCoins/purchaseCoins.html'">+</button>
+
+        <div class="personal-icon">
+            <a href="../content/profile-check.html" class="logo-link">
+                <img src="../pic/personal-icon.png" alt="ไอค่อน" class="personal-icon">
+            </a>
+            <span id="usernameDisplay" style="margin-left: 10px; font-weight: bold;"></span>
+        </div>
+
+        <!-- เพิ่มสินค้าเฉพาะ Seller -->
+        <div id="addProductBtnContainer" style="text-align: right; padding: 10px; display: none;">
+            <button onclick="location.href='/seller/add-product.html'"
+                style="padding: 10px 20px; background-color: #ff9900; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                + เพิ่มสินค้า
+            </button>
+        </div>
+
+    </nav>
+    <div class="confirm-container">
+        <h1>ยืนยันการประมูลสินค้า</h1>
+        <div class="product-details">
+            <p><strong>ชื่อสินค้า:</strong> <span id="productName">ตัวอย่างสินค้า</span></p>
+            <p><strong>ราคาสินค้า:</strong> <span id="productPrice">0.00</span> บาท</p>
+            <p><strong>รายละเอียดสินค้า:</strong> <span id="productDescription">รายละเอียดตัวอย่างสินค้า</span></p>
+        </div>
+        <div class="user-details">
+            <p><strong>ชื่อผู้ใช้:</strong> <span id="usernameDisplay">ตัวอย่างชื่อผู้ใช้</span></p>
+            <p><strong>อีเมล:</strong> <span id="userEmail">example@example.com</span></p>
+        </div>
+        <button id="confirmBtn">ยืนยันการชำระสินค้า</button>
+    </div>
 </body>
 </html>

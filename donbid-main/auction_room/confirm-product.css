@@ -1,0 +1,74 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Kanit', sans-serif;
+    background: #ffffff;
+    color: #333;
+}
+
+header {
+    background: #fcf7e9;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar {
+    background-color: #FAF5E6;
+    /* padding: 10px 20px;*/
+    display: flex;
+    align-items: center;
+}
+
+.navbar .logo {
+    height: 150px;
+    width: 150px;
+    margin-left: 50px;
+    margin-right: 1350px;
+
+}
+
+.personal-icon {
+    max-width: 90px;
+    max-height: 90px;
+    margin-left: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+#usernameDisplay {
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.confirm-container {
+    max-width: 1600px;
+    background: #fce6c5;
+    margin: 40px auto;
+    padding: 30px 40px;
+    border-radius: 12px;
+    text-align: center;
+}
+.product-details {
+    background: #ffffff;
+    width: 50%;
+    height: auto;
+    margin-top: 20px;
+    text-align: left;
+}
+
+.user-details {
+    background: #ffffff;
+    width: 50%;
+    height: auto;
+    margin-top: 20px;
+    text-align: left;
+}
