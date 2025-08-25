@@ -2,12 +2,11 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: Arial, sans-serif;
+  font-family: 'Kanit', sans-serif;
 }
 
 body {
   margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: linear-gradient(to right, #ffffff, #ffffff);
 }
 
@@ -24,12 +23,12 @@ body {
 }
 
 .from-register {
-  max-width: 600px;
-  background: #ffebc7;
+  max-width: 700px;
+  background: #ffffff;
   margin: 40px auto;
   padding: 30px 40px;
   border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
 }
 
 h1 {

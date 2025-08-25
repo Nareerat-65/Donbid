@@ -7,6 +7,11 @@
 .content {
     margin-top: 20px;
 }
+body {
+      margin: 0;
+      font-family: 'Kanit', sans-serif;
+      background-color: #f4f4f4;
+    }
 
 .navbar {
   background-color: #FAF5E6;
@@ -78,6 +83,7 @@ h2 {
     border: none;
     border-radius: 8px;
     cursor: pointer;
+    font-family: 'Kanit', sans-serif;
 }
 
 .btn:hover {

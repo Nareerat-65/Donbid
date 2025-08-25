@@ -3,6 +3,11 @@
     padding: 0;
     box-sizing: border-box;
 }
+body {
+      margin: 0;
+      font-family: 'Kanit', sans-serif;
+      background-color: #f4f4f4;
+    }
 
 @media (max-width: 900px) {
     .main {
