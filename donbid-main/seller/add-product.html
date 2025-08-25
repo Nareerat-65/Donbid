@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <title>เพิ่มสินค้า</title>
   <link rel="stylesheet" href="add-product-style.css">
+  <link href='https://fonts.googleapis.com/css?family=Kanit&subset=thai,latin' rel='stylesheet' type='text/css'>
 </head>
 
 <body>
@@ -32,11 +33,21 @@
             </button>
         </div>
     </nav>
+  
 
   <form id="addProductForm" enctype="multipart/form-data" method="POST">
+    <h2>เพิ่มสินค้าใหม่</h2>
     <label>ชื่อสินค้า:
       <input type="text" name="name" required>
     </label>
+    <label for="category">หมวดหมู่:</label>
+    <select id="category" name="category" required>
+      <option value="">เลือกหมวดหมู่สินค้า</option>
+      <option value="character_model">โมเดลตัวละคร</option>
+      <option value="doll">ตุ๊กตา</option>
+      <option value="card_game">การ์ดเกม</option>
+      <option value="other">อื่น ๆ</option>
+    </select>
 
     <label>รายละเอียดสินค้า:
       <textarea name="description" required></textarea>

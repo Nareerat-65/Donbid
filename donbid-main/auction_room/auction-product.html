@@ -114,7 +114,7 @@
         </div>
         <div class="product-details">
             <h1 id="productName">ชื่อสินค้า</h1>
-            <p id="highestBid">฿0.00</p>
+            <h1 id="highestBid">฿0.00</h1>
             <p id="productPrice">ราคาเริ่มต้น: กำลังโหลด...</p>
             <p>รายละเอียด : <span id="productDescription">-</span></p>
             <p id="productSeller">ผู้ขาย: กำลังโหลด...</p>
@@ -510,7 +510,7 @@
             document.body.appendChild(popup);
 
             document.getElementById('goConfirmBtn').addEventListener('click', () => {
-                window.location.href = 'confirm-product.html';
+                window.location.href = `confirm-product.html`;
             });
         }
 

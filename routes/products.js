@@ -12,11 +12,11 @@ router.post(
   upload.array('images', 5), // <-- รองรับหลายไฟล์ชื่อ images[]
   async (req, res) => {
     const user = req.user;
-    const { name, description, start_price, start_time, end_time } = req.body;
+    const { name, category, description, start_price, start_time, end_time } = req.body;
 
     if (user.role !== 'seller') return res.status(403).json({ message: 'เฉพาะผู้ขายเท่านั้นที่เพิ่มสินค้าได้' });
 
-    if (!name || !description || !start_price || !start_time || !end_time)
+    if (!name || !category || !description || !start_price || !start_time || !end_time)
       return res.status(400).json({ message: 'กรุณากรอกข้อมูลให้ครบถ้วน' });
 
     const conn = await db.getConnection();
@@ -25,9 +25,9 @@ router.post(
       await conn.beginTransaction();
 
       const [result] = await conn.query(
-        `INSERT INTO products (name, description, start_price, start_time, end_time, status, created_by)
-         VALUES (?, ?, ?, ?, ?, 'upcoming', ?)`,
-        [name, description, start_price, start_time, end_time, user.id]
+        `INSERT INTO products (name, category, description, start_price, start_time, end_time, status, created_by)
+         VALUES (?, ?, ?, ?, ?, ?, 'upcoming', ?)`,
+        [name, category, description, start_price, start_time, end_time, user.id]
       );
 
       const productId = result.insertId;
@@ -118,7 +118,7 @@ router.post('/close/:id', authMiddleware, async (req, res) => {
   const productId = req.params.id;
   try {
     // ตรวจสอบว่าสินค้ามีอยู่และยังไม่ปิด
-    const [products] = await db.query('SELECT * FROM products WHERE id = ? AND status != "closed"', [productId]);
+    const [products] = await db.query('SELECT * FROM products WHERE id = ? AND status != "ended"', [productId]);
     if (products.length === 0) {
       return res.status(404).json({ message: 'ไม่พบสินค้าหรือสินค้าถูกปิดแล้ว' });
     }
