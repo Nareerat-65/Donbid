@@ -372,7 +372,7 @@
 
                     if (diff <= 0 && !called) {
                         clearInterval(interval);
-                        startFinalCountdown(10); // เข้าสู่ soft close 10 วิ
+                        startFinalCountdown(20); // เข้าสู่ soft close 20 วิ
                     } else if (diff > 0) {
                         const hrs = Math.floor(diff / 1000 / 60 / 60);
                         const mins = Math.floor((diff / 1000 / 60) % 60);
@@ -383,10 +383,19 @@
             }
 
             // 🚨 Soft Close Countdown
-            function startFinalCountdown(seconds) {
+            function startFinalCountdown(seconds, ExtendTime = false) {
                 let timeLeft = seconds;
                 countdownActive = true;
                 element.textContent = `กำลังจะปิดใน ${timeLeft}`;
+
+                let msg;
+                if (!ExtendTime) {
+                    msg = `เข้าสู่ช่วงสุดท้ายแล้ว! การประมูลจะปิดภายใน ${seconds} วินาที หากต้องการประมูลต่อ รีบเสนอราคาเลยตอนนี้!`;
+                } else {
+                    msg = `มีผู้เสนอราคาเพิ่ม! ต่อเวลาอีก ${seconds} วินาที`;
+                }
+                showAIMessage(msg);
+                playTTS(msg);
 
                 interval = setInterval(() => {
                     timeLeft--;
@@ -474,13 +483,14 @@
             socket.on('new bid', function (data) {
                 if (data.productId === productId && countdownActive && !called) {
                     clearInterval(interval);
-                    startFinalCountdown(10); // ต่อเวลาอีก 10 วิ
+                    startFinalCountdown(10,true); // ต่อเวลาอีก 10 วิ
                 }
             });
 
             // เริ่มนับปกติ
             normalCountdown();
         }
+
         function showWinnerPopup(winnerName, finalPrice, confirmUrl) {
             // ถ้ามี popup เดิม ให้ลบออกก่อน
             const existingPopup = document.querySelector('.popup-overlay');
