@@ -19,11 +19,13 @@ const authRoutes = require('./routes/auth');
 const productRouter = require('./routes/products');
 const bidsRoute = require('./routes/bids');
 const coinRoutes = require('./routes/coins');
+const confirmRouter = require('./routes/confirm');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRouter);
 app.use('/api/bids', bidsRoute);
 app.use('/api/coins', coinRoutes);
+app.use('/api/confirm', confirmRouter);
 
 
 // ✅ static ควรอยู่ท้ายสุด (หลัง API)

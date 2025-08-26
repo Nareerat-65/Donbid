@@ -116,8 +116,11 @@
             <h1 id="productName">ชื่อสินค้า</h1>
             <h1 id="highestBid">฿0.00</h1>
             <p id="productPrice">ราคาเริ่มต้น: กำลังโหลด...</p>
+            <p id="productCategory">ประเภทของสินค้า: กำลังโหลด...</p>
             <p>รายละเอียด : <span id="productDescription">-</span></p>
             <p id="productSeller">ผู้ขาย: กำลังโหลด...</p>
+            <p id="productStartTime">เวลาที่เริ่มต้น: กำลังโหลด...</p>
+            <p id="productEndTime">เวลาที่สิ้นสุด: กำลังโหลด...</p>
         </div>
     </div>
 
@@ -150,8 +153,11 @@
                 console.log(product);
                 document.getElementById("productName").textContent = product.name;
                 document.getElementById("productPrice").textContent = `ราคาเริ่มต้น : ${product.start_price}`;
+                document.getElementById("productCategory").textContent = `ประเภทของสินค้า: ${product.category || "-"}`;
                 document.getElementById("productDescription").textContent = product.description || "-";
                 document.getElementById("productSeller").textContent = `ผู้ขาย: ${product.seller_username}`;
+                document.getElementById("productStartTime").textContent = `เวลาที่เริ่มต้น: ${new Date(product.start_time).toLocaleString()}`;
+                document.getElementById("productEndTime").textContent = `เวลาที่สิ้นสุด: ${new Date(product.end_time).toLocaleString()}`;
 
                 // เวลาที่เหลือ
                 const timeElem = document.getElementById("productTimeRemaining");
@@ -510,7 +516,7 @@
             document.body.appendChild(popup);
 
             document.getElementById('goConfirmBtn').addEventListener('click', () => {
-                window.location.href = `confirm-product.html`;
+                window.location.href = `confirm-product.html?id=${productId}`;
             });
         }
 

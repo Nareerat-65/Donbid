@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link href='https://fonts.googleapis.com/css?family=Kanit&subset=thai,latin' rel='stylesheet' type='text/css'>
     <title>ยืนยันสินค้า</title>
 </head>
+
 <body>
     <nav name="navbar" class="navbar">
         <div>
@@ -38,14 +40,53 @@
         <h1>ยืนยันการประมูลสินค้า</h1>
         <div class="product-details">
             <p><strong>ชื่อสินค้า:</strong> <span id="productName">ตัวอย่างสินค้า</span></p>
-            <p><strong>ราคาสินค้า:</strong> <span id="productPrice">0.00</span> บาท</p>
+            <p><strong>ประเภทของสินค้า:</strong> <span id="productCategory">ประเภทตัวอย่าง</span></p>
             <p><strong>รายละเอียดสินค้า:</strong> <span id="productDescription">รายละเอียดตัวอย่างสินค้า</span></p>
+            <p><strong>ผู้ขาย:</strong> <span id="productSeller">ตัวอย่างผู้ขาย</span></p>
+            <p><strong>เวลาที่เริ่มต้น:</strong> <span id="productStartTime">00/00/0000 00:00</span></p>
+            <p><strong>ราคาเริ่มต้น:</strong> <span id="productPrice">0.00</span> บาท</p>
+            <p><strong>ราคาที่ชนะ:</strong> <span id="productWinningPrice">0.00</span> บาท</p>
         </div>
         <div class="user-details">
             <p><strong>ชื่อผู้ใช้:</strong> <span id="usernameDisplay">ตัวอย่างชื่อผู้ใช้</span></p>
+            <p><strong>ชื่อ-นามสกุล:</strong> <span id="fullName">สมชาย ใจดี</span></p>
+            <p><strong>ที่อยู่:</strong> <span id="userAddress">123 หมู่ 4 ตำบลใจดี อำเภอเมือง จังหวัดเชียงใหม่</span>
+            </p>
+            <p><strong>เบอร์โทรศัพท์:</strong> <span id="userPhone">012-345-6789</span></p>
             <p><strong>อีเมล:</strong> <span id="userEmail">example@example.com</span></p>
         </div>
         <button id="confirmBtn">ยืนยันการชำระสินค้า</button>
     </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const productId = params.get("id");
+
+        async function fetchProductDetails() {
+            try {
+                const res = await fetch(`/api/confirm/${productId}`);
+                console.log('productId:', productId); // ✅ ใช้ path param ตาม router
+                if (!res.ok) throw new Error('Network response was not ok');
+
+                const product = await res.json();
+
+                document.getElementById("productName").textContent = product.name;
+                document.getElementById("productPrice").textContent = `ราคาเริ่มต้น : ${product.start_price}`;
+                document.getElementById("productCategory").textContent = `ประเภทของสินค้า: ${product.category || "-"}`;
+                document.getElementById("productDescription").textContent = product.description || "-";
+                document.getElementById("productSeller").textContent = `ผู้ขาย: ${product.seller_name || "-"}`;
+                document.getElementById("productWinningPrice").textContent = `ราคาที่ชนะ: ${product.final_price || "-"}`;
+                document.getElementById("productStartTime").textContent = `เวลาที่เริ่มต้น: ${new Date(product.start_time).toLocaleString()}`;
+
+            } catch (error) {
+                console.error('Fetch error:', error);
+            }
+        }
+
+        fetchProductDetails();
+
+
+    </script>
 </body>
+
 </html>
