@@ -104,14 +104,21 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ error: 'ไม่พบสินค้า' });
     }
 
-    res.json(rows[0]);
+    const product = rows[0];
+
+    const [images] = await db.query(
+      `SELECT image_path FROM product_images WHERE product_id = ?`,
+      [product.id]
+    );
+
+    product.images = images.map(img => img.image_path);
+
+    res.json(product); // ✅ คืน object เดียว
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'เกิดข้อผิดพลาด' });
   }
 });
-
-
 
 // ปิดการประมูลและบันทึกผลลง auction_results
 router.post('/close/:id', authMiddleware, async (req, res) => {

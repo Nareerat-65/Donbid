@@ -43,7 +43,7 @@
             <div class="media-carousel">
                 <button class="arrow left">❮</button>
                 <div class="media-display">
-                    <img id="productImage" src="" alt="รูปสินค้า" />
+                    <div id="productImages"></div>
                 </div>
                 <button class="arrow right">❯</button>
                 <div class="dots">
@@ -147,8 +147,27 @@
         async function loadProductDetails() {
             try {
                 const res = await fetch(`/api/products/${productId}`);
-                const product = await res.json();
+                let product = await res.json();
 
+                if (Array.isArray(product)) {
+                    product = product.length > 0 ? product[0] : null;
+                }
+
+                if (!product) {
+                    console.error("ไม่พบสินค้านี้");
+                    return;
+                }
+                const imagesContainer = document.getElementById("productImages");
+
+                // render gallery
+                const imageGallery = product.images?.length
+                    ? product.images.map(img =>
+                        `<img src="/uploads/${img}" alt="${product.name}" class="product-image">`
+                    ).join('')
+                    : `<img src="https://via.placeholder.com/300x150" alt="${product.name}" class="product-image">`;
+
+                // set innerHTML
+                imagesContainer.innerHTML = imageGallery;
                 // แสดงข้อมูลสินค้า
                 console.log(product);
                 document.getElementById("productName").textContent = product.name;
@@ -489,7 +508,7 @@
             socket.on('new bid', function (data) {
                 if (data.productId === productId && countdownActive && !called) {
                     clearInterval(interval);
-                    startFinalCountdown(10,true); // ต่อเวลาอีก 10 วิ
+                    startFinalCountdown(10, true); // ต่อเวลาอีก 10 วิ
                 }
             });
 

@@ -76,8 +76,18 @@ header {
 
 .media-display {
   height: 400px;
-  background: #2f71b5;
+  background: #fffbf5;
   border-radius: 10px;
+  display: flex;              /* ใช้ flex */
+  justify-content: center;    /* จัดให้อยู่กึ่งกลางแนวนอน */
+  align-items: center;        /* จัดให้อยู่กึ่งกลางแนวตั้ง */
+  overflow: hidden;           /* กันรูปเกินกรอบ */
+}
+
+#productImages img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;        /* ให้รูปย่อ/ขยายพอดีกับกรอบ */
 }
 
 .arrow {
