@@ -107,22 +107,6 @@ header {
   right: 20px;
 }
 
-.dots {
-  display: flex;
-  justify-content: center;
-  margin-top: 8px;
-}
-.dot {
-  width: 10px;
-  height: 10px;
-  background: #6699cc;
-  border-radius: 50%;
-  margin: 0 5px;
-}
-.dot.active {
-  background: white;
-}
-
 .auction{
   width: 40%;
   height: 400px;
@@ -206,6 +190,8 @@ header {
   margin:30px auto;
   padding:20px;
   font-size:17px;
+  max-height: 200px;
+  overflow-y: auto;
 }
 
 .ai-suggest-btn-container{
@@ -232,7 +218,6 @@ header {
   margin-bottom: 12px;
   margin-left: 20px;
   margin-right: 350px;
-  display: inline-flex;
 }
 .product-details p {
   font-size: 18px;

@@ -46,11 +46,6 @@
                     <div id="productImages"></div>
                 </div>
                 <button class="arrow right">❯</button>
-                <div class="dots">
-                    <span class="dot active"></span>
-                    <span class="dot"></span>
-                    <span class="dot"></span>
-                </div>
             </div>
 
             <!-- รายละเอียดสินค้า -->
@@ -197,30 +192,58 @@
             }
         }
 
-        async function playTTS(text) {
-            try {
-                const res = await fetch('/api/ai/tts', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text })
-                });
+        function splitThaiText(text, maxLength = 50) {
+            let sentences = text.split(/(?<=[ๆ,.!?…])/);
+            let chunks = [];
+            let buffer = "";
 
-                if (!res.ok) throw new Error('TTS API error');
-
-                const arrayBuffer = await res.arrayBuffer(); // รับเป็น binary
-                const blob = new Blob([arrayBuffer], { type: 'audio/mpeg' }); // สร้าง Blob
-                const url = URL.createObjectURL(blob);
-
-                const audioElem = document.getElementById('ttsAudio');
-                audioElem.src = url;
-
-                await audioElem.play().catch(err => {
-                    console.warn('Autoplay blocked, trying after user interaction:', err);
-                });
-            } catch (err) {
-                console.error('TTS play error:', err);
-                alert('เกิดข้อผิดพลาดในการเล่นเสียง TTS');
+            for (let s of sentences) {
+                if ((buffer + s).length > maxLength) {
+                    chunks.push(buffer.trim());
+                    buffer = s;
+                } else {
+                    buffer += s;
+                }
             }
+            if (buffer.trim()) chunks.push(buffer.trim());
+
+            return chunks;
+        }
+
+        async function playTTS(text) {
+            const audioElem = document.getElementById('ttsAudio');
+            const chunks = splitThaiText(text, 50);
+
+            // ✅ โหลดไฟล์เสียงทุก chunk พร้อมกัน
+            const audioUrls = await Promise.all(
+                chunks.map(async chunk => {
+                    const res = await fetch('/api/ai/tts', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ text: chunk })
+                    });
+                    if (!res.ok) throw new Error('TTS API error');
+
+                    const arrayBuffer = await res.arrayBuffer();
+                    const blob = new Blob([arrayBuffer], { type: 'audio/mpeg' });
+                    return URL.createObjectURL(blob);
+                })
+            );
+
+            let index = 0;
+
+            function playNext() {
+                if (index >= audioUrls.length) return;
+                audioElem.src = audioUrls[index++];
+                audioElem.play().catch(err => {
+                    console.warn('Autoplay blocked:', err);
+                });
+            }
+
+            audioElem.onended = playNext;
+
+            // 🔥 เริ่มเล่นอันแรกเลย
+            playNext();
         }
 
         // ✅ ฟังก์ชันแสดงข้อความ AI
@@ -397,7 +420,7 @@
 
                     if (diff <= 0 && !called) {
                         clearInterval(interval);
-                        startFinalCountdown(20); // เข้าสู่ soft close 20 วิ
+                        startFinalCountdown(60); // เข้าสู่ soft close 20 วิ
                     } else if (diff > 0) {
                         const hrs = Math.floor(diff / 1000 / 60 / 60);
                         const mins = Math.floor((diff / 1000 / 60) % 60);
@@ -426,6 +449,21 @@
                     timeLeft--;
                     if (timeLeft > 0) {
                         element.textContent = `กำลังจะปิดใน ${timeLeft}`;
+
+                        if (timeLeft === 6) {
+                            showAIMessage('จะปิดประมูลแล้วนะคะ');
+                            const audio = new Audio('./sounds/ปิด.mp3'); // เสียงพูด "จะเริ่มปิดประมูลแล้วนะคะ" 
+                            audio.play(); 
+                        } else if (timeLeft === 3) {
+                            showAIMessage('3');
+                            const audio = new Audio('./sounds/3.mp3'); audio.play();
+                        } else if (timeLeft === 2) {
+                            showAIMessage('2');
+                            const audio = new Audio('./sounds/2.mp3'); audio.play();
+                        } else if (timeLeft === 1) {
+                            showAIMessage('1');
+                            const audio = new Audio('./sounds/1.mp3'); audio.play();
+                        }
                     } else {
                         clearInterval(interval);
                         countdownActive = false;
@@ -508,7 +546,7 @@
             socket.on('new bid', function (data) {
                 if (data.productId === productId && countdownActive && !called) {
                     clearInterval(interval);
-                    startFinalCountdown(10, true); // ต่อเวลาอีก 10 วิ
+                    startFinalCountdown(30, true); // ต่อเวลาอีก 30 วิ
                 }
             });
 
