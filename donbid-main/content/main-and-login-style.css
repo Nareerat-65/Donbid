@@ -136,12 +136,32 @@ header {
 
 .product-list {
   display: flex;
-  flex-wrap: wrap;
   gap: 20px;
   width: 100%;
-  max-width: 1500px;
-  margin: auto;
+  max-width: 80%;
+  margin-left: 10%;
   position: relative;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* สำหรับการเลื่อนที่ราบรื่นบน iOS */
+  align-items: stretch; /* การ์ดสูงเท่ากัน */
+}
+
+.product-list::-webkit-scrollbar {
+  height: 8px;
+}
+
+.product-card .images {
+  width: 100%;
+  height: 150px;        /* ความสูงคงที่เท่ากันทุกการ์ด */
+  overflow: hidden;     /* ตัดส่วนเกินออก */
+  border-radius: 8px;
+}
+
+.product-card .images img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;    /* ครอบรูปให้เต็มโดยไม่ยืดผิดสัดส่วน */
+  display: block;
 }
 
 .product-card {
@@ -150,10 +170,13 @@ header {
   overflow: hidden;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease;
-  width: calc(33.333% - 20px); /* 3 columns */
-  min-width: 150px; /* ป้องกันเล็กเกินไป */
+  width: 250px;     /* คงที่ */
+  height: 200px;    /* คงที่ */
+  min-width: 220px; 
+  flex: 0 0 auto;
   height: auto;
   text-align: center;
+  justify-content: space-between; /* จัด info + ปุ่มให้อยู่ด้านล่าง */
 }
 
 .product-card:hover {
@@ -169,7 +192,7 @@ header {
 
 .product-card .product-image {
   width: 100%;
-  max-width: 120px;
+  max-width: 500px;
   height: auto;
   border-radius: 5px;
   object-fit: cover;

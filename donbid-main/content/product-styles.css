@@ -68,59 +68,86 @@ header {
   width: 100px;
   height: 40px;
 }
-.product-list{
-      display: flex;
-      gap: 30px;
-      width: 100%;
-      max-width: 1500px;
-      height: 400px;
-      margin: auto;
-      /* overflow: hidden; */
-      position: relative;
-      border-radius: 12px;
-      margin-top: 30px;
-      
-    }
+.product-list {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  max-width: 80%;
+  margin-left: 10%;
+  position: relative;
+  /* overflow-x: auto; */
+  /* -webkit-overflow-scrolling: touch; สำหรับการเลื่อนที่ราบรื่นบน iOS */
+  align-items: stretch; /* การ์ดสูงเท่ากัน */
+  flex-wrap: wrap;
+}
 
-    .product-card {
-      background: white;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      transition: transform 0.2s ease;
-      width: 300px;
-      height: 350px;
-      text-align: center;
+.product-list::-webkit-scrollbar {
+  height: 8px;
+}
 
-      
-    }
+.product-card .images {
+  width: 100%;
+  height: 150px;        /* ความสูงคงที่เท่ากันทุกการ์ด */
+  overflow: hidden;     /* ตัดส่วนเกินออก */
+  border-radius: 8px;
+}
 
-    .product-card:hover {
-      transform: translateY(-5px);
-    }
+.product-card .images img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;    /* ครอบรูปให้เต็มโดยไม่ยืดผิดสัดส่วน */
+  display: block;
+}
 
-    .product-card img {
-      width: 100%;
-      height: 150px;
-      object-fit: cover;
-      margin-bottom: 160px;
-    }
+.product-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+  width: 250px;     /* คงที่ */
+  height: 200px;    /* คงที่ */
+  min-width: 220px; 
+  flex: 0 0 auto;
+  height: auto;
+  text-align: center;
+  justify-content: space-between; /* จัด info + ปุ่มให้อยู่ด้านล่าง */
+}
 
-    .product-info {
-      padding: 15px;
-    }
+.product-card:hover {
+  transform: translateY(-5px);
+}
 
-    .product-name {
-      font-size: 1.1em;
-      margin-bottom: 10px;
-      color: #333;
-    }
+.product-card .images {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 5px;
+}
 
-    .product-price {
-      color: #e53935;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
+.product-card .product-image {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  border-radius: 5px;
+  object-fit: cover;
+}
+
+.product-info {
+  padding: 15px;
+}
+
+.product-name {
+  font-size: 1.1em;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.product-price {
+  color: #e53935;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
 
     .buy-btn {
       display: inline-block;
