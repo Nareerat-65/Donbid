@@ -179,19 +179,33 @@ header {
   background: #e69500;
 }
 
-.ai-message-container{
-  background: #fff; 
+.ai-message-container {
+  background: #f0f0f0; 
   width: 100%;
-  height: auto;
-  border-radius:10px;
+  max-width: 600px;
+  margin: 0 auto;
+  border-radius: 10px;
+  padding: 10px;
+  height: 300px;
+  overflow-y: auto;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 
-#ai-message{
-  margin:30px auto;
-  padding:20px;
-  font-size:17px;
-  max-height: 200px;
-  overflow-y: auto;
+#ai-message {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* เว้นระยะระหว่างข้อความ */
+}
+
+.ai-bubble {
+  background-color: #fff;
+  color: #333;
+  padding: 10px 15px;
+  border-radius: 15px;
+  max-width: 90%;
+  align-self: center; /* ข้อความ AI อยู่ด้านซ้าย */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  word-break: break-word;
 }
 
 .ai-suggest-btn-container{

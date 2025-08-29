@@ -7,13 +7,31 @@ const auth = require('../middlewares/auth');
 router.get('/highest', async (req, res) => {
   const { product_id } = req.query;
 
-  const [[row]] = await db.query(
-    'SELECT MAX(bid_price) AS highest FROM bids WHERE product_id = ?',
-    [product_id]
-  );
+  try {
+    // หาราคาประมูลสูงสุดก่อน
+    const [[row]] = await db.query(
+      'SELECT MAX(bid_price) AS highest FROM bids WHERE product_id = ?',
+      [product_id]
+    );
 
-  res.json({ highest: row.highest || 0 });
+    let highest = row.highest;
+
+    // ถ้าไม่มี bid ให้ fallback ไปที่ starting_price ของสินค้า
+    if (!highest) {
+      const [[product]] = await db.query(
+        'SELECT start_price FROM products WHERE id = ?',
+        [product_id]
+      );
+      highest = product ? product.start_price : 0;
+    }
+
+    res.json({ highest });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'เกิดข้อผิดพลาด' });
+  }
 });
+
 
 // POST เสนอราคา
 router.post('/', auth, async (req, res) => {
@@ -26,7 +44,16 @@ router.post('/', auth, async (req, res) => {
       [product_id]
     );
 
-    const currentHighest = highestRow.highest || 0;
+     const [[product]] = await db.query(
+      'SELECT start_price FROM products WHERE id = ?',
+      [product_id]
+    );
+
+    if (!product) {
+      return res.status(404).json({ message: 'ไม่พบสินค้า' });
+    }
+
+    const currentHighest = Math.max(product.start_price, highestRow.highest || 0);
 
     if (bid_price <= currentHighest) {
       return res.status(400).json({ message: 'ต้องเสนอราคาสูงกว่าราคาปัจจุบัน' });

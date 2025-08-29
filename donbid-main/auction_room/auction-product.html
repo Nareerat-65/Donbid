@@ -248,15 +248,39 @@
 
         // ✅ ฟังก์ชันแสดงข้อความ AI
         function showAIMessage(msg) {
-            document.getElementById('ai-message').textContent = msg;
+            const container = document.getElementById('ai-message');
+            const bubble = document.createElement('div');
+            bubble.classList.add('ai-bubble');
+            bubble.textContent = msg;
+            container.appendChild(bubble);
+
+            // เลื่อนลงล่างสุดอัตโนมัติ
+            container.scrollTop = container.scrollHeight;
         }
 
-        function fetchAIMessage(prompt, fallbackMsg) {
+
+        async function loadAuctionLogs(productId) {
+            try {
+                const res = await fetch(`/api/ai/${productId}/logs`);
+                const logs = await res.json();
+
+                logs.forEach(log => {
+                    showAIMessage(log.message);
+                });
+            } catch (err) {
+                console.error("โหลดประวัติการสนทนาไม่สำเร็จ", err);
+            }
+        }
+
+        function fetchAIMessage(prompt, fallbackMsg, productId) {
             showAIMessage('AI กำลังประมวลผล...');
             fetch('/api/ai/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: prompt })
+                body: JSON.stringify({
+                    message: prompt,
+                    product_id: productId
+                })
             })
                 .then(res => res.json())
                 .then(data => {
@@ -272,8 +296,18 @@
 
         // ตัวอย่าง: แสดงข้อความ AI เมื่อเปิดหน้า
         window.addEventListener('DOMContentLoaded', () => {
-            showAIMessage('ยินดีต้อนรับสู่การประมูล! อย่าพลาดโอกาสดี ๆ ในการประมูลสินค้าเด็ด ๆ วันนี้');
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get("id");
+
+            // โหลดประวัติการสนทนาเก่า
+            if (productId) {
+                loadAuctionLogs(productId);
+            }
+
+            // แสดงข้อความต้อนรับ (ถ้าต้องการ)
+            showAIMessage('ยินดีต้อนรับสู่การประมูล! อย่าพลาดโอกาสดี ๆ วันนี้');
         });
+
 
         // ✅ ปุ่ม AI แนะนำสินค้า
         document.getElementById('ai-suggest-btn').addEventListener('click', async function () {
@@ -287,17 +321,17 @@
                     `ราคาเริ่มต้น: ${product.start_price} บาท`;
 
                 // เรียก AI + TTS
-                fetchAIMessage(prompt, 'AI ไม่สามารถให้คำแนะนำได้ตอนนี้');
+                fetchAIMessage(prompt, 'AI ไม่สามารถให้คำแนะนำได้ตอนนี้', productId);
             } catch (err) {
                 console.error(err);
-                fetchAIMessage('เกิดข้อผิดพลาดในการขอคำแนะนำจาก AI');
+                fetchAIMessage('เกิดข้อผิดพลาดในการขอคำแนะนำจาก AI', 'AI ไม่สามารถให้คำแนะนำได้ตอนนี้', productId);
             }
         });
 
         // ✅ เมื่อมีการเสนอราคาใหม่ ให้ AI ประกาศชื่อผู้เสนอและจำนวนเงิน
         async function announceBidAI(username, amount) {
             const prompt = `แจ้งให้ทุกคนทราบแบบไม่ยาวมาก ${username} เพิ่งเสนอราคา ${amount} บาท สำหรับสินค้านี้ แบบผู้ดำเนินการประมูลพร้อมกระตุ้นให้ผู้เข้าร่วมประมูลคนอื่น ๆ รู้สึกตื่นเต้นและอยากเข้าร่วมการประมูลนี้ ไม่ต้องมีสัญลักษณ์พิเศษ`;
-            fetchAIMessage(prompt, `ขอแสดงความยินดี ${username} ที่เสนอราคา ${amount} บาท!`);
+            fetchAIMessage(prompt, `ขอแสดงความยินดี ${username} ที่เสนอราคา ${amount} บาท!`, productId);
         }
 
         document.getElementById('customBidBtn').addEventListener('click', async () => {
@@ -453,7 +487,7 @@
                         if (timeLeft === 6) {
                             showAIMessage('จะปิดประมูลแล้วนะคะ');
                             const audio = new Audio('./sounds/ปิด.mp3'); // เสียงพูด "จะเริ่มปิดประมูลแล้วนะคะ" 
-                            audio.play(); 
+                            audio.play();
                         } else if (timeLeft === 3) {
                             showAIMessage('3');
                             const audio = new Audio('./sounds/3.mp3'); audio.play();
@@ -523,7 +557,7 @@
                                     const finalPrice = data.final_price;    // เอามาจาก API
                                     const prompt = `ขอแสดงความยินดีกับ ${winnerName} ที่ชนะการประมูลสินค้านี้ในราคา ${finalPrice} บาท!`;
 
-                                    fetchAIMessage(prompt, prompt);  // ✅ ประกาศด้วย AI
+                                    fetchAIMessage(prompt, prompt, productId);  // ✅ ประกาศด้วย AI
                                     console.log("DEBUG: calling showWinnerPopup with", winnerName, data.final_price);
                                     showWinnerPopup(winnerName, finalPrice, `/confirm?winner=${winnerId}`); // ✅ แสดง popup
                                 }
@@ -531,7 +565,7 @@
 
                         } else {
                             const fallbackMsg = data.message || "ไม่มีผู้ชนะการประมูล";
-                            fetchAIMessage(fallbackMsg, fallbackMsg); // ✅ กรณีไม่มีผู้ชนะ
+                            fetchAIMessage(fallbackMsg, fallbackMsg, productId); // ✅ กรณีไม่มีผู้ชนะ
                         }
 
                     } else {
