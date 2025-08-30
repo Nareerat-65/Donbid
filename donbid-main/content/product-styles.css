@@ -143,6 +143,10 @@ header {
   color: #333;
 }
 
+.fillter-block{
+  border: solid, #ff9900; padding: 10px; margin: 10px; display: none; position: absolute; background-color: white; z-index: 1; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); margin-left: 74%;
+}
+
 .product-price {
   color: #e53935;
   font-weight: bold;
@@ -194,7 +198,7 @@ header {
       background: #e69500;
     }
 
-    .fillterhButton{
+    .fillterButton{
       padding: 10px 20px;
       background-color: #FFA500;
       color: white;
@@ -204,7 +208,7 @@ header {
       margin-left: 10px;
       font-size: 16px;
     }
-    .fillterhButton:hover {
+    .fillterButton:hover {
       background: #e69500;
     }
     .product-section{
@@ -274,7 +278,7 @@ header {
     width: 120px;
     font-size: 12px;
   }
-  .searchButton, .fillterhButton {
+  .searchButton, .fillterButton {
     font-size: 12px;
     padding: 6px 10px;
   }

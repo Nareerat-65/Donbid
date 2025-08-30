@@ -40,7 +40,38 @@
         <input type="text" class="searchInput" id="searchInput" placeholder="ค้นหาสินค้า...">
         <button id="searchButton" class="searchButton">ค้นหา</button>
         <div class="product-fillter">
-            <button id="fillterhButton" class="fillterhButton">กรองสินค้า</button>
+            <button id="fillterButton" class="fillterButton">กรองสินค้า</button>
+        </div>
+    </div>
+    <div class="fillter-block">
+        <div class="fillter-header">ตัวกรองสินค้า</div>
+        <button >Reset</button>
+        <div class="fillter-detail">
+            <div class="fillter-item">
+                <label for="priceRange">ช่วงราคาสินค้า (บาท):</label>
+                <input type="number" id="minPrice" placeholder="ต่ำสุด" style="width: 80px;">
+                -
+                <input type="number" id="maxPrice" placeholder="สูงสุด" style="width: 80px;">
+            </div>
+            <div class="fillter-item">
+                <label for="auctionStatus">สถานะการประมูล:</label>
+                <select id="auctionStatus">
+                    <option value="all">ทั้งหมด</option>
+                    <option value="upcoming">จะเริ่ม</option>
+                    <option value="ongoing">กำลังประมูล</option>
+                    <option value="ended">หมดเวลา</option>
+                </select>
+            </div>
+            <div class="fillter-item">
+                <label for="sortBy">เรียงลำดับตาม:</label>
+                <select id="sortBy">
+                    <option value="newest">ใหม่ล่าสุด</option>
+                    <option value="priceLowHigh">ราคาต่ำไปสูง</option>
+                    <option value="priceHighLow">ราคาสูงไปต่ำ</option>
+                    <option value="endingSoon">ใกล้หมดเวลาประมูล</option>
+                </select>
+            </div>
+            <button id="applyFilterButton" class="applyFilterButton">ใช้ตัวกรอง</button>
         </div>
     </div>
     <div class="product-section">
@@ -96,6 +127,50 @@
                 console.error('❌ โหลดสินค้าไม่สำเร็จ:', err);
             }
         }
+
+        const fillterButton = document.getElementById("fillterButton");
+        
+        function fillterOpen() {
+            const fillterBlock = document.querySelector(".fillter-block");
+            if (fillterBlock.style.display === "none") {
+                fillterBlock.style.display = "block";
+            } else {
+                fillterBlock.style.display = "none";
+            }
+        }
+
+        fillterButton.addEventListener("click", fillterOpen);
+
+        const searchInput = document.getElementById("searchInput");
+        const searchButton = document.getElementById("searchButton");
+
+        function searchProducts() {
+            const keyword = searchInput.value.toLowerCase();
+            const cards = document.querySelectorAll(".product-list .product-card");
+
+            cards.forEach(card => {
+                const productName = card.querySelector(".product-name").textContent.toLowerCase();
+
+                if (keyword === "" || productName.includes(keyword)) {
+                    card.style.display = "";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+        }
+
+        // คลิกปุ่มค้นหา
+        searchButton.addEventListener("click", searchProducts);
+
+        // สำหรับแบบ real-time
+        searchInput.addEventListener("input", searchProducts);
+
+        // พิมพ์แล้ว Enter
+        searchInput.addEventListener("keyup", function(event) {
+            if (event.key === "Enter") {
+            searchProducts();
+            }
+        });
 
         function startCountdownText(startTimeStr, endTimeStr, element) {
             const btn = element.closest('.product-info').querySelector('.buy-btn');
