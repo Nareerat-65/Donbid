@@ -71,6 +71,16 @@
                     <option value="endingSoon">ใกล้หมดเวลาประมูล</option>
                 </select>
             </div>
+            <div class="fillter-item">
+                <label for="cate">ประเภทของสินค้า</label>
+                <select id="cate">
+                    <option value="">ทั้งหมด</option>
+                    <option value="character_model">โมเดลตัวละคร</option>
+                    <option value="doll">ตุ๊กตา</option>
+                    <option value="card_game">การ์ดเกม</option>
+                    <option value="other">อื่น ๆ</option>
+                </select>
+            </div>
             <button id="applyFilterButton" class="applyFilterButton">ใช้ตัวกรอง</button>
         </div>
     </div>
@@ -83,63 +93,76 @@
     </div>
 
     <script>
+        let allProducts = [];
         async function loadProducts() {
             try {
                 const res = await fetch('/api/products');
                 const products = await res.json();
 
-                const productList = document.querySelector('.product-list');
-                productList.innerHTML = '';
+                allProducts = products; // เก็บข้อมูลสินค้าไว้ในตัวแปร global
 
-                products.forEach(p => {
-
-                    const now = new Date();
-                    const end = new Date(p.end_time)
-
-                    if (now >= end) return;
-
-                    const card = document.createElement('div');
-                    const start = new Date(p.start_time);
-                    const isAuctionStarted = now >= start;
-                    const imageGallery = p.images?.length
-                        ? p.images.map(img => `<img src="/uploads/${img}" alt="${p.name}" class="product-image">`).join('')
-                        : `<img src="https://via.placeholder.com/300x150" alt="${p.name}" class="product-image">`;
-
-                    card.className = 'product-card';
-                    card.innerHTML = `
-                        <div class="images">${imageGallery}</div>
-                        <div class="product-info">
-                            <div class="product-name">${p.name}</div>
-                            <div class="product-price">฿${Number(p.current_price).toFixed(2)}</div>
-                            <div class="product-time">กำลังโหลด...</div>
-                            <a href="../auction_room/auction-product.html?id=${p.id}" class="buy-btn ${!isAuctionStarted ? 'disabled' : ''}">
-                                เริ่มประมูล
-                            </a>
-                        </div>
-                    `;
-
-                    const timeElem = card.querySelector('.product-time');
-                    startCountdownText(p.start_time, p.end_time, timeElem);
-
-                    productList.appendChild(card);
-                });
+                renderProducts(allProducts)
             } catch (err) {
                 console.error('❌ โหลดสินค้าไม่สำเร็จ:', err);
             }
         }
 
-        const fillterButton = document.getElementById("fillterButton");
-        
-        function fillterOpen() {
-            const fillterBlock = document.querySelector(".fillter-block");
-            if (fillterBlock.style.display === "none") {
-                fillterBlock.style.display = "block";
-            } else {
-                fillterBlock.style.display = "none";
-            }
+        function renderProducts(products) {
+            const productList = document.querySelector('.product-list');
+            productList.innerHTML = '';
+
+            const now = new Date();
+
+            products.forEach(p => {
+                const end = new Date(p.end_time);
+                if (now >= end) return; // หมดเวลาไม่แสดง (ถ้าอยากให้แสดง ลบเงื่อนไขนี้)
+
+                const start = new Date(p.start_time);
+                const isAuctionStarted = now >= start;
+
+                const imageGallery = p.images?.length
+                    ? p.images.map(img => `<img src="/uploads/${img}" alt="${p.name}" class="product-image">`).join('')
+                    : `<img src="https://via.placeholder.com/300x150" alt="${p.name}" class="product-image">`;
+
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <div class="images">${imageGallery}</div>
+                    <div class="product-info">
+                        <div class="product-name">${p.name}</div>
+                        <div class="product-price">฿${Number(p.current_price).toFixed(2)}</div>
+                        <div class="product-time">กำลังโหลด...</div>
+                        <a href="../auction_room/auction-product.html?id=${p.id}" 
+                        class="buy-btn ${!isAuctionStarted ? 'disabled' : ''}">
+                            เริ่มประมูล
+                        </a>
+                    </div>
+                `;
+
+                const timeElem = card.querySelector('.product-time');
+                startCountdownText(p.start_time, p.end_time, timeElem);
+
+                productList.appendChild(card);
+            });
         }
 
-        fillterButton.addEventListener("click", fillterOpen);
+        // ฟังก์ชันเปิด-ปิด ตัวกรอง
+        const fillterButton = document.getElementById("fillterButton");
+        const filterBlock = document.querySelector(".fillter-block");
+
+        fillterButton.addEventListener("click", (e) => {
+            e.stopPropagation();
+            filterBlock.style.display = filterBlock.style.display === "block" ? "none" : "block";
+        });
+
+        // ถ้าคลิกที่อื่นนอก filterBlock → ปิด
+        document.addEventListener("click", (e) => {
+            if (filterBlock.style.display === "block" && 
+                !filterBlock.contains(e.target) && 
+                e.target !== fillterButton) {
+                filterBlock.style.display = "none";
+            }
+        });
 
         const searchInput = document.getElementById("searchInput");
         const searchButton = document.getElementById("searchButton");
@@ -150,12 +173,7 @@
 
             cards.forEach(card => {
                 const productName = card.querySelector(".product-name").textContent.toLowerCase();
-
-                if (keyword === "" || productName.includes(keyword)) {
-                    card.style.display = "";
-                } else {
-                    card.style.display = "none";
-                }
+                card.style.display = (keyword === "" || productName.includes(keyword)) ? "" : "none";
             });
         }
 
@@ -166,10 +184,67 @@
         searchInput.addEventListener("input", searchProducts);
 
         // พิมพ์แล้ว Enter
-        searchInput.addEventListener("keyup", function(event) {
-            if (event.key === "Enter") {
-            searchProducts();
+        searchInput.addEventListener("keyup", e => e.key === "Enter" && searchProducts());
+
+        // ฟังก์ชันกรองสินค้า
+        function applyFilters() {
+            let filtered = [...allProducts];
+            const now = new Date();
+
+            // ราคา
+            const minPrice = parseFloat(document.getElementById('minPrice').value) || 0;
+            const maxPrice = parseFloat(document.getElementById('maxPrice').value) || Infinity;
+            filtered = filtered.filter(p => p.current_price >= minPrice && p.current_price <= maxPrice);
+
+            // สถานะ
+            const auctionStatus = document.getElementById('auctionStatus').value;
+            filtered = filtered.filter(p => {
+                const start = new Date(p.start_time);
+                const end = new Date(p.end_time);
+
+                if (auctionStatus === 'upcoming') return now < start;
+                if (auctionStatus === 'ongoing') return now >= start && now < end;
+                if (auctionStatus === 'ended') return now >= end;
+                return true;
+            });
+
+            // เรียงลำดับ
+            const sortBy = document.getElementById('sortBy').value;
+            filtered.sort((a, b) => {
+                const startA = new Date(a.start_time);
+                const startB = new Date(b.start_time);
+                const endA = new Date(a.end_time);
+                const endB = new Date(b.end_time);
+
+                switch (sortBy) {
+                    case 'newest': return startB - startA;
+                    case 'priceLowHigh': return a.current_price - b.current_price;
+                    case 'priceHighLow': return b.current_price - a.current_price;
+                    case 'endingSoon': return endA - endB;
+                    default: return 0;
+                }
+            });
+
+            // ประเภทของสินค้า
+            const cate = document.getElementById('cate').value;
+            if(cate) {
+                filtered = filtered.filter(p => p.category === cate);
             }
+
+            renderProducts(filtered);
+        }
+
+        // ✅ ปุ่ม Apply
+        document.getElementById('applyFilterButton').addEventListener("click", applyFilters);
+
+        // ✅ ปุ่ม Reset
+        document.querySelector('.fillter-block button').addEventListener("click", () => {
+            document.getElementById('minPrice').value = '';
+            document.getElementById('maxPrice').value = '';
+            document.getElementById('auctionStatus').value = 'all';
+            document.getElementById('sortBy').value = 'newest';
+            document.getElementById('cate').value = '';
+            renderProducts(allProducts);
         });
 
         function startCountdownText(startTimeStr, endTimeStr, element) {
