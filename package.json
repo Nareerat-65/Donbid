@@ -25,6 +25,7 @@
     "bcryptjs": "^3.0.2",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "fullcalendar": "^6.1.19",
     "groq-sdk": "^0.29.0",
     "jsonwebtoken": "^9.0.2",
     "microsoft-cognitiveservices-speech-sdk": "^1.45.0",

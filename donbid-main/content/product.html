@@ -1,341 +1,481 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="product-styles.css">
-    <link href='https://fonts.googleapis.com/css?family=Kanit&subset=thai,latin' rel='stylesheet' type='text/css'>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="product-styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Kanit&subset=thai,latin"
+      rel="stylesheet"
+      type="text/css"
+    />
     <title>สินค้าทั้งหมด</title>
-</head>
+  </head>
 
-<body>
+  <body>
     <nav name="navbar" class="navbar">
-        <div>
-            <a href="main-and-login.html" class="logo-link">
-                <img src="../pic/Logo.png" alt="โลโก้" class="logo">
-            </a>
-        </div>
+      <div>
+        <a href="main-and-login.html" class="logo-link">
+          <img src="../pic/Logo.png" alt="โลโก้" class="logo" />
+        </a>
+      </div>
 
-        <div class="balance">💰 Coin: <span id="coinBalance">0.00</span></div>
-        <button onclick="location.href='/purchaseCoins/purchaseCoins.html'">+</button>
+      <div class="balance">💰 Coin: <span id="coinBalance">0.00</span></div>
+      <button onclick="location.href='/purchaseCoins/purchaseCoins.html'">
+        +
+      </button>
 
-        <div class="personal-icon">
-            <a href="../content/profile-check.html" class="logo-link">
-                <img src="../pic/personal-icon.png" alt="ไอค่อน" class="personal-icon">
-            </a>
-            <span id="usernameDisplay" style="margin-left: 10px; font-weight: bold;"></span>
-        </div>
+      <div class="personal-icon">
+        <a href="../content/profile-check.html" class="logo-link">
+          <img
+            src="../pic/personal-icon.png"
+            alt="ไอค่อน"
+            class="personal-icon"
+          />
+        </a>
+        <span
+          id="usernameDisplay"
+          style="margin-left: 10px; font-weight: bold"
+        ></span>
+      </div>
 
-        <!-- เพิ่มสินค้าเฉพาะ Seller -->
-        <div id="addProductBtnContainer" style="text-align: right; padding: 10px; display: none;">
-            <button onclick="location.href='/seller/add-product.html'"
-                style="padding: 10px 20px; background-color: #ff9900; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                + เพิ่มสินค้า
-            </button>
-        </div>
-
+      <!-- เพิ่มสินค้าเฉพาะ Seller -->
+      <div
+        id="addProductBtnContainer"
+        style="text-align: right; padding: 10px; display: none"
+      >
+        <button
+          onclick="location.href='/seller/add-product.html'"
+          style="
+            padding: 10px 20px;
+            background-color: #ff9900;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+          "
+        >
+          + เพิ่มสินค้า
+        </button>
+      </div>
     </nav>
     <div class="search">
-        <input type="text" class="searchInput" id="searchInput" placeholder="ค้นหาสินค้า...">
-        <button id="searchButton" class="searchButton">ค้นหา</button>
-        <div class="product-fillter">
-            <button id="fillterButton" class="fillterButton">กรองสินค้า</button>
-        </div>
+      <input
+        type="text"
+        class="searchInput"
+        id="searchInput"
+        placeholder="ค้นหาสินค้า..."
+      />
+      <button id="searchButton" class="searchButton">ค้นหา</button>
+      <div class="product-fillter">
+        <button id="fillterButton" class="fillterButton">กรองสินค้า</button>
+      </div>
     </div>
     <div class="fillter-block">
-        <div class="fillter-header">ตัวกรองสินค้า</div>
-        <button >Reset</button>
-        <div class="fillter-detail">
-            <div class="fillter-item">
-                <label for="priceRange">ช่วงราคาสินค้า (บาท):</label>
-                <input type="number" id="minPrice" placeholder="ต่ำสุด" style="width: 80px;">
-                -
-                <input type="number" id="maxPrice" placeholder="สูงสุด" style="width: 80px;">
-            </div>
-            <div class="fillter-item">
-                <label for="auctionStatus">สถานะการประมูล:</label>
-                <select id="auctionStatus">
-                    <option value="all">ทั้งหมด</option>
-                    <option value="upcoming">จะเริ่ม</option>
-                    <option value="ongoing">กำลังประมูล</option>
-                    <option value="ended">หมดเวลา</option>
-                </select>
-            </div>
-            <div class="fillter-item">
-                <label for="sortBy">เรียงลำดับตาม:</label>
-                <select id="sortBy">
-                    <option value="newest">ใหม่ล่าสุด</option>
-                    <option value="priceLowHigh">ราคาต่ำไปสูง</option>
-                    <option value="priceHighLow">ราคาสูงไปต่ำ</option>
-                    <option value="endingSoon">ใกล้หมดเวลาประมูล</option>
-                </select>
-            </div>
-            <div class="fillter-item">
-                <label for="cate">ประเภทของสินค้า</label>
-                <select id="cate">
-                    <option value="">ทั้งหมด</option>
-                    <option value="character_model">โมเดลตัวละคร</option>
-                    <option value="doll">ตุ๊กตา</option>
-                    <option value="card_game">การ์ดเกม</option>
-                    <option value="other">อื่น ๆ</option>
-                </select>
-            </div>
-            <button id="applyFilterButton" class="applyFilterButton">ใช้ตัวกรอง</button>
+      <div class="fillter-header">ตัวกรองสินค้า</div>
+      <button>Reset</button>
+      <div class="fillter-detail">
+        <div class="fillter-item">
+          <label for="priceRange">ช่วงราคาสินค้า (บาท):</label>
+          <input
+            type="number"
+            id="minPrice"
+            placeholder="ต่ำสุด"
+            style="width: 80px"
+          />
+          -
+          <input
+            type="number"
+            id="maxPrice"
+            placeholder="สูงสุด"
+            style="width: 80px"
+          />
         </div>
+        <div class="fillter-item">
+          <label for="auctionStatus">สถานะการประมูล:</label>
+          <select id="auctionStatus">
+            <option value="all">ทั้งหมด</option>
+            <option value="upcoming">จะเริ่ม</option>
+            <option value="ongoing">กำลังประมูล</option>
+            <option value="ended">หมดเวลา</option>
+          </select>
+        </div>
+        <div class="fillter-item">
+          <label for="sortBy">เรียงลำดับตาม:</label>
+          <select id="sortBy">
+            <option value="newest">ใหม่ล่าสุด</option>
+            <option value="priceLowHigh">ราคาต่ำไปสูง</option>
+            <option value="priceHighLow">ราคาสูงไปต่ำ</option>
+            <option value="endingSoon">ใกล้หมดเวลาประมูล</option>
+          </select>
+        </div>
+        <div class="fillter-item">
+          <label for="cate">ประเภทของสินค้า</label>
+          <select id="cate">
+            <option value="">ทั้งหมด</option>
+            <option value="character_model">โมเดลตัวละคร</option>
+            <option value="doll">ตุ๊กตา</option>
+            <option value="card_game">การ์ดเกม</option>
+            <option value="other">อื่น ๆ</option>
+          </select>
+        </div>
+        <button id="applyFilterButton" class="applyFilterButton">
+          ใช้ตัวกรอง
+        </button>
+      </div>
     </div>
     <div class="product-section">
-        <h1>สินค้าทั้งหมด</h1>
+      <h1>สินค้าทั้งหมด</h1>
     </div>
 
     <div class="product-list">
-        <!-- Add more product cards as needed -->
+      <!-- Add more product cards as needed -->
     </div>
 
     <script>
-        let allProducts = [];
-        async function loadProducts() {
-            try {
-                const res = await fetch('/api/products');
-                const products = await res.json();
+      let allProducts = [];
+      async function loadProducts() {
+        try {
+          const res = await fetch("/api/products");
+          const products = await res.json();
 
-                allProducts = products; // เก็บข้อมูลสินค้าไว้ในตัวแปร global
+          allProducts = products; // เก็บข้อมูลสินค้าไว้ในตัวแปร global
 
-                renderProducts(allProducts)
-            } catch (err) {
-                console.error('❌ โหลดสินค้าไม่สำเร็จ:', err);
-            }
+          renderProducts(allProducts);
+        } catch (err) {
+          console.error("❌ โหลดสินค้าไม่สำเร็จ:", err);
         }
+      }
 
-        function renderProducts(products) {
-            const productList = document.querySelector('.product-list');
-            productList.innerHTML = '';
+      function renderProducts(products) {
+        const productList = document.querySelector(".product-list");
+        productList.innerHTML = "";
 
-            const now = new Date();
+        const now = new Date();
+        let followed = JSON.parse(localStorage.getItem("followedProducts")) || [];
 
-            products.forEach(p => {
-                const end = new Date(p.end_time);
-                if (now >= end) return; // หมดเวลาไม่แสดง (ถ้าอยากให้แสดง ลบเงื่อนไขนี้)
+        products.forEach((p) => {
+          const end = new Date(p.end_time);
+          if (now >= end) return; // หมดเวลาไม่แสดง (ถ้าอยากให้แสดง ลบเงื่อนไขนี้)
 
-                const start = new Date(p.start_time);
-                const isAuctionStarted = now >= start;
+          const start = new Date(p.start_time);
+          const isAuctionStarted = now >= start;
 
-                const imageGallery = p.images?.length
-                    ? p.images.map(img => `<img src="/uploads/${img}" alt="${p.name}" class="product-image">`).join('')
-                    : `<img src="https://via.placeholder.com/300x150" alt="${p.name}" class="product-image">`;
+          const imageGallery = p.images?.length
+            ? p.images
+                .map(
+                  (img) =>
+                    `<img src="/uploads/${img}" alt="${p.name}" class="product-image">`
+                )
+                .join("")
+            : `<img src="https://via.placeholder.com/300x150" alt="${p.name}" class="product-image">`;
 
-                const card = document.createElement('div');
-                card.className = 'product-card';
-                card.innerHTML = `
+          const isFollowed = followed.includes(String(p.id));
+
+          const card = document.createElement("div");
+          card.className = "product-card";
+          card.innerHTML = `
                     <div class="images">${imageGallery}</div>
                     <div class="product-info">
                         <div class="product-name">${p.name}</div>
-                        <div class="product-price">฿${Number(p.current_price).toFixed(2)}</div>
+                        <div class="product-price">฿${Number(
+                          p.current_price
+                        ).toFixed(2)}</div>
                         <div class="product-time">กำลังโหลด...</div>
-                        <a href="../auction_room/auction-product.html?id=${p.id}" 
-                        class="buy-btn ${!isAuctionStarted ? 'disabled' : ''}">
+                        <button class="follow-btn" data-id=${p.id}>
+                            ${isFollowed ? "✅ กำลังติดตาม" : "⭐ ติดตาม"}
+                        </button>
+                        <a href="../auction_room/auction-product.html?id=${
+                          p.id
+                        }" 
+                        class="buy-btn ${!isAuctionStarted ? "disabled" : ""}">
                             เริ่มประมูล
                         </a>
                     </div>
                 `;
 
-                const timeElem = card.querySelector('.product-time');
-                startCountdownText(p.start_time, p.end_time, timeElem);
+          const timeElem = card.querySelector(".product-time");
+          startCountdownText(p.start_time, p.end_time, timeElem);
 
-                productList.appendChild(card);
-            });
-        }
+          productList.appendChild(card);
 
-        // ฟังก์ชันเปิด-ปิด ตัวกรอง
-        const fillterButton = document.getElementById("fillterButton");
-        const filterBlock = document.querySelector(".fillter-block");
+          // หลังจาก appendChild(card);
+          const followBtn = card.querySelector(".follow-btn");
+          followBtn.addEventListener("click", () => {
+            let followed =
+              JSON.parse(localStorage.getItem("followedProducts")) || [];
 
-        fillterButton.addEventListener("click", (e) => {
-            e.stopPropagation();
-            filterBlock.style.display = filterBlock.style.display === "block" ? "none" : "block";
-        });
-
-        // ถ้าคลิกที่อื่นนอก filterBlock → ปิด
-        document.addEventListener("click", (e) => {
-            if (filterBlock.style.display === "block" && 
-                !filterBlock.contains(e.target) && 
-                e.target !== fillterButton) {
-                filterBlock.style.display = "none";
-            }
-        });
-
-        const searchInput = document.getElementById("searchInput");
-        const searchButton = document.getElementById("searchButton");
-
-        function searchProducts() {
-            const keyword = searchInput.value.toLowerCase();
-            const cards = document.querySelectorAll(".product-list .product-card");
-
-            cards.forEach(card => {
-                const productName = card.querySelector(".product-name").textContent.toLowerCase();
-                card.style.display = (keyword === "" || productName.includes(keyword)) ? "" : "none";
-            });
-        }
-
-        // คลิกปุ่มค้นหา
-        searchButton.addEventListener("click", searchProducts);
-
-        // สำหรับแบบ real-time
-        searchInput.addEventListener("input", searchProducts);
-
-        // พิมพ์แล้ว Enter
-        searchInput.addEventListener("keyup", e => e.key === "Enter" && searchProducts());
-
-        // ฟังก์ชันกรองสินค้า
-        function applyFilters() {
-            let filtered = [...allProducts];
-            const now = new Date();
-
-            // ราคา
-            const minPrice = parseFloat(document.getElementById('minPrice').value) || 0;
-            const maxPrice = parseFloat(document.getElementById('maxPrice').value) || Infinity;
-            filtered = filtered.filter(p => p.current_price >= minPrice && p.current_price <= maxPrice);
-
-            // สถานะ
-            const auctionStatus = document.getElementById('auctionStatus').value;
-            filtered = filtered.filter(p => {
-                const start = new Date(p.start_time);
-                const end = new Date(p.end_time);
-
-                if (auctionStatus === 'upcoming') return now < start;
-                if (auctionStatus === 'ongoing') return now >= start && now < end;
-                if (auctionStatus === 'ended') return now >= end;
-                return true;
-            });
-
-            // เรียงลำดับ
-            const sortBy = document.getElementById('sortBy').value;
-            filtered.sort((a, b) => {
-                const startA = new Date(a.start_time);
-                const startB = new Date(b.start_time);
-                const endA = new Date(a.end_time);
-                const endB = new Date(b.end_time);
-
-                switch (sortBy) {
-                    case 'newest': return startB - startA;
-                    case 'priceLowHigh': return a.current_price - b.current_price;
-                    case 'priceHighLow': return b.current_price - a.current_price;
-                    case 'endingSoon': return endA - endB;
-                    default: return 0;
-                }
-            });
-
-            // ประเภทของสินค้า
-            const cate = document.getElementById('cate').value;
-            if(cate) {
-                filtered = filtered.filter(p => p.category === cate);
-            }
-
-            renderProducts(filtered);
-        }
-
-        // ✅ ปุ่ม Apply
-        document.getElementById('applyFilterButton').addEventListener("click", applyFilters);
-
-        // ✅ ปุ่ม Reset
-        document.querySelector('.fillter-block button').addEventListener("click", () => {
-            document.getElementById('minPrice').value = '';
-            document.getElementById('maxPrice').value = '';
-            document.getElementById('auctionStatus').value = 'all';
-            document.getElementById('sortBy').value = 'newest';
-            document.getElementById('cate').value = '';
-            renderProducts(allProducts);
-        });
-
-        function startCountdownText(startTimeStr, endTimeStr, element) {
-            const btn = element.closest('.product-info').querySelector('.buy-btn');
-
-            let interval;
-
-            function update() {
-                const now = new Date();
-                const start = new Date(startTimeStr);
-                const end = new Date(endTimeStr);
-
-                if (now < start) {
-                    const diff = Math.floor((start - now) / 1000);
-                    element.textContent = `จะเริ่มในอีก ${formatDuration(diff)}`;
-                    btn.classList.add('disabled');
-                } else if (now >= start && now < end) {
-                    const diff = Math.floor((end - now) / 1000);
-                    element.textContent = `เหลือเวลา ${formatDuration(diff)}`;
-                    btn.classList.remove('disabled'); // ✅ เริ่มประมูลแล้ว ปลดล็อกปุ่ม
-                } else {
-                    element.textContent = `หมดเวลาแล้ว`;
-                    btn.classList.add('disabled');
-                    clearInterval(interval);
-                }
-            }
-
-            interval = setInterval(update, 1000);
-            update();
-        }
-
-
-        function formatDuration(seconds) {
-            const hours = Math.floor(seconds / 3600);
-            const mins = Math.floor((seconds % 3600) / 60);
-            const secs = seconds % 60;
-            if (hours > 0) {
-            return `${hours} ชั่วโมง ${mins} นาที ${secs} วินาที`;
-            } else if (mins > 0) {
-            return `${mins} นาที ${secs} วินาที`;
+            if (followed.includes(String(p.id))) {
+              // ถ้ามีแล้วให้ยกเลิกติดตาม
+              followed = followed.filter((id) => id !== String(p.id));
+              followBtn.textContent = "⭐ ติดตาม";
+              alert(`❌ ยกเลิกติดตาม ${p.name}`);
             } else {
-            return `${secs} วินาที`;
-            }
-        }
-
-        
-
-        function parseJwt(token) {
-            try {
-                const base64Url = token.split('.')[1];
-                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                const jsonPayload = decodeURIComponent(atob(base64).split('').map(c =>
-                    '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-                ).join(''));
-                return JSON.parse(jsonPayload);
-            } catch (e) {
-                return null;
-            }
-        }
-
-        window.onload = function () {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                alert('กรุณาเข้าสู่ระบบก่อน');
-                window.location.href = '/login/login.html';
-                return;
+              // ถ้ายังไม่มีให้ติดตาม
+              followed.push(String(p.id));
+              followBtn.textContent = "✅ กำลังติดตาม";
+              alert(`⭐ ติดตาม ${p.name} แล้ว`);
             }
 
-            const payload = parseJwt(token);
-            if (payload && payload.username) {
-                const iconLink = document.querySelector('.personal-icon a');
-                if (iconLink) iconLink.setAttribute('title', `คุณ ${payload.username}`);
-                const nameSpan = document.getElementById('usernameDisplay');
-                if (nameSpan) nameSpan.textContent = `คุณ ${payload.username}`;
-                const coinSpan = document.getElementById('coinBalance');
-                if (coinSpan && payload.coin !== undefined) {
-                    coinSpan.textContent = parseFloat(payload.coin).toFixed(2);
-                }
-                if (payload.role === 'seller') {
-                    const addBtn = document.getElementById("addProductBtnContainer");
-                    if (addBtn) addBtn.style.display = "block";
-                }
+            localStorage.setItem("followedProducts", JSON.stringify(followed));
+          });
+        });
+      }
+
+      function showNoti(message) {
+        alert(message); // หรือใช้ toast
+      }
+
+      function scheduleAuctionNoti(product) {
+        const start = new Date(product.start_time).getTime();
+
+        const notified = JSON.parse(localStorage.getItem("notifiedProducts")) || [];
+
+        if (notified.includes(String(product.id))) return;
+
+        // เช็กทุกๆ 1 นาที
+        const interval = setInterval(() => {
+          const now = Date.now();
+          if (now >= start) {
+            if (Notification.permission === "granted") {
+              new Notification("🎉 ประมูลเริ่มแล้ว!", {
+                body: `สินค้าที่คุณติดตาม: ${product.name}`,
+              });
             } else {
-                alert('Token ไม่ถูกต้อง');
-                localStorage.removeItem('token');
-                window.location.href = '/login/login.html';
+              showNoti(`⏰ ประมูลเริ่มแล้ว: ${product.name}`);
             }
 
-            loadProducts();
+            notified.push(String(product.id));
+            localStorage.setItem("notifiedProducts", JSON.stringify(notified));
+
+            clearInterval(interval); // ยิงแล้วหยุด
+          }
+        }, 60 * 1000); // ทุกๆ 1 นาที
+      }
+
+      // โหลดสินค้าทั้งหมดมาเช็ก
+      fetch("/api/products")
+        .then((res) => res.json())
+        .then((products) => {
+          const followed =
+            JSON.parse(localStorage.getItem("followedProducts")) || [];
+          products
+            .filter((p) => followed.includes(String(p.id)))
+            .forEach(scheduleAuctionNoti);
+        });
+
+      // ฟังก์ชันเปิด-ปิด ตัวกรอง
+      const fillterButton = document.getElementById("fillterButton");
+      const filterBlock = document.querySelector(".fillter-block");
+
+      fillterButton.addEventListener("click", (e) => {
+        e.stopPropagation();
+        filterBlock.style.display =
+          filterBlock.style.display === "block" ? "none" : "block";
+      });
+
+      // ถ้าคลิกที่อื่นนอก filterBlock → ปิด
+      document.addEventListener("click", (e) => {
+        if (
+          filterBlock.style.display === "block" &&
+          !filterBlock.contains(e.target) &&
+          e.target !== fillterButton
+        ) {
+          filterBlock.style.display = "none";
         }
+      });
+
+      const searchInput = document.getElementById("searchInput");
+      const searchButton = document.getElementById("searchButton");
+
+      function searchProducts() {
+        const keyword = searchInput.value.toLowerCase();
+        const cards = document.querySelectorAll(".product-list .product-card");
+
+        cards.forEach((card) => {
+          const productName = card
+            .querySelector(".product-name")
+            .textContent.toLowerCase();
+          card.style.display =
+            keyword === "" || productName.includes(keyword) ? "" : "none";
+        });
+      }
+
+      // คลิกปุ่มค้นหา
+      searchButton.addEventListener("click", searchProducts);
+
+      // สำหรับแบบ real-time
+      searchInput.addEventListener("input", searchProducts);
+
+      // พิมพ์แล้ว Enter
+      searchInput.addEventListener(
+        "keyup",
+        (e) => e.key === "Enter" && searchProducts()
+      );
+
+      // ฟังก์ชันกรองสินค้า
+      function applyFilters() {
+        let filtered = [...allProducts];
+        const now = new Date();
+
+        // ราคา
+        const minPrice =
+          parseFloat(document.getElementById("minPrice").value) || 0;
+        const maxPrice =
+          parseFloat(document.getElementById("maxPrice").value) || Infinity;
+        filtered = filtered.filter(
+          (p) => p.current_price >= minPrice && p.current_price <= maxPrice
+        );
+
+        // สถานะ
+        const auctionStatus = document.getElementById("auctionStatus").value;
+        filtered = filtered.filter((p) => {
+          const start = new Date(p.start_time);
+          const end = new Date(p.end_time);
+
+          if (auctionStatus === "upcoming") return now < start;
+          if (auctionStatus === "ongoing") return now >= start && now < end;
+          if (auctionStatus === "ended") return now >= end;
+          return true;
+        });
+
+        // เรียงลำดับ
+        const sortBy = document.getElementById("sortBy").value;
+        filtered.sort((a, b) => {
+          const startA = new Date(a.start_time);
+          const startB = new Date(b.start_time);
+          const endA = new Date(a.end_time);
+          const endB = new Date(b.end_time);
+
+          switch (sortBy) {
+            case "newest":
+              return startB - startA;
+            case "priceLowHigh":
+              return a.current_price - b.current_price;
+            case "priceHighLow":
+              return b.current_price - a.current_price;
+            case "endingSoon":
+              return endA - endB;
+            default:
+              return 0;
+          }
+        });
+
+        // ประเภทของสินค้า
+        const cate = document.getElementById("cate").value;
+        if (cate) {
+          filtered = filtered.filter((p) => p.category === cate);
+        }
+
+        renderProducts(filtered);
+      }
+
+      // ✅ ปุ่ม Apply
+      document
+        .getElementById("applyFilterButton")
+        .addEventListener("click", applyFilters);
+
+      // ✅ ปุ่ม Reset
+      document
+        .querySelector(".fillter-block button")
+        .addEventListener("click", () => {
+          document.getElementById("minPrice").value = "";
+          document.getElementById("maxPrice").value = "";
+          document.getElementById("auctionStatus").value = "all";
+          document.getElementById("sortBy").value = "newest";
+          document.getElementById("cate").value = "";
+          renderProducts(allProducts);
+        });
+
+      function startCountdownText(startTimeStr, endTimeStr, element) {
+        const btn = element.closest(".product-info").querySelector(".buy-btn");
+
+        let interval;
+
+        function update() {
+          const now = new Date();
+          const start = new Date(startTimeStr);
+          const end = new Date(endTimeStr);
+
+          if (now < start) {
+            const diff = Math.floor((start - now) / 1000);
+            element.textContent = `จะเริ่มในอีก ${formatDuration(diff)}`;
+            btn.classList.add("disabled");
+          } else if (now >= start && now < end) {
+            const diff = Math.floor((end - now) / 1000);
+            element.textContent = `เหลือเวลา ${formatDuration(diff)}`;
+            btn.classList.remove("disabled"); // ✅ เริ่มประมูลแล้ว ปลดล็อกปุ่ม
+          } else {
+            element.textContent = `หมดเวลาแล้ว`;
+            btn.classList.add("disabled");
+            clearInterval(interval);
+          }
+        }
+
+        interval = setInterval(update, 1000);
+        update();
+      }
+
+      function formatDuration(seconds) {
+        const hours = Math.floor(seconds / 3600);
+        const mins = Math.floor((seconds % 3600) / 60);
+        const secs = seconds % 60;
+        if (hours > 0) {
+          return `${hours} ชั่วโมง ${mins} นาที ${secs} วินาที`;
+        } else if (mins > 0) {
+          return `${mins} นาที ${secs} วินาที`;
+        } else {
+          return `${secs} วินาที`;
+        }
+      }
+
+      function parseJwt(token) {
+        try {
+          const base64Url = token.split(".")[1];
+          const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+          const jsonPayload = decodeURIComponent(
+            atob(base64)
+              .split("")
+              .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+              .join("")
+          );
+          return JSON.parse(jsonPayload);
+        } catch (e) {
+          return null;
+        }
+      }
+
+      window.onload = function () {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          alert("กรุณาเข้าสู่ระบบก่อน");
+          window.location.href = "/login/login.html";
+          return;
+        }
+
+        const payload = parseJwt(token);
+        if (payload && payload.username) {
+          const iconLink = document.querySelector(".personal-icon a");
+          if (iconLink)
+            iconLink.setAttribute("title", `คุณ ${payload.username}`);
+          const nameSpan = document.getElementById("usernameDisplay");
+          if (nameSpan) nameSpan.textContent = `คุณ ${payload.username}`;
+          const coinSpan = document.getElementById("coinBalance");
+          if (coinSpan && payload.coin !== undefined) {
+            coinSpan.textContent = parseFloat(payload.coin).toFixed(2);
+          }
+          if (payload.role === "seller") {
+            const addBtn = document.getElementById("addProductBtnContainer");
+            if (addBtn) addBtn.style.display = "block";
+          }
+        } else {
+          alert("Token ไม่ถูกต้อง");
+          localStorage.removeItem("token");
+          window.location.href = "/login/login.html";
+        }
+
+        loadProducts();
+      };
     </script>
-</body>
-
+  </body>
 </html>
