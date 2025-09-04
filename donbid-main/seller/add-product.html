@@ -1,134 +1,253 @@
 <!DOCTYPE html>
 <html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <title>เพิ่มสินค้า</title>
+    <link rel="stylesheet" href="add-product-style.css" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Kanit&subset=thai,latin"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+  </head>
 
-<head>
-  <meta charset="UTF-8">
-  <title>เพิ่มสินค้า</title>
-  <link rel="stylesheet" href="add-product-style.css">
-  <link href='https://fonts.googleapis.com/css?family=Kanit&subset=thai,latin' rel='stylesheet' type='text/css'>
-</head>
+  <body>
+    <nav name="navbar" class="navbar">
+      <div>
+        <a href="../content/main-and-login.html" class="logo-link">
+          <img src="../pic/Logo.png" alt="โลโก้" class="logo" />
+        </a>
+      </div>
+      <div class="coin-icon">
+        <h1>coin</h1>
+      </div>
+      <div class="personal-icon">
+        <a href="../content/profile-check.html" class="logo-link">
+          <img
+            src="../pic/personal-icon.png"
+            alt="ไอค่อน"
+            class="personal-icon"
+          />
+        </a>
+        <span
+          id="usernameDisplay"
+          style="margin-left: 10px; font-weight: bold"
+        ></span>
+      </div>
 
-<body>
-  <nav name="navbar" class="navbar">
-        <div>
-            <a href="../content/main-and-login.html" class="logo-link">
-                <img src="../pic/Logo.png" alt="โลโก้" class="logo">
-            </a>
-        </div>
-        <div class="coin-icon">
-            <h1>coin</h1>
-        </div>
-        <div class="personal-icon">
-            <a href="../content/profile-check.html" class="logo-link">
-                <img src="../pic/personal-icon.png" alt="ไอค่อน" class="personal-icon">
-            </a>
-            <span id="usernameDisplay" style="margin-left: 10px; font-weight: bold;"></span>
-        </div>
-
-        <!-- เพิ่มสินค้าเฉพาะ Seller -->
-        <div id="addProductBtnContainer" style="text-align: right; padding: 10px; display: none;">
-            <button onclick="location.href='/seller/add-product.html'"
-                style="padding: 10px 20px; background-color: #ff9900; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                + เพิ่มสินค้า
-            </button>
-        </div>
+      <!-- เพิ่มสินค้าเฉพาะ Seller -->
+      <div
+        id="addProductBtnContainer"
+        style="text-align: right; padding: 10px; display: none"
+      >
+        <button
+          onclick="location.href='/seller/add-product.html'"
+          style="
+            padding: 10px 20px;
+            background-color: #ff9900;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+          "
+        >
+          + เพิ่มสินค้า
+        </button>
+      </div>
     </nav>
-  
 
-  <form id="addProductForm" enctype="multipart/form-data" method="POST">
-    <h2>เพิ่มสินค้าใหม่</h2>
-    <label>ชื่อสินค้า:
-      <input type="text" name="name" required>
-    </label>
-    <label for="category">หมวดหมู่:</label>
-    <select id="category" name="category" required>
-      <option value="">เลือกหมวดหมู่สินค้า</option>
-      <option value="character_model">โมเดลตัวละคร</option>
-      <option value="doll">ตุ๊กตา</option>
-      <option value="card_game">การ์ดเกม</option>
-      <option value="other">อื่น ๆ</option>
-    </select>
+    <form id="addProductForm" enctype="multipart/form-data" method="POST">
+      <h2>เพิ่มสินค้าใหม่</h2>
 
-    <label>รายละเอียดสินค้า:
-      <textarea name="description" required></textarea>
-    </label>
+      <div id="calendar"></div>
+      <input type="hidden" id="start_time" name="start_time" />
+      <input type="hidden" id="end_time" name="end_time" />
 
-    <label>รูปภาพสินค้า:</label>
-    <input type="file" id="file-input" name="images" accept="image/*" multiple required>
-    <div id="preview" style="margin-top: 10px;"></div>
+      <label
+        >ชื่อสินค้า:
+        <input type="text" name="name" required />
+      </label>
+      <label for="category">หมวดหมู่:</label>
+      <select id="category" name="category" required>
+        <option value="">เลือกหมวดหมู่สินค้า</option>
+        <option value="character_model">โมเดลตัวละคร</option>
+        <option value="doll">ตุ๊กตา</option>
+        <option value="card_game">การ์ดเกม</option>
+        <option value="other">อื่น ๆ</option>
+      </select>
 
-    <label>ราคาเริ่มต้น:
-      <input type="number" name="start_price" step="0.01" required>
-    </label>
+      <label
+        >รายละเอียดสินค้า:
+        <textarea name="description" required></textarea>
+      </label>
 
-    <label>เวลาที่เริ่มประมูล:
+      <label>รูปภาพสินค้า:</label>
+      <input
+        type="file"
+        id="file-input"
+        name="images"
+        accept="image/*"
+        multiple
+        required
+      />
+      <div id="preview" style="margin-top: 10px"></div>
+
+      <label
+        >ราคาเริ่มต้น:
+        <input type="number" name="start_price" step="0.01" required />
+      </label>
+
+      <!-- <label>เวลาที่เริ่มประมูล:
       <input type="datetime-local" name="start_time" required>
     </label>
 
     <label>เวลาที่สิ้นสุดประมูล:
       <input type="datetime-local" name="end_time" required>
-    </label>
+    </label> -->
 
-    <button type="submit">เพิ่มสินค้า</button>
-  </form>
+      <button type="submit">เพิ่มสินค้า</button>
+    </form>
 
-  <script>
-    const token = localStorage.getItem('token');
+    <script>
+      const token = localStorage.getItem("token");
 
-    if (!token) {
-      alert('กรุณาเข้าสู่ระบบ');
-      window.location.href = '/login/login.html';
-    }
-
-    document.getElementById('file-input').addEventListener('change', function (event) {
-      const preview = document.getElementById('preview');
-      preview.innerHTML = ''; // ล้าง preview เก่าทั้งหมด
-
-      const files = event.target.files;
-      if (!files) return;
-
-      Array.from(files).forEach(file => {
-        if (!file.type.startsWith('image/')) return; // ตรวจเฉพาะไฟล์ภาพ
-
-        const img = document.createElement('img');
-        img.alt = file.name;
-
-        const reader = new FileReader();
-        reader.onload = e => {
-          img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-
-        preview.appendChild(img);
-      });
-    });
-
-    document.getElementById('addProductForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const form = e.target;
-      const formData = new FormData(form);
-
-      const res = await fetch('/api/products', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-
-        },
-        body: formData
-      });
-
-      const result = await res.json();
-
-      if (res.ok) {
-        alert('เพิ่มสินค้าสำเร็จ!');
-        window.location.href = '/content/main-and-login.html'; // หรือหน้า seller dashboard
-      } else {
-        alert(result.message || 'เกิดข้อผิดพลาด');
+      if (!token) {
+        alert("กรุณาเข้าสู่ระบบ");
+        window.location.href = "/login/login.html";
       }
-    });
 
+      document.addEventListener("DOMContentLoaded", async function () {
+        const calendarEl = document.getElementById("calendar");
 
-  </script>
-</body>
+        const res = await fetch("/api/products");
+        const products = await res.json();
 
+        const events = products.map((p) => ({
+          id: p.id,
+          title: p.name,
+          start: p.start_time,
+          end: p.end_time,
+          color: "#ff9900", // เปลี่ยนสี event ได้
+        }));
+
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+          initialView: "dayGridMonth", // แสดงเป็นเดือน
+          selectable: true, // ให้เลือกเวลาได้
+          locale: "th",
+          headerToolbar: {
+            left: "prev,next today",
+            center: "title",
+            right: "dayGridMonth,timeGridWeek,timeGridDay",
+          },
+          events: events,
+
+          dateClick: function (info) {
+            // คลิกวันที่ → เปลี่ยนไป timeGridDay ของวันนั้น
+            calendar.changeView("timeGridDay", info.dateStr);
+          },
+
+          select: function (info) {
+            const startInput = document.getElementById("start_time");
+            const endInput = document.getElementById("end_time");
+
+            const existingEvents = calendar.getEvents();
+            if (existingEvents.length > 0) {
+              alert("❌ สามารถเลือกช่วงเวลาได้แค่ครั้งเดียวต่อสินค้า");
+              return; // หยุด ไม่ให้เพิ่ม
+            }
+
+            // เลือกช่วงเวลา (ลากเมาส์) → บันทึกค่า
+            startInput.value = info.startStr;
+            endInput.value = info.endStr;
+
+            // สร้างตัวแปรสำหรับเช็กชั่วโมงและวัน
+            const startHour = new Date(info.start).getHours();
+            const day = new Date(info.start).toISOString().split("T")[0];
+
+            const eventsInHour = calendar.getEvents().filter((ev) => {
+              const evStart = new Date(ev.start);
+              return (
+                evStart.getHours() === startHour &&
+                evStart.toISOString().split("T")[0] === day
+              );
+            });
+
+            if (eventsInHour.length >= 5) {
+              alert("❌ จำกัดชั่วโมงละไม่เกิน 5 สินค้า");
+              return; // ❗ ไม่ให้เพิ่ม
+            }
+
+            // สร้าง event แสดงบน calendar
+            calendar.addEvent({
+              title: "🛒 สินค้าใหม่",
+              start: info.startStr,
+              end: info.endStr,
+              allDay: info.allDay,
+            });
+
+            alert(
+              `คุณเลือกช่วงเวลา:\nเริ่ม: ${info.startStr}\nสิ้นสุด: ${info.endStr}`
+            );
+          },
+        });
+
+        calendar.render();
+      });
+
+      document
+        .getElementById("file-input")
+        .addEventListener("change", function (event) {
+          const preview = document.getElementById("preview");
+          preview.innerHTML = ""; // ล้าง preview เก่าทั้งหมด
+
+          const files = event.target.files;
+          if (!files) return;
+
+          Array.from(files).forEach((file) => {
+            if (!file.type.startsWith("image/")) return; // ตรวจเฉพาะไฟล์ภาพ
+
+            const img = document.createElement("img");
+            img.alt = file.name;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+
+            preview.appendChild(img);
+          });
+        });
+
+      document
+        .getElementById("addProductForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const form = e.target;
+          const formData = new FormData(form);
+
+          const res = await fetch("/api/products", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          });
+
+          const result = await res.json();
+
+          if (res.ok) {
+            alert("เพิ่มสินค้าสำเร็จ!");
+            window.location.href = "/content/main-and-login.html"; // หรือหน้า seller dashboard
+          } else {
+            alert(result.message || "เกิดข้อผิดพลาด");
+          }
+        });
+    </script>
+  </body>
 </html>
