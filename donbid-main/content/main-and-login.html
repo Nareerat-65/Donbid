@@ -73,9 +73,8 @@
                 products.forEach(p => {
 
                     const now = new Date();
-                    const end = new Date(p.end_time)
 
-                    if (now >= end) return;
+                    if (p.status === 'ended') return;
 
                     const card = document.createElement('div');
                     const start = new Date(p.start_time);
@@ -117,14 +116,14 @@
                 const start = new Date(startTimeStr);
                 const end = new Date(endTimeStr);
 
-                if (now < start) {
+                if (status === 'live' || (now >= start && now < end)) {
+                    const diff = Math.floor((end - now) / 1000);
+                    element.textContent = `กำลังประมูล`;
+                    btn.classList.remove('disabled');
+                } else if (now < start) {
                     const diff = Math.floor((start - now) / 1000);
                     element.textContent = `จะเริ่มในอีก ${formatDuration(diff)}`;
                     btn.classList.add('disabled');
-                } else if (now >= start && now < end) {
-                    const diff = Math.floor((end - now) / 1000);
-                    element.textContent = `เหลือเวลา ${formatDuration(diff)}`;
-                    btn.classList.remove('disabled'); // ✅ เริ่มประมูลแล้ว ปลดล็อกปุ่ม
                 } else {
                     element.textContent = `หมดเวลาแล้ว`;
                     btn.classList.add('disabled');
@@ -142,11 +141,11 @@
             const mins = Math.floor((seconds % 3600) / 60);
             const secs = seconds % 60;
             if (hours > 0) {
-            return `${hours} ชั่วโมง ${mins} นาที ${secs} วินาที`;
+                return `${hours} ชั่วโมง ${mins} นาที ${secs} วินาที`;
             } else if (mins > 0) {
-            return `${mins} นาที ${secs} วินาที`;
+                return `${mins} นาที ${secs} วินาที`;
             } else {
-            return `${secs} วินาที`;
+                return `${secs} วินาที`;
             }
         }
 

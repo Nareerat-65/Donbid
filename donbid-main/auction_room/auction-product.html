@@ -61,11 +61,6 @@
                             <!-- ข้อความ AI จะถูกแสดงที่นี่ -->
                         </div>
                     </div>
-
-                    <!-- ✅ ปุ่มให้ AI แนะนำสินค้า -->
-                    <div class="ai-suggest-btn-container">
-                        <button id="ai-suggest-btn">AI แนะนำสินค้า</button>
-                    </div>
                 </div>
 
                 <button id="openHistoryBtn" class="btn-history">ประวัติการเสนอราคา</button>
@@ -298,13 +293,29 @@
         }
 
         // ตัวอย่าง: แสดงข้อความ AI เมื่อเปิดหน้า
-        window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', async () => {
             const urlParams = new URLSearchParams(window.location.search);
             const productId = urlParams.get("id");
 
             // โหลดประวัติการสนทนาเก่า
             if (productId) {
                 loadAuctionLogs(productId);
+
+                try {
+                    const res = await fetch(`/api/products/${productId}`);
+                    const product = await res.json();
+
+                    const prompt = `แนะนำสินค้าให้ดูน่าสนใจในประโยคสั้น ๆ แบบผู้ดำเนินการประมูล ไม่พูดถึง AI หรือระบบ ไม่ใช้สัญลักษณ์พิเศษ:\n` +
+                        `ชื่อสินค้า: ${product.name}\n` +
+                        `รายละเอียด: ${product.description}\n` +
+                        `ราคาเริ่มต้น: ${product.start_price} บาท`;
+
+                    // เรียก AI + TTS
+                    fetchAIMessage(prompt, 'AI ไม่สามารถให้คำแนะนำได้ตอนนี้', productId);
+                } catch (err) {
+                    console.error(err);
+                    fetchAIMessage('เกิดข้อผิดพลาดในการขอคำแนะนำจาก AI', 'AI ไม่สามารถให้คำแนะนำได้ตอนนี้', productId);
+                }
             }
             // แสดงข้อความต้อนรับ (ถ้าต้องการ)
             showAIMessage('ยินดีต้อนรับสู่การประมูล! อย่าพลาดโอกาสดี ๆ วันนี้');
@@ -340,26 +351,6 @@
 
             fetchAIMessage(prompt, prompt, productId);
         }
-
-
-        // ✅ ปุ่ม AI แนะนำสินค้า
-        document.getElementById('ai-suggest-btn').addEventListener('click', async function () {
-            try {
-                const res = await fetch(`/api/products/${productId}`);
-                const product = await res.json();
-
-                const prompt = `แนะนำสินค้าให้ดูน่าสนใจในประโยคสั้น ๆ แบบผู้ดำเนินการประมูล ไม่พูดถึง AI หรือระบบ ไม่ใช้สัญลักษณ์พิเศษ:\n` +
-                    `ชื่อสินค้า: ${product.name}\n` +
-                    `รายละเอียด: ${product.description}\n` +
-                    `ราคาเริ่มต้น: ${product.start_price} บาท`;
-
-                // เรียก AI + TTS
-                fetchAIMessage(prompt, 'AI ไม่สามารถให้คำแนะนำได้ตอนนี้', productId);
-            } catch (err) {
-                console.error(err);
-                fetchAIMessage('เกิดข้อผิดพลาดในการขอคำแนะนำจาก AI', 'AI ไม่สามารถให้คำแนะนำได้ตอนนี้', productId);
-            }
-        });
 
         // ✅ เมื่อมีการเสนอราคาใหม่ ให้ AI ประกาศชื่อผู้เสนอและจำนวนเงิน
         async function announceBidAI(username, amount) {
@@ -477,25 +468,6 @@
             let called = false;
             let interval;
             let countdownActive = false;
-
-            // ⏱ นับเวลาปกติ (ตาม end_time)
-            function normalCountdown() {
-                interval = setInterval(() => {
-                    const now = new Date();
-                    const end = new Date(endTimeStr);
-                    const diff = end - now;
-
-                    if (diff <= 0 && !called) {
-                        clearInterval(interval);
-                        startFinalCountdown(60); // เข้าสู่ soft close 20 วิ
-                    } else if (diff > 0) {
-                        const hrs = Math.floor(diff / 1000 / 60 / 60);
-                        const mins = Math.floor((diff / 1000 / 60) % 60);
-                        const secs = Math.floor((diff / 1000) % 60);
-                        element.textContent = `${pad(hrs)} : ${pad(mins)} : ${pad(secs)}`;
-                    }
-                }, 1000);
-            }
 
             // 🚨 Soft Close Countdown
             function startFinalCountdown(seconds, ExtendTime = false) {
@@ -618,7 +590,7 @@
             });
 
             // เริ่มนับปกติ
-            normalCountdown();
+            startFinalCountdown(60);
         }
 
         function showWinnerPopup(winnerName, finalPrice, confirmUrl) {
