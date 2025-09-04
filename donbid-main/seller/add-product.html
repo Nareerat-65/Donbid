@@ -123,6 +123,8 @@
 
       document.addEventListener("DOMContentLoaded", async function () {
         const calendarEl = document.getElementById("calendar");
+        const startInput = document.getElementById("start_time");
+        const endInput = document.getElementById("end_time");
 
         const res = await fetch("/api/products");
         const products = await res.json();
@@ -132,12 +134,13 @@
           title: p.name,
           start: p.start_time,
           end: p.end_time,
-          color: "#ff9900", // เปลี่ยนสี event ได้
+          color: "#ff9900",
         }));
 
         const calendar = new FullCalendar.Calendar(calendarEl, {
-          initialView: "dayGridMonth", // แสดงเป็นเดือน
-          selectable: true, // ให้เลือกเวลาได้
+          initialView: "dayGridMonth",
+          selectable: true,
+          selectMirror: true,
           locale: "th",
           headerToolbar: {
             left: "prev,next today",
@@ -147,52 +150,109 @@
           events: events,
 
           dateClick: function (info) {
-            // คลิกวันที่ → เปลี่ยนไป timeGridDay ของวันนั้น
-            calendar.changeView("timeGridDay", info.dateStr);
-          },
+            const today = new Date();
+            const clickedDate = new Date(info.dateStr);
 
-          select: function (info) {
-            const startInput = document.getElementById("start_time");
-            const endInput = document.getElementById("end_time");
+            // ตรวจสอบวันย้อนหลัง
+            if (clickedDate.setHours(0, 0, 0, 0) < today.setHours(0, 0, 0, 0)) {
+              alert("❌ ไม่สามารถเลือกวันในอดีตได้");
+              return;
+            }
 
-            const existingEvents = calendar.getEvents();
-            if (existingEvents.length > 0) {
+            // เช็กว่ามีการเลือกครั้งเดียวต่อสินค้าแล้วหรือยัง
+            const newEvents = calendar
+              .getEvents()
+              .filter((ev) => ev.extendedProps.type === "new");
+            if (newEvents.length > 0) {
               alert("❌ สามารถเลือกช่วงเวลาได้แค่ครั้งเดียวต่อสินค้า");
-              return; // หยุด ไม่ให้เพิ่ม
+              return;
             }
 
-            // เลือกช่วงเวลา (ลากเมาส์) → บันทึกค่า
-            startInput.value = info.startStr;
-            endInput.value = info.endStr;
+            // แสดง modal ให้เลือกชั่วโมง (สร้าง modal dynamic)
+            const modalHtml = `
+        <div id="timeModal" style="position:fixed; top:50%; left:50%; transform:translate(-50%, -50%);
+          background:white; padding:20px; border:1px solid #ccc; z-index:1000;">
+          <h3>เลือกช่วงเวลา</h3>
+          <label>เริ่ม: <input type="time" id="modalStartTime" required></label>
+          <label>สิ้นสุด: <input type="time" id="modalEndTime" required></label>
+          <br><br>
+          <button id="saveTimeBtn">บันทึก</button>
+          <button id="cancelTimeBtn">ยกเลิก</button>
+        </div>
+        <div id="modalOverlay" style="position:fixed; top:0; left:0; width:100%; height:100%;
+          background:rgba(0,0,0,0.5); z-index:999;"></div>
+      `;
+            document.body.insertAdjacentHTML("beforeend", modalHtml);
 
-            // สร้างตัวแปรสำหรับเช็กชั่วโมงและวัน
-            const startHour = new Date(info.start).getHours();
-            const day = new Date(info.start).toISOString().split("T")[0];
+            const saveBtn = document.getElementById("saveTimeBtn");
+            const cancelBtn = document.getElementById("cancelTimeBtn");
+            const modal = document.getElementById("timeModal");
+            const overlay = document.getElementById("modalOverlay");
 
-            const eventsInHour = calendar.getEvents().filter((ev) => {
-              const evStart = new Date(ev.start);
-              return (
-                evStart.getHours() === startHour &&
-                evStart.toISOString().split("T")[0] === day
+            saveBtn.onclick = function () {
+              const startTime = document.getElementById("modalStartTime").value;
+              const endTime = document.getElementById("modalEndTime").value;
+
+              if (!startTime || !endTime) {
+                alert("กรุณาเลือกเวลาให้ครบ");
+                return;
+              }
+
+              const startDateTime = new Date(info.dateStr + "T" + startTime);
+              const endDateTime = new Date(info.dateStr + "T" + endTime);
+
+              const now = new Date();
+
+              // ตรวจสอบเวลาย้อนหลัง
+              if (startDateTime < now || endDateTime <= startDateTime) {
+                alert(
+                  "❌ ไม่สามารถเลือกเวลาที่ผ่านมาแล้วหรือสิ้นสุดก่อนเริ่มได้"
+                );
+                return;
+              }
+
+              // เช็กจำนวน event ต่อชั่วโมง
+              const startHour = startDateTime.getHours();
+              const day = startDateTime.toISOString().split("T")[0];
+              const eventsInHour = calendar.getEvents().filter((ev) => {
+                const evStart = new Date(ev.start);
+                return (
+                  evStart.getHours() === startHour &&
+                  evStart.toISOString().split("T")[0] === day
+                );
+              });
+
+              if (eventsInHour.length >= 5) {
+                alert("❌ จำกัดชั่วโมงละไม่เกิน 5 สินค้า");
+                return;
+              }
+
+              // บันทึกลง input form
+              startInput.value = startDateTime.toISOString();
+              endInput.value = endDateTime.toISOString();
+
+              // สร้าง event บน calendar
+              calendar.addEvent({
+                title: "🛒 สินค้าใหม่",
+                start: startDateTime,
+                end: endDateTime,
+                allDay: false,
+                extendedProps: { type: "new" },
+              });
+
+              alert(
+                `คุณเลือกช่วงเวลา:\nเริ่ม: ${startDateTime.toLocaleString()}\nสิ้นสุด: ${endDateTime.toLocaleString()}`
               );
-            });
 
-            if (eventsInHour.length >= 5) {
-              alert("❌ จำกัดชั่วโมงละไม่เกิน 5 สินค้า");
-              return; // ❗ ไม่ให้เพิ่ม
-            }
+              // ปิด modal
+              modal.remove();
+              overlay.remove();
+            };
 
-            // สร้าง event แสดงบน calendar
-            calendar.addEvent({
-              title: "🛒 สินค้าใหม่",
-              start: info.startStr,
-              end: info.endStr,
-              allDay: info.allDay,
-            });
-
-            alert(
-              `คุณเลือกช่วงเวลา:\nเริ่ม: ${info.startStr}\nสิ้นสุด: ${info.endStr}`
-            );
+            cancelBtn.onclick = function () {
+              modal.remove();
+              overlay.remove();
+            };
           },
         });
 
