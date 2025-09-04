@@ -134,6 +134,10 @@
                 updateQuickBidButtons(productId);
                 // ประกาศผ่าน AI (ถ้ามี username)
                 if (data.username) announceBidAI(data.username, data.bidAmount);
+
+                // รีเซ็ตการนับใหม่
+                clearInterval(idleInterval);
+                startIdleAI();
             }
         });
         const params = new URLSearchParams(window.location.search);
@@ -273,7 +277,6 @@
         }
 
         function fetchAIMessage(prompt, fallbackMsg, productId) {
-            showAIMessage('AI กำลังประมวลผล...');
             fetch('/api/ai/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -303,10 +306,40 @@
             if (productId) {
                 loadAuctionLogs(productId);
             }
-
             // แสดงข้อความต้อนรับ (ถ้าต้องการ)
             showAIMessage('ยินดีต้อนรับสู่การประมูล! อย่าพลาดโอกาสดี ๆ วันนี้');
+
         });
+
+        let idleTimeLimit = 100000;
+        let idleInterval; // 100 วิถ้าไม่มี bid ใหม่
+
+        function startIdleAI() {
+            // เรียกครั้งแรกเลย
+            triggerIdleAI();
+
+            // จากนั้นให้ทำซ้ำทุก 30 วิ
+            idleInterval = setInterval(triggerIdleAI, idleTimeLimit);
+        }
+
+        // ฟังก์ชันกระตุ้นผู้ใช้
+        async function triggerIdleAI() {
+            const resProduct = await fetch(`/api/products/${productId}`);
+            const product = await resProduct.json();
+
+            // ดึงราคาสูงสุด
+            const resBid = await fetch(`/api/bids/highest?product_id=${productId}`);
+            const highestBid = await resBid.json();
+
+            const prompt =
+                "คุณคือผู้ดำเนินการประมูล ช่วยกระตุ้นผู้ใช้อยากเสนอราคาด้วยประโยคที่กระชับหน่อย โดยข้อมูลของสินค้าเป็นดังนี้:\n" +
+                `ชื่อสินค้า: ${product.name}\n` +
+                `รายละเอียด: ${product.description}\n` +
+                `ราคาเริ่มต้น: ${product.start_price} บาท\n` +
+                `ราคาปัจจุบัน: ${highestBid.highest || product.start_price} บาท`;
+
+            fetchAIMessage(prompt, prompt, productId);
+        }
 
 
         // ✅ ปุ่ม AI แนะนำสินค้า
