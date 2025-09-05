@@ -208,25 +208,6 @@ header {
   word-break: break-word;
 }
 
-.ai-suggest-btn-container{
-  text-align:center;
-  margin-top:130px;
-  
-}
-.ai-suggest-btn-container button {
-  background:#ff9900;
-  color:#fff;
-  border:none;
-  border-radius:6px;
-  padding:10px 20px;
-  cursor:pointer;
-  font-size: 16px;
-  font-family: 'Kanit', sans-serif;
-}
-.ai-suggest-btn-container button:hover {
-  background:#e69500;
-}
-
 .product-details h1{
   font-size: 30px;
   margin-bottom: 12px;
