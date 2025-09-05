@@ -193,6 +193,23 @@
               const startTime = document.getElementById("modalStartTime").value;
               const endTime = document.getElementById("modalEndTime").value;
 
+              function formatLocal(date) {
+                const pad = (n) => (n < 10 ? "0" + n : n);
+                return (
+                  date.getFullYear() +
+                  "-" +
+                  pad(date.getMonth() + 1) +
+                  "-" +
+                  pad(date.getDate()) +
+                  " " +
+                  pad(date.getHours()) +
+                  ":" +
+                  pad(date.getMinutes()) +
+                  ":" +
+                  pad(date.getSeconds())
+                );
+              }
+
               if (!startTime || !endTime) {
                 alert("กรุณาเลือกเวลาให้ครบ");
                 return;
@@ -228,8 +245,8 @@
               }
 
               // บันทึกลง input form
-              startInput.value = startDateTime.toISOString();
-              endInput.value = endDateTime.toISOString();
+              startInput.value = formatLocal(startDateTime);
+              endInput.value = formatLocal(endDateTime);
 
               // สร้าง event บน calendar
               calendar.addEvent({
