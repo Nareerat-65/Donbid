@@ -127,27 +127,7 @@ router.get("/:id", async (req, res) => {
     }
 
     const product = rows[0];
-    const now = new Date();
-
-    if (product.status === "upcoming" && new Date(product.start_time) <= now) {
-      await db.query('UPDATE products SET status = "live" WHERE id = ?', [id]);
-      product.status = "live";
-    }
-    if (product.status === "live" && new Date(product.end_time) <= now) {
-      // ปิดประมูลเหมือนใน /close/:id
-      const [bids] = await db.query(
-        "SELECT user_id, bid_price FROM bids WHERE product_id = ? ORDER BY bid_price DESC, created_at DESC LIMIT 1",
-        [id]
-      );
-      if (bids.length > 0) {
-        await db.query(
-          "INSERT INTO auction_results (product_id, winner_user_id, final_price, closed_at) VALUES (?, ?, ?, ?)",
-          [id, bids[0].user_id, bids[0].bid_price, now]
-        );
-      }
-      await db.query('UPDATE products SET status = "ended" WHERE id = ?', [id]);
-      product.status = "ended";
-    }
+   
 
     const [images] = await db.query(
       `SELECT image_path FROM product_images WHERE product_id = ?`,
