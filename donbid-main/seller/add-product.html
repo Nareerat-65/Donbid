@@ -174,7 +174,7 @@
           background:white; padding:20px; border:1px solid #ccc; z-index:1000;">
           <h3>เลือกช่วงเวลา</h3>
           <label>เริ่ม: <input type="time" id="modalStartTime" required></label>
-          <label>สิ้นสุด: <input type="time" id="modalEndTime" required></label>
+          <label>(!) เวลาสิ้นสุดจะเป็น 1 ชั่วโมงหลังจากเวลาเริ่มต้น </label>
           <br><br>
           <button id="saveTimeBtn">บันทึก</button>
           <button id="cancelTimeBtn">ยกเลิก</button>
@@ -191,7 +191,7 @@
 
             saveBtn.onclick = function () {
               const startTime = document.getElementById("modalStartTime").value;
-              const endTime = document.getElementById("modalEndTime").value;
+              <!-- const endTime = document.getElementById("modalEndTime").value; -->
 
               function formatLocal(date) {
                 const pad = (n) => (n < 10 ? "0" + n : n);
@@ -210,18 +210,18 @@
                 );
               }
 
-              if (!startTime || !endTime) {
+              if (!startTime) {
                 alert("กรุณาเลือกเวลาให้ครบ");
                 return;
               }
 
               const startDateTime = new Date(info.dateStr + "T" + startTime);
-              const endDateTime = new Date(info.dateStr + "T" + endTime);
+              const endDateTime = new Date(startDateTime.getTime() + 60 * 1000); // บวก 1 ชั่วโมง
 
               const now = new Date();
 
               // ตรวจสอบเวลาย้อนหลัง
-              if (startDateTime < now || endDateTime <= startDateTime) {
+              if (startDateTime < now) {
                 alert(
                   "❌ ไม่สามารถเลือกเวลาที่ผ่านมาแล้วหรือสิ้นสุดก่อนเริ่มได้"
                 );

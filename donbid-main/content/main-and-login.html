@@ -1,224 +1,289 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/content/main-and-login-style.css">
-    <link href='https://fonts.googleapis.com/css?family=Kanit&subset=thai,latin' rel='stylesheet' type='text/css'>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/content/main-and-login-style.css" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Kanit&subset=thai,latin"
+      rel="stylesheet"
+      type="text/css"
+    />
     <title>หน้าหลัก</title>
-</head>
+  </head>
 
-<body>
+  <body>
     <nav name="navbar" class="navbar">
-        <div>
-            <a href="" class="logo-link">
-                <img src="../pic/Logo.png" alt="โลโก้" class="logo">
-            </a>
-        </div>
+      <div>
+        <a href="" class="logo-link">
+          <img src="../pic/Logo.png" alt="โลโก้" class="logo" />
+        </a>
+      </div>
 
-        <div class="balance">💰 Coin: <span id="coinBalance">0.00</span></div>
-        <button onclick="location.href='/purchaseCoins/purchaseCoins.html'">+</button>
+      <div class="balance">💰 Coin: <span id="coinBalance">0.00</span></div>
+      <button onclick="location.href='/purchaseCoins/purchaseCoins.html'">
+        +
+      </button>
 
-        <div class="personal-icon">
-            <a href="../content/profile-check.html" class="logo-link">
-                <img src="../pic/personal-icon.png" alt="ไอค่อน" class="personal-icon">
-            </a>
-            <span id="usernameDisplay" style="margin-left: 10px; font-weight: bold;"></span>
-        </div>
+      <div class="personal-icon">
+        <a href="../content/profile-check.html" class="logo-link">
+          <img
+            src="../pic/personal-icon.png"
+            alt="ไอค่อน"
+            class="personal-icon"
+          />
+        </a>
+        <span
+          id="usernameDisplay"
+          style="margin-left: 10px; font-weight: bold"
+        ></span>
+      </div>
 
-        <!-- เพิ่มสินค้าเฉพาะ Seller -->
-        <div id="addProductBtnContainer" style="text-align: right; padding: 10px; display: none;">
-            <button onclick="location.href='/seller/add-product.html'"
-                style="padding: 10px 20px; background-color: #ff9900; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                + เพิ่มสินค้า
-            </button>
-        </div>
-
+      <!-- เพิ่มสินค้าเฉพาะ Seller -->
+      <div
+        id="addProductBtnContainer"
+        style="text-align: right; padding: 10px; display: none"
+      >
+        <button
+          onclick="location.href='/seller/add-product.html'"
+          style="
+            padding: 10px 20px;
+            background-color: #ff9900;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+          "
+        >
+          + เพิ่มสินค้า
+        </button>
+      </div>
     </nav>
     <div class="slider">
-        <div class="slides" id="slideContainer">
-            <img src="https://placehold.co/1000x400/transparent/F00.png?text=Sample+Text" alt="Transparent Image">
+      <div class="slides" id="slideContainer">
+        <img
+          src="https://placehold.co/1000x400/transparent/F00.png?text=Sample+Text"
+          alt="Transparent Image"
+        />
 
-            <img src="../pic/img3.jpg" alt="Placeholder Image">
+        <img src="../pic/img3.jpg" alt="Placeholder Image" />
 
-            <img src="../pic/img2.jpg" alt="High Resolution Image">
-        </div>
-        <div class="nav">
-            <button onclick="moveSlide(-1)">❮</button>
-            <button onclick="moveSlide(1)">❯</button>
-        </div>
-        <div class="dots">
-            <span class="dot" onclick="goToSlide(0)"></span>
-            <span class="dot" onclick="goToSlide(1)"></span>
-            <span class="dot" onclick="goToSlide(2)"></span>
-        </div>
+        <img src="../pic/img2.jpg" alt="High Resolution Image" />
+      </div>
+      <div class="nav">
+        <button onclick="moveSlide(-1)">❮</button>
+        <button onclick="moveSlide(1)">❯</button>
+      </div>
+      <div class="dots">
+        <span class="dot" onclick="goToSlide(0)"></span>
+        <span class="dot" onclick="goToSlide(1)"></span>
+        <span class="dot" onclick="goToSlide(2)"></span>
+      </div>
     </div>
     <div class="product-section">
-        <h1>สินค้าแนะนำ</h1>
-        <a href="product.html" class="all-product">สินค้าทั้งหมด >></a>
+      <h1>สินค้าแนะนำ</h1>
+      <a href="product.html" class="all-product">สินค้าทั้งหมด >></a>
     </div>
-    <div class="product-list">
-    </div>
+    <div class="product-list"></div>
 
     <script>
-        async function loadProducts() {
-            try {
-                const res = await fetch('/api/products');
-                const products = await res.json();
+      async function loadProducts() {
+        try {
+          const res = await fetch("/api/products");
+          const products = await res.json();
 
-                const productList = document.querySelector('.product-list');
-                productList.innerHTML = '';
+          const productList = document.querySelector(".product-list");
+          productList.innerHTML = "";
 
-                products.forEach(p => {
+          products.forEach((p) => {
+            const now = new Date();
 
-                    const now = new Date();
+            if (p.status === "ended") return;
 
-                    if (p.status === 'ended') return;
+            const card = document.createElement("div");
+            const start = new Date(p.start_time);
+            const isAuctionStarted = now >= start;
+            const imageGallery = p.images?.length
+              ? p.images
+                  .map(
+                    (img) =>
+                      `<img src="/uploads/${img}" alt="${p.name}" class="product-image">`
+                  )
+                  .join("")
+              : `<img src="https://via.placeholder.com/300x150" alt="${p.name}" class="product-image">`;
 
-                    const card = document.createElement('div');
-                    const start = new Date(p.start_time);
-                    const isAuctionStarted = now >= start;
-                    const imageGallery = p.images?.length
-                        ? p.images.map(img => `<img src="/uploads/${img}" alt="${p.name}" class="product-image">`).join('')
-                        : `<img src="https://via.placeholder.com/300x150" alt="${p.name}" class="product-image">`;
-
-                    card.className = 'product-card';
-                    card.innerHTML = `
+            card.className = "product-card";
+            card.innerHTML = `
                         <div class="images">${imageGallery}</div>
                         <div class="product-info">
                             <div class="product-name">${p.name}</div>
-                            <div class="product-price">฿${Number(p.current_price).toFixed(2)}</div>
+                            <div class="product-price">฿${Number(
+                              p.current_price
+                            ).toFixed(2)}</div>
                             <div class="product-time">กำลังโหลด...</div>
-                            <a href="../auction_room/auction-product.html?id=${p.id}" class="buy-btn ${!isAuctionStarted ? 'disabled' : ''}">
+                            <a href="../auction_room/auction-product.html?id=${
+                              p.id
+                            }" class="buy-btn ${
+              !isAuctionStarted ? "disabled" : ""
+            }">
                                 เริ่มประมูล
                             </a>
                         </div>
                     `;
 
-                    const timeElem = card.querySelector('.product-time');
-                    startCountdownText(p.start_time, p.end_time, timeElem);
+            const timeElem = card.querySelector(".product-time");
+            startCountdownText(p.start_time, p.end_time, timeElem);
 
-                    productList.appendChild(card);
-                });
-            } catch (err) {
-                console.error('❌ โหลดสินค้าไม่สำเร็จ:', err);
-            }
+            productList.appendChild(card);
+          });
+        } catch (err) {
+          console.error("❌ โหลดสินค้าไม่สำเร็จ:", err);
+        }
+      }
+
+      function startCountdownText(startTimeStr, endTimeStr, element) {
+        const btn = element.closest(".product-info").querySelector(".buy-btn");
+
+        let interval;
+
+        function update() {
+          const now = new Date();
+          const start = new Date(startTimeStr);
+          const end = new Date(endTimeStr);
+
+          if (status === "live" || (now >= start && now < end)) {
+            const diff = Math.floor((end - now) / 1000);
+            element.textContent = `กำลังประมูล`;
+            btn.classList.remove("disabled");
+          } else if (now < start) {
+            const diff = Math.floor((start - now) / 1000);
+            element.textContent = `จะเริ่มในอีก ${formatDuration(diff)}`;
+            btn.classList.add("disabled");
+          } else {
+            element.textContent = `หมดเวลาแล้ว`;
+            btn.classList.add("disabled");
+            clearInterval(interval);
+          }
         }
 
-        function startCountdownText(startTimeStr, endTimeStr, element) {
-            const btn = element.closest('.product-info').querySelector('.buy-btn');
+        interval = setInterval(update, 1000);
+        update();
+      }
 
-            let interval;
-
-            function update() {
-                const now = new Date();
-                const start = new Date(startTimeStr);
-                const end = new Date(endTimeStr);
-
-                if (status === 'live' || (now >= start && now < end)) {
-                    const diff = Math.floor((end - now) / 1000);
-                    element.textContent = `กำลังประมูล`;
-                    btn.classList.remove('disabled');
-                } else if (now < start) {
-                    const diff = Math.floor((start - now) / 1000);
-                    element.textContent = `จะเริ่มในอีก ${formatDuration(diff)}`;
-                    btn.classList.add('disabled');
-                } else {
-                    element.textContent = `หมดเวลาแล้ว`;
-                    btn.classList.add('disabled');
-                    clearInterval(interval);
-                }
-            }
-
-            interval = setInterval(update, 1000);
-            update();
+      function formatDuration(seconds) {
+        const hours = Math.floor(seconds / 3600);
+        const mins = Math.floor((seconds % 3600) / 60);
+        const secs = seconds % 60;
+        if (hours > 0) {
+          return `${hours} ชั่วโมง ${mins} นาที ${secs} วินาที`;
+        } else if (mins > 0) {
+          return `${mins} นาที ${secs} วินาที`;
+        } else {
+          return `${secs} วินาที`;
         }
+      }
 
+      let currentIndex = 0;
+      const slides = document.getElementById("slideContainer");
+      const dots = document.querySelectorAll(".dot");
+      const totalSlides = slides.children.length;
 
-        function formatDuration(seconds) {
-            const hours = Math.floor(seconds / 3600);
-            const mins = Math.floor((seconds % 3600) / 60);
-            const secs = seconds % 60;
-            if (hours > 0) {
-                return `${hours} ชั่วโมง ${mins} นาที ${secs} วินาที`;
-            } else if (mins > 0) {
-                return `${mins} นาที ${secs} วินาที`;
-            } else {
-                return `${secs} วินาที`;
-            }
-        }
+      function updateSlider() {
+        slides.style.transform = `translateX(-${currentIndex * 100}%)`;
+        dots.forEach((dot) => dot.classList.remove("active"));
+        dots[currentIndex].classList.add("active");
+      }
 
-        let currentIndex = 0;
-        const slides = document.getElementById("slideContainer");
-        const dots = document.querySelectorAll(".dot");
-        const totalSlides = slides.children.length;
-
-        function updateSlider() {
-            slides.style.transform = `translateX(-${currentIndex * 100}%)`;
-            dots.forEach(dot => dot.classList.remove("active"));
-            dots[currentIndex].classList.add("active");
-        }
-
-        function moveSlide(step) {
-            currentIndex = (currentIndex + step + totalSlides) % totalSlides;
-            updateSlider();
-        }
-
-        function goToSlide(index) {
-            currentIndex = index;
-            updateSlider();
-        }
-
+      function moveSlide(step) {
+        currentIndex = (currentIndex + step + totalSlides) % totalSlides;
         updateSlider();
+      }
 
-        function parseJwt(token) {
-            try {
-                const base64Url = token.split('.')[1];
-                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                const jsonPayload = decodeURIComponent(atob(base64).split('').map(c =>
-                    '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-                ).join(''));
-                return JSON.parse(jsonPayload);
-            } catch (e) {
-                return null;
-            }
+      function goToSlide(index) {
+        currentIndex = index;
+        updateSlider();
+      }
+
+      updateSlider();
+
+      function parseJwt(token) {
+        try {
+          const base64Url = token.split(".")[1];
+          const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+          const jsonPayload = decodeURIComponent(
+            atob(base64)
+              .split("")
+              .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+              .join("")
+          );
+          return JSON.parse(jsonPayload);
+        } catch (e) {
+          return null;
         }
+      }
 
-        window.onload = function () {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                alert('กรุณาเข้าสู่ระบบก่อน');
-                window.location.href = '/login/login.html';
-                return;
+      window.onload = async function () {
+        try {
+          const token = localStorage.getItem("token");
+
+          // ถ้าไม่มี token → redirect ไป login
+          if (!token) {
+            alert("กรุณาเข้าสู่ระบบก่อน");
+            window.location.href = "/login/login.html";
+            return;
+          }
+
+          // ดึงยอด coin จาก API
+          const res = await fetch("/api/coins/balance", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            throw new Error(data.message || "เกิดข้อผิดพลาดในการดึงยอด coin");
+          }
+
+          // แสดง coin balance จาก server
+          const coinSpan = document.getElementById("coinBalance");
+          if (coinSpan) {
+            coinSpan.textContent = Number(data.coin_balance).toFixed(2);
+          }
+
+          // อ่าน payload จาก JWT
+          const payload = parseJwt(token);
+
+          if (payload && payload.username) {
+            // แสดงชื่อผู้ใช้
+            const iconLink = document.querySelector(".personal-icon a");
+            if (iconLink)
+              iconLink.setAttribute("title", `คุณ ${payload.username}`);
+
+            const nameSpan = document.getElementById("usernameDisplay");
+            if (nameSpan) nameSpan.textContent = `คุณ ${payload.username}`;
+
+            // ถ้า role เป็น seller → แสดงปุ่มเพิ่มสินค้า
+            if (payload.role === "seller") {
+              const addBtn = document.getElementById("addProductBtnContainer");
+              if (addBtn) addBtn.style.display = "block";
             }
+          } else {
+            // token ไม่ถูกต้อง → ลบ token และ redirect
+            alert("Token ไม่ถูกต้อง");
+            localStorage.removeItem("token");
+            window.location.href = "/login/login.html";
+            return;
+          }
 
-            const payload = parseJwt(token);
-            if (payload && payload.username) {
-                const iconLink = document.querySelector('.personal-icon a');
-                if (iconLink) iconLink.setAttribute('title', `คุณ ${payload.username}`);
-                const nameSpan = document.getElementById('usernameDisplay');
-                if (nameSpan) nameSpan.textContent = `คุณ ${payload.username}`;
-                const coinSpan = document.getElementById('coinBalance');
-                if (coinSpan && payload.coin !== undefined) {
-                    coinSpan.textContent = parseFloat(payload.coin).toFixed(2);
-                }
-                if (payload.role === 'seller') {
-                    const addBtn = document.getElementById("addProductBtnContainer");
-                    if (addBtn) addBtn.style.display = "block";
-                }
-            } else {
-                alert('Token ไม่ถูกต้อง');
-                localStorage.removeItem('token');
-                window.location.href = '/login/login.html';
-            }
-
-            loadProducts();
+          // โหลดสินค้าต่าง ๆ
+          loadProducts();
+        } catch (err) {
+          console.error("Error on window.onload:", err);
+          alert(err.message || "เกิดข้อผิดพลาดในการโหลดข้อมูล โปรดลองใหม่");
+          // ในกรณี error ร้ายแรง อาจ redirect ไป login
+          // window.location.href = '/login/login.html';
         }
+      };
     </script>
-
-
-
-</body>
-
+  </body>
 </html>
