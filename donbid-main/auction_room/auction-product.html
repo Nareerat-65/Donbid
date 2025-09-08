@@ -160,13 +160,11 @@
           // ประกาศผ่าน AI (ถ้ามี username)
           if (data.username) announceBidAI(data.username, data.bidAmount);
 
-          // รีเซ็ตการนับใหม่
-          clearInterval(idleInterval);
-          startIdleAI();
-        }
-      });
-      const params = new URLSearchParams(window.location.search);
-      const productId = params.get("id");
+              
+            }
+        });
+        const params = new URLSearchParams(window.location.search);
+        const productId = params.get("id");
 
       async function loadProductDetails() {
         try {
@@ -345,38 +343,11 @@
         const urlParams = new URLSearchParams(window.location.search);
         const productId = urlParams.get("id");
 
-        // โหลดประวัติการสนทนาเก่า
-        if (productId) {
-          loadAuctionLogs(productId);
-
-          try {
-            const res = await fetch(`/api/products/${productId}`);
-            const product = await res.json();
-
-            const prompt =
-              `แนะนำสินค้าให้ดูน่าสนใจในประโยคสั้น ๆ แบบผู้ดำเนินการประมูล ไม่พูดถึง AI หรือระบบ ไม่ใช้สัญลักษณ์พิเศษ:\n` +
-              `ชื่อสินค้า: ${product.name}\n` +
-              `รายละเอียด: ${product.description}\n` +
-              `ราคาเริ่มต้น: ${product.start_price} บาท`;
-
-            // เรียก AI + TTS
-            fetchAIMessage(
-              prompt,
-              "AI ไม่สามารถให้คำแนะนำได้ตอนนี้",
-              productId
-            );
-          } catch (err) {
-            console.error(err);
-            fetchAIMessage(
-              "เกิดข้อผิดพลาดในการขอคำแนะนำจาก AI",
-              "AI ไม่สามารถให้คำแนะนำได้ตอนนี้",
-              productId
-            );
-          }
-        }
-        // แสดงข้อความต้อนรับ (ถ้าต้องการ)
-        showAIMessage("ยินดีต้อนรับสู่การประมูล! อย่าพลาดโอกาสดี ๆ วันนี้");
-      });
+            // โหลดประวัติการสนทนาเก่า
+            if (productId) {
+                loadAuctionLogs(productId);
+            }
+        });
 
       let idleTimeLimit = 100000;
       let idleInterval; // 100 วิถ้าไม่มี bid ใหม่
@@ -542,20 +513,29 @@
         let interval;
         let countdownActive = false;
 
-        // 🚨 Soft Close Countdown
-        function startFinalCountdown(seconds, ExtendTime = false) {
-          let timeLeft = seconds;
-          countdownActive = true;
-          element.textContent = `กำลังจะปิดใน ${timeLeft}`;
+            // 🚨 Soft Close Countdown
+            async function startFinalCountdown(seconds, ExtendTime = false) {
+                let timeLeft = seconds;
+                countdownActive = true;
+                element.textContent = `กำลังจะปิดใน ${timeLeft}`;
 
-          let msg;
-          if (!ExtendTime) {
-            msg = `เข้าสู่ช่วงสุดท้ายแล้ว! การประมูลจะปิดภายใน ${seconds} วินาที หากต้องการประมูลต่อ รีบเสนอราคาเลยตอนนี้!`;
-          } else {
-            msg = `มีผู้เสนอราคาเพิ่ม! ต่อเวลาอีก ${seconds} วินาที`;
-          }
-          showAIMessage(msg);
-          playTTS(msg);
+                let msg;
+                if (!ExtendTime) {
+                    const res = await fetch(`/api/products/${productId}`);
+                    const product = await res.json();
+
+                    const prompt = `คุณคือผู้ดำเนินการประมูล ช่วยกล่าวยินดีต้อนรับสู่การประมูลและนำเสนอสินค้าแบบกระชับ ไม่พูดถึง AI หรือระบบ ไม่ใช้สัญลักษณ์พิเศษ:\n` +
+                        `ชื่อสินค้า: ${product.name}\n` +
+                        `รายละเอียด: ${product.description}\n` +
+                        `ราคาเริ่มต้น: ${product.start_price} บาท`;
+
+                    // เรียก AI + TTS
+                    fetchAIMessage(prompt, 'AI ไม่สามารถให้คำแนะนำได้ตอนนี้', productId);
+                } else {
+                    msg = `มีผู้เสนอราคาเพิ่ม! ต่อเวลาอีก ${seconds} วินาที`;
+                    showAIMessage(msg);
+                    playTTS(msg);
+                }
 
           interval = setInterval(() => {
             timeLeft--;
@@ -687,17 +667,17 @@
           }
         }
 
-        // 🔄 ถ้ามี bid ใหม่ระหว่าง soft close → รีเซ็ตเวลา
-        socket.on("new bid", function (data) {
-          if (data.productId === productId && countdownActive && !called) {
-            clearInterval(interval);
-            startFinalCountdown(30, true); // ต่อเวลาอีก 30 วิ
-          }
-        });
+            // 🔄 ถ้ามี bid ใหม่ระหว่าง soft close → รีเซ็ตเวลา
+            socket.on('new bid', function (data) {
+                if (data.productId === productId && countdownActive && !called) {
+                    clearInterval(interval);
+                    startFinalCountdown(120, true); // ต่อเวลาอีก 30 วิ
+                }
+            });
 
-        // เริ่มนับปกติ
-        startFinalCountdown(60);
-      }
+            // เริ่มนับปกติ
+            startFinalCountdown(300);
+        }
 
       function showWinnerPopup(winnerName, finalPrice, confirmUrl) {
         // ถ้ามี popup เดิม ให้ลบออกก่อน
