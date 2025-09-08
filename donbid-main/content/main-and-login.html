@@ -85,62 +85,96 @@
       <a href="product.html" class="all-product">สินค้าทั้งหมด >></a>
     </div>
     <div class="product-list"></div>
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
       async function loadProducts() {
         try {
           const res = await fetch("/api/products");
           const products = await res.json();
-
           const productList = document.querySelector(".product-list");
           productList.innerHTML = "";
-
+          let followed = JSON.parse(localStorage.getItem("followedProducts")) || [];
           products.forEach((p) => {
             const now = new Date();
-
             if (p.status === "ended") return;
-
             const card = document.createElement("div");
             const start = new Date(p.start_time);
             const isAuctionStarted = now >= start;
             const imageGallery = p.images?.length
-              ? p.images
-                  .map(
-                    (img) =>
-                      `<img src="/uploads/${img}" alt="${p.name}" class="product-image">`
-                  )
-                  .join("")
+              ? p.images.map((img) => `<img src="/uploads/${img}" alt="${p.name}" class="product-image">`).join("")
               : `<img src="https://via.placeholder.com/300x150" alt="${p.name}" class="product-image">`;
-
+            const isFollowed = followed.includes(String(p.id));
             card.className = "product-card";
             card.innerHTML = `
-                        <div class="images">${imageGallery}</div>
-                        <div class="product-info">
-                            <div class="product-name">${p.name}</div>
-                            <div class="product-price">฿${Number(
-                              p.current_price
-                            ).toFixed(2)}</div>
-                            <div class="product-time">กำลังโหลด...</div>
-                            <a href="../auction_room/auction-product.html?id=${
-                              p.id
-                            }" class="buy-btn ${
-              !isAuctionStarted ? "disabled" : ""
-            }">
-                                เริ่มประมูล
-                            </a>
-                        </div>
-                    `;
-
+              <div class="images">${imageGallery}</div>
+              <div class="product-info">
+                <div class="product-name">${p.name}</div>
+                <div class="product-price">฿${Number(p.current_price).toFixed(2)}</div>
+                <div class="product-time">กำลังโหลด...</div>
+                <button class="follow-btn" data-id="${p.id}"></button>
+                <a href="../auction_room/auction-product.html?id=${p.id}" class="buy-btn ${!isAuctionStarted ? "disabled" : ""}">เริ่มประมูล</a>
+              </div>
+            `;
             const timeElem = card.querySelector(".product-time");
             startCountdownText(p.start_time, p.end_time, timeElem);
-
             productList.appendChild(card);
+            const followBtn = card.querySelector(".follow-btn");
+            updateFollowButton(followBtn, isFollowed);
+            followBtn.addEventListener("click", () => handleFollow(p.id, p.name, followBtn));
           });
         } catch (err) {
           console.error("❌ โหลดสินค้าไม่สำเร็จ:", err);
         }
       }
-
+      function updateFollowButton(followBtn, isFollowed) {
+        followBtn.textContent = isFollowed ? "✅ กำลังติดตาม" : "⭐ ติดตาม";
+        followBtn.classList.toggle("followed", isFollowed);
+      }
+      function handleFollow(productId, productName, followBtn) {
+        let followed = JSON.parse(localStorage.getItem("followedProducts")) || [];
+        const isFollowed = followed.includes(String(productId));
+        if (isFollowed) {
+          followed = followed.filter((id) => id !== String(productId));
+          updateFollowButton(followBtn, false);
+          showNoti(`❌ ยกเลิกติดตาม ${productName}`);
+        } else {
+          followed.push(String(productId));
+          updateFollowButton(followBtn, true);
+          showNoti(`⭐ ติดตาม ${productName} แล้ว`);
+        }
+        localStorage.setItem("followedProducts", JSON.stringify(followed));
+      }
+      function showNoti(message) {
+        Swal.fire({
+          text: message,
+          icon: "info",
+          confirmButtonText: "ตกลง",
+          timer: 7400,
+          timerProgressBar: true,
+          showClass: { popup: "swal2-show" },
+          hideClass: { popup: "swal2-hide" },
+        });
+      }
+      function startRealtimeAuctionNoti() {
+        setInterval(() => {
+          const followed = JSON.parse(localStorage.getItem("followedProducts")) || [];
+          const notified = JSON.parse(localStorage.getItem("notifiedProducts")) || [];
+          fetch("/api/products")
+            .then((res) => res.json())
+            .then((products) => {
+              products.forEach((product) => {
+                if (!followed.includes(String(product.id))) return;
+                const start = new Date(product.start_time).getTime();
+                const now = Date.now();
+                if (now >= start && !notified.includes(String(product.id))) {
+                  showNoti(`⏰ ประมูลเริ่มแล้ว: ${product.name}`);
+                  notified.push(String(product.id));
+                  localStorage.setItem("notifiedProducts", JSON.stringify(notified));
+                }
+              });
+            });
+        }, 5000);
+      }
       function startCountdownText(startTimeStr, endTimeStr, element) {
         const btn = element.closest(".product-info").querySelector(".buy-btn");
 
@@ -277,6 +311,7 @@
 
           // โหลดสินค้าต่าง ๆ
           loadProducts();
+          startRealtimeAuctionNoti();
         } catch (err) {
           console.error("Error on window.onload:", err);
           alert(err.message || "เกิดข้อผิดพลาดในการโหลดข้อมูล โปรดลองใหม่");

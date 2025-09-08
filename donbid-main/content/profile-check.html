@@ -35,27 +35,35 @@
     }
 
     .profile-container {
-      max-width: 700px;
+      max-width: 400px;
       background: white;
-      margin: -40px auto 40px auto;
-      border-radius: 16px;
-      padding: 32px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      margin: 32px auto 40px auto;
+      border-radius: 20px;
+      padding: 32px 24px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.10);
       text-align: center;
+      position: relative;
     }
 
     .profile-avatar {
-      width: 100px;
-      height: 100px;
+      width: 120px;
+      height: 120px;
       border-radius: 50%;
-      background: #ccc;
+      background: linear-gradient(135deg, #ffeec7 60%, #ccc 100%);
       margin: auto;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      border: 4px solid #fffbe6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .profile-name {
-      margin-top: 12px;
-      font-size: 20px;
+      margin-top: 16px;
+      font-size: 22px;
       font-weight: bold;
+      color: #009688;
+      letter-spacing: 1px;
     }
 
     .profile-grid {
@@ -67,24 +75,61 @@
 
     .profile-box {
       padding: 16px;
-      background: #f0f0f0;
+      background: #f9f9f9;
       border-radius: 8px;
       font-size: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      color: #333;
     }
 
-    #logout-btn {
-      margin-top: 32px;
+    #logout-btn,
+    #change-role {
+      margin-top: 24px;
       padding: 12px 24px;
-      background: #e53935;
+      background: linear-gradient(90deg, #ffa500 60%, #ff6f00 100%);
       color: white;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       font-weight: bold;
       cursor: pointer;
+      box-shadow: 0 2px 8px rgba(255, 193, 7, 0.08);
+      transition: background 0.2s, transform 0.2s;
+      font-size: 16px;
+      margin-right: 8px;
     }
 
     #logout-btn:hover {
-      background: #c62828;
+      background: linear-gradient(90deg, #e53935 60%, #c62828 100%);
+      transform: scale(1.04);
+    }
+
+    #change-role:hover {
+      background: linear-gradient(90deg, #009688 60%, #26a69a 100%);
+      transform: scale(1.04);
+    }
+
+    @media (max-width: 600px) {
+      .profile-container {
+        max-width: 95vw;
+        padding: 16px 4vw;
+      }
+
+      .profile-avatar {
+        width: 80px;
+        height: 80px;
+      }
+
+      .profile-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      #logout-btn,
+      #change-role {
+        width: 100%;
+        margin-right: 0;
+        margin-top: 16px;
+      }
     }
   </style>
 </head>
@@ -126,13 +171,24 @@
       }
     }
 
-    window.onload = () => {
+    window.onload = async () => {
       const token = localStorage.getItem('token');
       if (!token) {
         alert('กรุณาเข้าสู่ระบบก่อน');
         window.location.href = '/login/login.html';
         return;
       }
+
+      // ดึง coin จาก API
+      try {
+        const res = await fetch('/api/coins/balance', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (res.ok && data.coin_balance !== undefined) {
+          document.getElementById('balance').textContent = Number(data.coin_balance).toFixed(2);
+        }
+      } catch (err) {}
 
       const payload = parseJwt(token);
       if (!payload) {
@@ -146,6 +202,22 @@
       document.getElementById('userId').textContent = payload.id || '-';
       document.getElementById('role').textContent = payload.role || '-';
       document.getElementById('email').textContent = payload.email || '-';
+
+      // แสดงรูปโปรไฟล์
+      const avatarDiv = document.querySelector('.profile-avatar');
+      avatarDiv.innerHTML = '';
+      let profileImgUrl = '../pic/personal-icon.png';
+      if (payload && payload.profile_img) {
+        profileImgUrl = payload.profile_img;
+      }
+      const img = document.createElement('img');
+      img.src = profileImgUrl;
+      img.alt = 'โปรไฟล์';
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.objectFit = 'cover';
+      img.style.borderRadius = '50%';
+      avatarDiv.appendChild(img);
     };
 
     document.getElementById('logout-btn').onclick = () => {
@@ -171,7 +243,6 @@
         alert(result.error || result.message || 'อัปเกรดไม่สำเร็จ');
       }
     };
-
   </script>
 </body>
 
