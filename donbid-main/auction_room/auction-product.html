@@ -121,15 +121,11 @@
       </div>
 
       <div class="participant-count">
-        ผู้เข้าร่วม 12 คน
-        <span class="avatars">
-          <img src="https://i.pravatar.cc/24?img=1" />
-          <img src="https://i.pravatar.cc/24?img=2" />
-          <img src="https://i.pravatar.cc/24?img=3" />
-          <img src="https://i.pravatar.cc/24?img=4" />
-          <span class="more">+8</span>
-        </span>
+          ผู้เข้าร่วม <span class="count">0</span> คน
+          <span class="avatars"></span>
       </div>
+
+
       <div class="product-details">
         <h1 id="productName">ชื่อสินค้า</h1>
         <h1 id="highestBid">฿0.00</h1>
@@ -160,9 +156,14 @@
           // ประกาศผ่าน AI (ถ้ามี username)
           if (data.username) announceBidAI(data.username, data.bidAmount);
 
+          resetIdleTimer(productId, { 
+            name: document.getElementById("productName").textContent,
+            description: document.getElementById("productDescription").textContent,
+            start_price: parseFloat(document.getElementById("productPrice").textContent.replace(/\D/g,'')) 
+          });
               
-            }
-        });
+        }
+      });
         const params = new URLSearchParams(window.location.search);
         const productId = params.get("id");
 
@@ -196,30 +197,19 @@
           // แสดงข้อมูลสินค้า
           console.log(product);
           document.getElementById("productName").textContent = product.name;
-          document.getElementById(
-            "productPrice"
-          ).textContent = `ราคาเริ่มต้น : ${product.start_price}`;
-          document.getElementById(
-            "productCategory"
-          ).textContent = `ประเภทของสินค้า: ${product.category || "-"}`;
-          document.getElementById("productDescription").textContent =
-            product.description || "-";
-          document.getElementById(
-            "productSeller"
-          ).textContent = `ผู้ขาย: ${product.seller_username}`;
-          document.getElementById(
-            "productStartTime"
-          ).textContent = `เวลาที่เริ่มต้น: ${new Date(
-            product.start_time
-          ).toLocaleString()}`;
-          document.getElementById(
-            "productEndTime"
-          ).textContent = `เวลาที่สิ้นสุด: ${new Date(
-            product.end_time
-          ).toLocaleString()}`;
-
+          document.getElementById("productPrice").textContent = `ราคาเริ่มต้น : ${product.start_price}`;
+          document.getElementById("productCategory").textContent = `ประเภทของสินค้า: ${product.category || "-"}`;
+          document.getElementById("productDescription").textContent = product.description || "-";
+          document.getElementById("productSeller").textContent = `ผู้ขาย: ${product.seller_username}`;
+          document.getElementById("productStartTime").textContent = `เวลาที่เริ่มต้น: ${new Date(product.start_time).toLocaleString()}`;
+          document.getElementById("productEndTime").textContent = `เวลาที่สิ้นสุด: ${new Date(product.end_time).toLocaleString()}`;
+    
           // เวลาที่เหลือ
           const timeElem = document.getElementById("productTimeRemaining");
+          if (product.status === "live") {
+            welcomeAI(product);
+            resetIdleTimer(productId, product);
+          }
           startCountdown(product.end_time, timeElem);
         } catch (err) {
           console.error("โหลดข้อมูลสินค้าไม่สำเร็จ", err);
@@ -347,36 +337,46 @@
             if (productId) {
                 loadAuctionLogs(productId);
             }
-        });
+      });
 
-      let idleTimeLimit = 100000;
-      let idleInterval; // 100 วิถ้าไม่มี bid ใหม่
+      let hasWelcomed = false; // ตัวแปรกันซ้ำ
 
-      function startIdleAI() {
-        // เรียกครั้งแรกเลย
-        triggerIdleAI();
+      async function welcomeAI(product) {
+        if (hasWelcomed) return; // กันพูดซ้ำ
+        hasWelcomed = true;
 
-        // จากนั้นให้ทำซ้ำทุก 30 วิ
-        idleInterval = setInterval(triggerIdleAI, idleTimeLimit);
+        const prompt = `คุณคือผู้ดำเนินการประมูล ช่วยกล่าวต้อนรับผู้เข้าร่วมและแนะนำสินค้าแบบกระชับ ไม่พูดถึง AI หรือระบบและไม่มีสัญลักษณ์พิเศษ:\n
+        ชื่อสินค้า: ${product.name}\n
+        รายละเอียด: ${product.description}\n
+        ราคาเริ่มต้น: ${product.start_price} บาท`;
+
+        fetchAIMessage(prompt, "ยินดีต้อนรับเข้าสู่การประมูล!", product.id);
       }
 
-      // ฟังก์ชันกระตุ้นผู้ใช้
-      async function triggerIdleAI() {
-        const resProduct = await fetch(`/api/products/${productId}`);
-        const product = await resProduct.json();
+      let idleTimer;
+      const idleTimeLimit = 30000; // 30 วินาที
 
-        // ดึงราคาสูงสุด
+      function resetIdleTimer(productId, product) {
+        if (idleTimer) clearTimeout(idleTimer);
+        idleTimer = setTimeout(() => triggerIdleAI(productId, product), idleTimeLimit);
+      }
+
+      async function triggerIdleAI(productId, product) {
+        // ดึงราคาปัจจุบัน
         const resBid = await fetch(`/api/bids/highest?product_id=${productId}`);
         const highestBid = await resBid.json();
 
         const prompt =
-          "คุณคือผู้ดำเนินการประมูล ช่วยกระตุ้นผู้ใช้อยากเสนอราคาด้วยประโยคที่กระชับหน่อย โดยข้อมูลของสินค้าเป็นดังนี้:\n" +
+          "คุณคือผู้ดำเนินการประมูลที่สุภาพ ช่วยกระตุ้นผู้ใช้อยากเสนอราคาด้วยประโยคที่สั้นและกระชับ ไม่พูดถึง AI หรือระบบและไม่มีสัญลักษณ์พิเศษ:\n" +
           `ชื่อสินค้า: ${product.name}\n` +
           `รายละเอียด: ${product.description}\n` +
           `ราคาเริ่มต้น: ${product.start_price} บาท\n` +
           `ราคาปัจจุบัน: ${highestBid.highest || product.start_price} บาท`;
 
-        fetchAIMessage(prompt, prompt, productId);
+        fetchAIMessage(prompt, "อย่าลังเล มาลองเสนอราคากันเลย!", productId);
+
+        // 🔁 ตั้งใหม่อีกรอบ
+        resetIdleTimer(productId, product);
       }
 
       // ✅ เมื่อมีการเสนอราคาใหม่ ให้ AI ประกาศชื่อผู้เสนอและจำนวนเงิน
@@ -389,9 +389,7 @@
         );
       }
 
-      document
-        .getElementById("customBidBtn")
-        .addEventListener("click", async () => {
+      document.getElementById("customBidBtn").addEventListener("click", async () => {
           const token = localStorage.getItem("token");
           if (!token) {
             alert("กรุณาเข้าสู่ระบบก่อน");
@@ -466,9 +464,7 @@
       }
 
       // เปิด-ปิด modal
-      document
-        .getElementById("openHistoryBtn")
-        .addEventListener("click", () => {
+      document.getElementById("openHistoryBtn").addEventListener("click", () => {
           document.getElementById("bidHistoryModal").style.display = "block";
           loadBidHistory(productId); // โหลดข้อมูลทุกครั้งที่เปิด
         });
@@ -514,28 +510,15 @@
         let countdownActive = false;
 
             // 🚨 Soft Close Countdown
-            async function startFinalCountdown(seconds, ExtendTime = false) {
-                let timeLeft = seconds;
-                countdownActive = true;
-                element.textContent = `กำลังจะปิดใน ${timeLeft}`;
+        async function startFinalCountdown(seconds, ExtendTime = false) {
+          let timeLeft = seconds;
+          countdownActive = true;
+          element.textContent = `กำลังจะปิดใน ${timeLeft}`;
 
-                let msg;
-                if (!ExtendTime) {
-                    const res = await fetch(`/api/products/${productId}`);
-                    const product = await res.json();
-
-                    const prompt = `คุณคือผู้ดำเนินการประมูล ช่วยกล่าวยินดีต้อนรับสู่การประมูลและนำเสนอสินค้าแบบกระชับ ไม่พูดถึง AI หรือระบบ ไม่ใช้สัญลักษณ์พิเศษ:\n` +
-                        `ชื่อสินค้า: ${product.name}\n` +
-                        `รายละเอียด: ${product.description}\n` +
-                        `ราคาเริ่มต้น: ${product.start_price} บาท`;
-
-                    // เรียก AI + TTS
-                    fetchAIMessage(prompt, 'AI ไม่สามารถให้คำแนะนำได้ตอนนี้', productId);
-                } else {
-                    msg = `มีผู้เสนอราคาเพิ่ม! ต่อเวลาอีก ${seconds} วินาที`;
-                    showAIMessage(msg);
-                    playTTS(msg);
-                }
+          if (ExtendTime) {
+            const msg = `มีผู้เสนอราคาเพิ่ม! ต่อเวลาอีก ${seconds} วินาที`;
+            showAIMessage(msg);
+          }
 
           interval = setInterval(() => {
             timeLeft--;
@@ -589,18 +572,6 @@
 
             if (res.ok) {
               if (data.winner_user_id && data.final_price) {
-                console.log("DEBUG payload:", payload);
-                console.log(
-                  "DEBUG winner_user_id:",
-                  data.winner_user_id,
-                  typeof data.winner_user_id
-                );
-                console.log(
-                  "DEBUG payload.user_id:",
-                  payload ? payload.user_id : null,
-                  typeof (payload ? payload.user_id : null)
-                );
-
                 if (
                   payload &&
                   Number(payload.id) === Number(data.winner_user_id)
@@ -611,26 +582,18 @@
                       `/api/bids/history?product_id=${productId}`
                     );
                     const history = await resHistory.json();
-                    console.log("DEBUG: history data", history);
-                    console.log(
-                      "DEBUG: final price from API",
-                      data.final_price,
-                      typeof data.final_price
-                    );
-
                     let winnerBid = history.find(
                       (bid) =>
                         Number(bid.bid_price) === Number(data.final_price)
                     );
-                    console.log("DEBUG: winnerBid found?", winnerBid);
+                    
                     // ถ้าอยากให้ชัวร์ว่าใช้ bid ล่าสุด
                     if (!winnerBid && history.length > 0) {
-                      console.log("DEBUG: fallback to latest history");
+                      
                       winnerBid = history[0];
                     }
-
                     winnerName = winnerBid ? winnerBid.username : "";
-                    console.log("DEBUG: winnerName", winnerName);
+                    
                   } catch (err) {
                     console.error("Error fetching bid history:", err);
                   }
@@ -671,12 +634,12 @@
             socket.on('new bid', function (data) {
                 if (data.productId === productId && countdownActive && !called) {
                     clearInterval(interval);
-                    startFinalCountdown(120, true); // ต่อเวลาอีก 30 วิ
+                    startFinalCountdown(60, true); // ต่อเวลาอีก 1 นาที
                 }
             });
 
             // เริ่มนับปกติ
-            startFinalCountdown(300);
+            startFinalCountdown(120);
         }
 
       function showWinnerPopup(winnerName, finalPrice, confirmUrl) {
@@ -774,8 +737,6 @@
             return;
           }
 
-          // โหลดสินค้าต่าง ๆ
-          loadProducts();
         } catch (err) {
           console.error("Error on window.onload:", err);
           alert(err.message || "เกิดข้อผิดพลาดในการโหลดข้อมูล โปรดลองใหม่");
@@ -783,6 +744,53 @@
           // window.location.href = '/login/login.html';
         }
       };
+
+      // ====== Socket.IO Join Auction ======
+      socket.on("connect", () => {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const payload = parseJwt(token);
+        if (!payload) return;
+
+        // join ห้องประมูลนี้
+        socket.emit("join auction", {
+          productId,
+          userId: payload.id,
+          username: payload.username,
+        });
+      });
+
+      // ฟังอัปเดตผู้เข้าร่วม
+      socket.on("participants update", (data) => {
+        if (data.productId !== productId) return;
+
+        const countEl = document.querySelector(".participant-count .count");
+        const avatarsEl = document.querySelector(".avatars");
+
+        // แสดงจำนวนคน
+        if (countEl) {
+          countEl.innerText = data.participants.length;
+        }
+
+        // แสดง avatar (จำกัด 5 คนแรก + more)
+        if (avatarsEl) {
+          avatarsEl.innerHTML = "";
+          data.participants.slice(0, 5).forEach((p, i) => {
+            avatarsEl.innerHTML += `
+              <div class="avatar">
+                <img src="https://i.pravatar.cc/24?img=${i+1}" />
+                <span class="tooltip">${p.username}</span>
+              </div>
+            `;
+          });
+          if (data.participants.length > 5) {
+            avatarsEl.innerHTML += `<span class="more" title="${data.participants.slice(5).map(p => p.username).join(', ')}">+${data.participants.length - 5}</span>`;
+          }
+
+        }
+      });
+
 
       // ✅ เพิ่มฟังก์ชัน parseJwt
       function parseJwt(token) {

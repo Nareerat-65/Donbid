@@ -82,15 +82,53 @@ cron.schedule('* * * * *', async () => {
   }
 });
 
+// เก็บผู้เข้าร่วมตาม productId
+const participants = {};
+
 io.on('connection', socket => {
   console.log('🔗 Client connected');
 
-  // รับ event ประมูลจาก client แล้ว broadcast ให้ทุก client
+  // เวลา user เข้าร่วมประมูล
+  socket.on('join auction', ({ productId, userId, username }) => {
+    socket.join(productId);
+    if (!participants[productId]) {
+      participants[productId] = [];
+    }
+
+    // ป้องกันซ้ำ
+    if (!participants[productId].some(u => u.userId === userId)) {
+      participants[productId].push({ id: socket.id, userId, username });
+    }
+
+    // ส่งรายชื่อกลับไปให้ทุก client ใน auction เดียวกัน
+    io.to(productId).emit('participants update', {
+      productId,
+      participants: participants[productId]
+    });
+  });
+
+  // เวลา user ออกจากห้อง (disconnect)
+  socket.on('disconnect', () => {
+    for (const pid in participants) {
+      const before = participants[pid].length;
+      participants[pid] = participants[pid].filter(u => u.id !== socket.id);
+
+      if (participants[pid].length !== before) {
+        io.to(pid).emit('participants update', {
+          productId: pid,
+          participants: participants[pid],
+        });
+      }
+    }
+    console.log('❌ Client disconnected', socket.id);
+  });
+
+  // รับ bid
   socket.on('bid placed', (data) => {
-    // data: { productId, bidAmount, username }
     io.emit('new bid', data);
   });
 });
+
 
 server.listen(3000, () => {
   console.log('✅ Server started on http://localhost:3000');
