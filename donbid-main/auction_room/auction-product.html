@@ -144,6 +144,7 @@
     <script>
       // ====== Socket.IO Real-time Auction ======
       const socket = io();
+      let currentProduct = null; // 👈 เพิ่มบรรทัดนี้ไว้บนสุด
 
       // เมื่อมี bid ใหม่จาก server ให้ update UI
       socket.on("new bid", function (data) {
@@ -153,15 +154,7 @@
           ).textContent = `฿${data.bidAmount}`;
           loadBidHistory(productId);
           updateQuickBidButtons(productId);
-          // ประกาศผ่าน AI (ถ้ามี username)
-          if (data.username) announceBidAI(data.username, data.bidAmount);
 
-          resetIdleTimer(productId, { 
-            name: document.getElementById("productName").textContent,
-            description: document.getElementById("productDescription").textContent,
-            start_price: parseFloat(document.getElementById("productPrice").textContent.replace(/\D/g,'')) 
-          });
-              
         }
       });
         const params = new URLSearchParams(window.location.search);
@@ -180,6 +173,8 @@
             console.error("ไม่พบสินค้านี้");
             return;
           }
+
+          currentProduct = product;
           const imagesContainer = document.getElementById("productImages");
 
           // render gallery
@@ -206,10 +201,6 @@
     
           // เวลาที่เหลือ
           const timeElem = document.getElementById("productTimeRemaining");
-          if (product.status === "live") {
-            welcomeAI(product);
-            resetIdleTimer(productId, product);
-          }
           startCountdown(product.end_time, timeElem);
         } catch (err) {
           console.error("โหลดข้อมูลสินค้าไม่สำเร็จ", err);
@@ -294,6 +285,12 @@
         container.scrollTop = container.scrollHeight;
       }
 
+      socket.on("ai message", (data) => {
+        if (data.productId !== productId) return;
+        showAIMessage(data.message);
+        playTTS(data.message);
+      });
+
       async function loadAuctionLogs(productId) {
         try {
           const res = await fetch(`/api/ai/${productId}/logs`);
@@ -307,26 +304,6 @@
         }
       }
 
-      function fetchAIMessage(prompt, fallbackMsg, productId) {
-        fetch("/api/ai/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            message: prompt,
-            product_id: productId,
-          }),
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            const msg = data.reply || fallbackMsg;
-            showAIMessage(msg);
-            playTTS(msg);
-          })
-          .catch((err) => {
-            console.error("เกิดข้อผิดพลาดในการเรียก AI:", err);
-            showAIMessage(fallbackMsg);
-          });
-      }
 
       // ตัวอย่าง: แสดงข้อความ AI เมื่อเปิดหน้า
       window.addEventListener("DOMContentLoaded", async () => {
@@ -339,102 +316,61 @@
             }
       });
 
-      let hasWelcomed = false; // ตัวแปรกันซ้ำ
-
-      async function welcomeAI(product) {
-        if (hasWelcomed) return; // กันพูดซ้ำ
-        hasWelcomed = true;
-
-        const prompt = `คุณคือผู้ดำเนินการประมูล ช่วยกล่าวต้อนรับผู้เข้าร่วมและแนะนำสินค้าแบบกระชับ ไม่พูดถึง AI หรือระบบและไม่มีสัญลักษณ์พิเศษ:\n
-        ชื่อสินค้า: ${product.name}\n
-        รายละเอียด: ${product.description}\n
-        ราคาเริ่มต้น: ${product.start_price} บาท`;
-
-        fetchAIMessage(prompt, "ยินดีต้อนรับเข้าสู่การประมูล!", product.id);
-      }
-
-      let idleTimer;
-      const idleTimeLimit = 30000; // 30 วินาที
-
-      function resetIdleTimer(productId, product) {
-        if (idleTimer) clearTimeout(idleTimer);
-        idleTimer = setTimeout(() => triggerIdleAI(productId, product), idleTimeLimit);
-      }
-
-      async function triggerIdleAI(productId, product) {
-        // ดึงราคาปัจจุบัน
-        const resBid = await fetch(`/api/bids/highest?product_id=${productId}`);
-        const highestBid = await resBid.json();
-
-        const prompt =
-          "คุณคือผู้ดำเนินการประมูลที่สุภาพ ช่วยกระตุ้นผู้ใช้อยากเสนอราคาด้วยประโยคที่สั้นและกระชับ ไม่พูดถึง AI หรือระบบและไม่มีสัญลักษณ์พิเศษ:\n" +
-          `ชื่อสินค้า: ${product.name}\n` +
-          `รายละเอียด: ${product.description}\n` +
-          `ราคาเริ่มต้น: ${product.start_price} บาท\n` +
-          `ราคาปัจจุบัน: ${highestBid.highest || product.start_price} บาท`;
-
-        fetchAIMessage(prompt, "อย่าลังเล มาลองเสนอราคากันเลย!", productId);
-
-        // 🔁 ตั้งใหม่อีกรอบ
-        resetIdleTimer(productId, product);
-      }
-
-      // ✅ เมื่อมีการเสนอราคาใหม่ ให้ AI ประกาศชื่อผู้เสนอและจำนวนเงิน
-      async function announceBidAI(username, amount) {
-        const prompt = `แจ้งให้ทุกคนทราบแบบไม่ยาวมาก ${username} เพิ่งเสนอราคา ${amount} บาท สำหรับสินค้านี้ แบบผู้ดำเนินการประมูลพร้อมกระตุ้นให้ผู้เข้าร่วมประมูลคนอื่น ๆ รู้สึกตื่นเต้นและอยากเข้าร่วมการประมูลนี้ ไม่ต้องมีสัญลักษณ์พิเศษ`;
-        fetchAIMessage(
-          prompt,
-          `ขอแสดงความยินดี ${username} ที่เสนอราคา ${amount} บาท!`,
-          productId
-        );
-      }
-
       document.getElementById("customBidBtn").addEventListener("click", async () => {
-          const token = localStorage.getItem("token");
-          if (!token) {
-            alert("กรุณาเข้าสู่ระบบก่อน");
-            return;
-          }
+        const token = localStorage.getItem("token");
+        if (!token) {
+          alert("กรุณาเข้าสู่ระบบก่อน");
+          return;
+        }
 
-          const bidInput = document.querySelector(".custom-bid input");
-          const bidAmount = parseFloat(bidInput.value);
-          if (isNaN(bidAmount) || bidAmount <= 0) {
-            alert("กรุณาใส่จำนวนเงินที่ถูกต้อง");
-            return;
-          }
+        const bidInput = document.querySelector(".custom-bid input");
+        const bidAmount = parseFloat(bidInput.value);
+        if (isNaN(bidAmount) || bidAmount <= 0) {
+          alert("กรุณาใส่จำนวนเงินที่ถูกต้อง");
+          return;
+        }
 
-          try {
-            const res = await fetch("/api/bids", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({
-                product_id: productId,
-                bid_price: bidAmount,
-              }),
+        try {
+          const res = await fetch("/api/bids", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              product_id: productId,
+              bid_price: bidAmount,
+            }),
+          });
+
+          const data = await res.json();
+          if (res.ok) {
+            alert("เสนอราคาสำเร็จ");
+
+            const payload = parseJwt(token);
+
+            // ✅ broadcast bid ให้ทุก client
+            socket.emit("bid placed", {
+              productId,
+              bidAmount,
+              username: payload?.username,
             });
 
-            const data = await res.json();
-            if (res.ok) {
-              alert("เสนอราคาสำเร็จ");
-              // ส่ง event ไป server เพื่อ broadcast ให้ทุก client
-              const payload = parseJwt(token);
-              socket.emit("bid placed", {
-                productId,
-                bidAmount,
-                username:
-                  payload && payload.username ? payload.username : undefined,
-              });
-            } else {
-              alert(data.message || "เกิดข้อผิดพลาดในการเสนอราคา");
-            }
-          } catch (err) {
-            console.error("เกิดข้อผิดพลาดในการเสนอราคา:", err);
-            alert("ระบบขัดข้อง");
+            // ✅ trigger AI ที่ server
+            socket.emit("request ai", {
+              type: "bid",
+              productId,
+              username: payload?.username,
+              amount: bidAmount,
+            });
+          } else {
+            alert(data.message || "เกิดข้อผิดพลาดในการเสนอราคา");
           }
-        });
+        } catch (err) {
+          console.error("เกิดข้อผิดพลาดในการเสนอราคา:", err);
+          alert("ระบบขัดข้อง");
+        }
+      });
 
       async function updateQuickBidButtons(productId) {
         try {
@@ -509,17 +445,18 @@
         let interval;
         let countdownActive = false;
 
-            // 🚨 Soft Close Countdown
-        async function startFinalCountdown(seconds, ExtendTime = false) {
+        // 🚨 Soft Close Countdown (นับเวลาตาม seconds ที่เหลือ)
+        async function updateCountdown(seconds, ExtendTime = false) {
           let timeLeft = seconds;
           countdownActive = true;
           element.textContent = `กำลังจะปิดใน ${timeLeft}`;
 
           if (ExtendTime) {
-            const msg = `มีผู้เสนอราคาเพิ่ม! ต่อเวลาอีก ${seconds} วินาที`;
+            const msg = `มีผู้เสนอราคาเพิ่ม! ต่อเวลาอีก 60 วินาที`;
             showAIMessage(msg);
           }
 
+          clearInterval(interval); // กันซ้อน
           interval = setInterval(() => {
             timeLeft--;
             if (timeLeft > 0) {
@@ -527,20 +464,16 @@
 
               if (timeLeft === 6) {
                 showAIMessage("จะปิดประมูลแล้วนะคะ");
-                const audio = new Audio("./sounds/ปิด.mp3"); // เสียงพูด "จะเริ่มปิดประมูลแล้วนะคะ"
-                audio.play();
+                new Audio("./sounds/ปิด.mp3").play();
               } else if (timeLeft === 3) {
                 showAIMessage("3");
-                const audio = new Audio("./sounds/3.mp3");
-                audio.play();
+                new Audio("./sounds/3.mp3").play();
               } else if (timeLeft === 2) {
                 showAIMessage("2");
-                const audio = new Audio("./sounds/2.mp3");
-                audio.play();
+                new Audio("./sounds/2.mp3").play();
               } else if (timeLeft === 1) {
                 showAIMessage("1");
-                const audio = new Audio("./sounds/1.mp3");
-                audio.play();
+                new Audio("./sounds/1.mp3").play();
               }
             } else {
               clearInterval(interval);
@@ -553,12 +486,11 @@
           }, 1000);
         }
 
-        // 🏁 ปิดประมูลจริง
         async function closeAuction() {
           element.textContent = "หมดเวลาแล้ว";
           try {
             const token = localStorage.getItem("token");
-            const payload = parseJwt(token); // token ของ user ปัจจุบัน
+            const payload = parseJwt(token);
             const res = await fetch(`/api/products/close/${productId}`, {
               method: "POST",
               headers: {
@@ -570,77 +502,37 @@
 
             console.log("DEBUG: closeAuction triggered", data);
 
-            if (res.ok) {
-              if (data.winner_user_id && data.final_price) {
-                if (
-                  payload &&
-                  Number(payload.id) === Number(data.winner_user_id)
-                ) {
-                  let winnerName = "";
-                  try {
-                    const resHistory = await fetch(
-                      `/api/bids/history?product_id=${productId}`
-                    );
-                    const history = await resHistory.json();
-                    let winnerBid = history.find(
-                      (bid) =>
-                        Number(bid.bid_price) === Number(data.final_price)
-                    );
-                    
-                    // ถ้าอยากให้ชัวร์ว่าใช้ bid ล่าสุด
-                    if (!winnerBid && history.length > 0) {
-                      
-                      winnerBid = history[0];
-                    }
-                    winnerName = winnerBid ? winnerBid.username : "";
-                    
-                  } catch (err) {
-                    console.error("Error fetching bid history:", err);
-                  }
-
-                  if (winnerName) {
-                    const winnerId = data.winner_user_id; // เอามาจาก API
-                    const finalPrice = data.final_price; // เอามาจาก API
-                    const prompt = `ขอแสดงความยินดีกับ ${winnerName} ที่ชนะการประมูลสินค้านี้ในราคา ${finalPrice} บาท!`;
-
-                    fetchAIMessage(prompt, prompt, productId); // ✅ ประกาศด้วย AI
-                    console.log(
-                      "DEBUG: calling showWinnerPopup with",
-                      winnerName,
-                      data.final_price
-                    );
-                    showWinnerPopup(
-                      winnerName,
-                      finalPrice,
-                      `/confirm?winner=${winnerId}`
-                    ); // ✅ แสดง popup
-                  }
-                }
-              } else {
-                const fallbackMsg = data.message || "ไม่มีผู้ชนะการประมูล";
-                fetchAIMessage(fallbackMsg, fallbackMsg, productId); // ✅ กรณีไม่มีผู้ชนะ
-              }
-            } else {
-              alert(data.message || "เกิดข้อผิดพลาดในการบันทึกผลการประมูล");
+            if (res.ok && data.winner_user_id && Number(payload.id) === Number(data.winner_user_id)) {
+              showWinnerPopup(
+                data.winner_name,
+                data.final_price,
+                `/confirm?winner=${data.winner_user_id}`
+              );
             }
-
-            if (data.token) localStorage.setItem("token", data.token);
           } catch (err) {
-            alert("เกิดข้อผิดพลาดในการบันทึกผลการประมูล");
+            console.error("closeAuction error:", err);
           }
         }
 
-            // 🔄 ถ้ามี bid ใหม่ระหว่าง soft close → รีเซ็ตเวลา
-            socket.on('new bid', function (data) {
-                if (data.productId === productId && countdownActive && !called) {
-                    clearInterval(interval);
-                    startFinalCountdown(60, true); // ต่อเวลาอีก 1 นาที
-                }
-            });
+        // 📡 ฟังเวลาปิดที่ server ส่งมา → รีเซ็ต timer ทุกครั้ง
+        socket.on("auction endtime", ({ productId: pid, endTime, reason }) => {
+          if (pid === productId && !called) {
+            const now = Date.now();
+            const secondsLeft = Math.max(0, Math.floor((endTime - now) / 1000));
+            clearInterval(interval);
 
-            // เริ่มนับปกติ
-            startFinalCountdown(120);
-        }
+            const isExtend = reason === "bid";
+            updateCountdown(secondsLeft, isExtend); // ใช้เวลาที่เหลือจริง
+          }
+        });
+
+        // 🚀 เริ่มนับจาก endTimeStr ที่ server ส่งมาตอนเข้าหน้า
+        const endTime = new Date(endTimeStr).getTime();
+        const now = Date.now();
+        const initialSeconds = Math.max(0, Math.floor((endTime - now) / 1000));
+        updateCountdown(initialSeconds);
+      }
+
 
       function showWinnerPopup(winnerName, finalPrice, confirmUrl) {
         // ถ้ามี popup เดิม ให้ลบออกก่อน
