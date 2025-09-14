@@ -11,29 +11,27 @@ body {
 
 @media (max-width: 900px) {
     .main {
-        width: 400px;
-        height: auto;
+        width: 320px;
+        min-height: 340px;
         padding: 30px 10px 10px;
     }
     .input-container input {
-        width: 220px;
         font-size: 14px;
     }
 }
 
 @media screen and (max-width: 600px) {
     .main {
-        padding: 40px 15px;
-        height: auto;
+        padding: 24px 8px;
+        min-height: 280px;
         width: 95vw;
     }
     .input-container input {
-        width: 120px;
         font-size: 12px;
     }
     .human-icon {
         top: -50px;
-        padding: 5px;
+        padding: 8px;
     }
     .navbar .logo {
         height: 40px;
@@ -43,10 +41,11 @@ body {
 
 .forgot-password {
     display: block;
-    margin-top: 10px;
-    font-size: 14px;
+    margin-top: 16px;
+    font-size: 15px;
     color: #FFA500;
     text-decoration: none;
+    transition: color 0.2s;
 }
 
 .forgot-password:hover {
@@ -59,10 +58,10 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 60%;
-    margin-top: 5px;
+    width: 100%;
+    margin-top: 8px;
     padding: 0 2px;
-    font-size: 14px;
+    font-size: 15px;
 }
 
 .remember-me {
@@ -76,6 +75,7 @@ body {
     color: #FFA500;
     text-decoration: none;
     font-weight: bold;
+    transition: color 0.2s;
 }
 
 .signup-link span {
@@ -89,23 +89,28 @@ body {
 
 .main {
     position: relative;
-    border-radius: 25px;
-    background: #FFEECE;
-    padding: 60px 20px 20px;
-    width: 700px;
-    height: 400px;
+    border-radius: 32px;
+    background: linear-gradient(120deg, #FFEECE 80%, #fffbe6 100%);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+    padding: 60px 32px 32px;
+    width: 400px;
+    min-height: 400px;
     margin-top: 60px;
     display: flex;
     flex-direction: column;
-    align-items: center; /* จัดเนื้อหาใน main ให้อยู่ตรงกลางแนวนอน */
-    justify-content: flex-start; /* จัดเนื้อหาให้อยู่ด้านบน (หรือใช้ center หากต้องการให้อยู่กึ่งกลางแนวตั้ง) */
-    text-align: center; /* จัดข้อความให้อยู่ตรงกลาง */
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+    transition: box-shadow 0.2s;
 }
 
 .main h1 {
-    font-size: 24px;
-    color: #000;
-    margin-bottom: 20px; /* เพิ่มระยะห่างด้านล่าง */
+    font-size: 28px;
+    color: #ff9900;
+    margin-bottom: 24px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 8px rgba(255,193,7,0.08);
 }
 
 .navbar {
@@ -120,53 +125,68 @@ body {
     align-items: center;
     flex-grow: 1;
     margin-top: 80px;
+    min-height: 500px;
 }
 
 .human-icon {
     position: absolute;
-    top: -65px; /* ปรับระยะห่างให้อยู่ด้านบนของ main */
-    left: 50%; /* จัดให้อยู่ตรงกลางแนวนอน */
-    transform: translateX(-50%); /* ปรับให้ไอคอนอยู่ตรงกลาง */
-    z-index: 2; /* ทำให้ human-icon อยู่ด้านบน */
-    background-color: #FFEECE; /* เพิ่มพื้นหลังให้กลมกลืนกับ main */
-    border-radius: 50%; /* ทำให้พื้นหลังเป็นวงกลม */
-    padding: 10px; /* เพิ่ม padding รอบไอคอน */
+    top: -70px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    background: linear-gradient(120deg,#FFEECE 80%,#fffbe6 100%);
+    border-radius: 50%;
+    padding: 16px;
+    box-shadow: 0 4px 16px rgba(255,193,7,0.10);
+    border: 3px solid #fffbe6;
+    transition: box-shadow 0.2s;
 }
 
 .input-container {
     position: relative;
-    margin: 12px 0;
+    margin: 18px 0;
     display: flex;
     align-items: center;
+    width: 100%;
 }
 
 .input-container i {
     position: absolute;
-    left: 10px; /* ระยะห่างจากขอบซ้าย */
+    left: 14px;
     color: #FFA500;
-    z-index: 1; /* ทำให้ไอคอนอยู่ด้านบน */
+    z-index: 1;
+    font-size: 18px;
 }
 
 .input-container input {
-    width: 400px;
-    padding: 10px 10px 10px 40px; /* เพิ่ม padding ซ้ายเพื่อเว้นที่สำหรับไอคอน */
+    width: 100%;
+    padding: 12px 12px 12px 44px;
     border: 2px solid #FFA500;
-    border-radius: 5px;
+    border-radius: 8px;
     font-size: 16px;
+    background: #fffbe6;
+    box-shadow: 0 2px 8px rgba(255,193,7,0.04);
+    transition: border 0.2s;
+}
+.input-container input:focus {
+    border: 2px solid #ff9900;
+    outline: none;
 }
 
 button {
-    margin-top: 30px;
-    background-color: #FFA500;
+    margin-top: 32px;
+    background: linear-gradient(90deg,#FFA500 60%,#ff9900 100%);
     color: white;
     border: none;
-    border-radius: 5px;
-    padding: 12px 24px;
-    font-size: 16px;
+    border-radius: 8px;
+    padding: 14px 32px;
+    font-size: 18px;
+    font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    box-shadow: 0 2px 8px rgba(255,193,7,0.08);
+    transition: background 0.2s, transform 0.2s;
 }
-
 button:hover {
-    background-color: #e69500;
+    background: linear-gradient(90deg,#e69500 60%,#FFA500 100%);
+    transform: scale(1.04);
 }
