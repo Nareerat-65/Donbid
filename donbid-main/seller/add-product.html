@@ -216,7 +216,7 @@
               }
 
               const startDateTime = new Date(info.dateStr + "T" + startTime);
-              const endDateTime = new Date(startDateTime.getTime() + 60 * 1000); // บวก 1 ชั่วโมง
+              const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000); // บวก 1 ชั่วโมง
 
               const now = new Date();
 
