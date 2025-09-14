@@ -139,6 +139,10 @@ io.on('connection', socket => {
       
 
       callAIAndBroadcast(productId, welcomePrompt, 'auction welcome');
+
+      setTimeout(() => {
+        sendIdleMessage(productId);
+      }, 30 * 1000);
     }
 
     if (!auctionEndTimes[productId]) {
@@ -174,13 +178,17 @@ io.on('connection', socket => {
 
     const promptBid = `แจ้งให้ทุกคนทราบแบบไม่ยาวมาก ${username} เพิ่งเสนอราคา ${bidAmount} บาท สำหรับสินค้านี้ แบบผู้ดำเนินการประมูลพร้อมกระตุ้นให้ผู้เข้าร่วมประมูลคนอื่น ๆ รู้สึกตื่นเต้นและอยากเข้าร่วมการประมูลนี้ ไม่ต้องมีสัญลักษณ์พิเศษ`;
     // AI ตอบ message bid
-    callAIAndBroadcast( 
-      productId,
-      promptBid,
-      'ai message'
-    ); // ✅ ส่งเฉพาะห้องนี้
-  });
+    callAIAndBroadcast( productId,promptBid,'ai message'); // ✅ ส่งเฉพาะห้องนี้
 
+    // 🛠 รีเซ็ต idle timer
+    if (participants[productId].idleTimer) {
+      clearTimeout(participants[productId].idleTimer);
+    }
+    participants[productId].idleTimer = setTimeout(() => {
+      sendIdleMessage(productId);
+    }, 30 * 1000);
+  
+  });
 
   // เวลา user ออกจากห้อง (disconnect)
   socket.on('disconnect', () => {
@@ -243,7 +251,7 @@ async function sendCloseMessage(productId) {
 
     const { winner_name, final_price } = result;
 
-    const prompt = `ขอแสดงความยินดีกับ ${winner_name} ที่ชนะการประมูลสินค้านี้ในราคา ${final_price} บาท!`;
+    const prompt = `ประกาศให้ผู้ใช้อื่นทราบว่า"ขอแสดงความยินดีกับ ${winner_name} ที่ชนะการประมูลสินค้านี้ในราคา ${final_price} บาท!" แบบผู้ดำเนินการประมูลที่สุภาพ ไม่พูดถึง AI หรือระบบและไม่มีสัญลักษณ์พิเศษ`;
 
     await callAIAndBroadcast(productId, prompt, "ai message");
 
@@ -265,19 +273,8 @@ setInterval(async () => {
       delete welcomedProducts[productId];
       continue;
     }
-
-    // 💤 Idle message ทุก 30 วินาที (soft close = 60s)
-    const timeToSoftClose = endTime - now - 60000;
-    if (timeToSoftClose > 30000) {
-      if (!participants[productId].idleNotified) {
-        await sendIdleMessage(productId);
-        participants[productId].idleNotified = true;
-      }
-    } else {
-      participants[productId].idleNotified = false;
-    }
   }
-}, 15000);
+}, 3000);
 
 server.listen(3000, () => {
   console.log('✅ Server started on http://localhost:3000');
