@@ -85,53 +85,103 @@
       <a href="product.html" class="all-product">สินค้าทั้งหมด >></a>
     </div>
     <div class="product-list"></div>
+
+    <!-- sweetAlert -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- socket.io -->
+    <script src="/socket.io/socket.io.js"></script>
+
     <script>
-      async function loadProducts() {
+      const socket = io();
+
+      socket.on("connect", () => {
+        console.log("✅ Connected to server");
+      });
+
+      // 📢 ดักฟัง event จาก server เมื่อมีการเพิ่มสินค้าใหม่
+      socket.on("product-added", (product) => {
+        console.log("📢 New product added:", product);
+        const productList = document.querySelector(".product-list");
+        const newCard = createProductCard(product);
+        productList.prepend(newCard);
+      });
+
+      // 🆕 ฟังก์ชันสร้างการ์ดสินค้า
+      function createProductCard(p) {
+        const now = new Date();
+        if (p.status === "ended") return null;
+
+        let followed =
+          JSON.parse(localStorage.getItem("followedProducts")) || [];
+
+        const card = document.createElement("div");
+        const start = new Date(p.start_time);
+        const isAuctionStarted = now >= start;
+        const imageGallery = p.images?.length
+          ? p.images
+              .map(
+                (img) =>
+                  `<img src="/uploads/${img}" alt="${p.name}" class="product-image">`
+              )
+              .join("")
+          : `<img src="https://via.placeholder.com/300x150" alt="${p.name}" class="product-image">`;
+
+        const isFollowed = followed.includes(String(p.id));
+
+        card.className = "product-card";
+        card.innerHTML = `
+      <div class="images">${imageGallery}</div>
+      <div class="product-info">
+        <div class="product-name">${p.name}</div>
+        <div class="product-price">฿${Number(p.current_price).toFixed(2)}</div>
+        <div class="product-time">กำลังโหลด...</div>
+        <button class="follow-btn" data-id="${p.id}"></button>
+        <a href="../auction_room/auction-product.html?id=${p.id}" 
+           class="buy-btn ${!isAuctionStarted ? "disabled" : ""}">
+           เริ่มประมูล
+        </a>
+      </div>
+    `;
+
+        // นับถอยหลัง
+        const timeElem = card.querySelector(".product-time");
+        startCountdownText(p.start_time, p.end_time, timeElem);
+
+        // ปุ่ม follow
+        const followBtn = card.querySelector(".follow-btn");
+        updateFollowButton(followBtn, isFollowed);
+        followBtn.addEventListener("click", () =>
+          handleFollow(p.id, p.name, followBtn)
+        );
+
+        return card;
+      }
+
+      // โหดสินค้าและสร้าง card
+      async function loadProducts(p) {
         try {
           const res = await fetch("/api/products");
           const products = await res.json();
           const productList = document.querySelector(".product-list");
           productList.innerHTML = "";
-          let followed = JSON.parse(localStorage.getItem("followedProducts")) || [];
+
           products.forEach((p) => {
-            const now = new Date();
-            if (p.status === "ended") return;
-            const card = document.createElement("div");
-            const start = new Date(p.start_time);
-            const isAuctionStarted = now >= start;
-            const imageGallery = p.images?.length
-              ? p.images.map((img) => `<img src="/uploads/${img}" alt="${p.name}" class="product-image">`).join("")
-              : `<img src="https://via.placeholder.com/300x150" alt="${p.name}" class="product-image">`;
-            const isFollowed = followed.includes(String(p.id));
-            card.className = "product-card";
-            card.innerHTML = `
-              <div class="images">${imageGallery}</div>
-              <div class="product-info">
-                <div class="product-name">${p.name}</div>
-                <div class="product-price">฿${Number(p.current_price).toFixed(2)}</div>
-                <div class="product-time">กำลังโหลด...</div>
-                <button class="follow-btn" data-id="${p.id}"></button>
-                <a href="../auction_room/auction-product.html?id=${p.id}" class="buy-btn ${!isAuctionStarted ? "disabled" : ""}">เริ่มประมูล</a>
-              </div>
-            `;
-            const timeElem = card.querySelector(".product-time");
-            startCountdownText(p.start_time, p.end_time, timeElem);
-            productList.appendChild(card);
-            const followBtn = card.querySelector(".follow-btn");
-            updateFollowButton(followBtn, isFollowed);
-            followBtn.addEventListener("click", () => handleFollow(p.id, p.name, followBtn));
+            const card = createProductCard(p);
+            if (card) productList.appendChild(card);
           });
         } catch (err) {
           console.error("❌ โหลดสินค้าไม่สำเร็จ:", err);
         }
       }
+
       function updateFollowButton(followBtn, isFollowed) {
         followBtn.textContent = isFollowed ? "✅ กำลังติดตาม" : "⭐ ติดตาม";
         followBtn.classList.toggle("followed", isFollowed);
       }
       function handleFollow(productId, productName, followBtn) {
-        let followed = JSON.parse(localStorage.getItem("followedProducts")) || [];
+        let followed =
+          JSON.parse(localStorage.getItem("followedProducts")) || [];
         const isFollowed = followed.includes(String(productId));
         if (isFollowed) {
           followed = followed.filter((id) => id !== String(productId));
@@ -157,8 +207,10 @@
       }
       function startRealtimeAuctionNoti() {
         setInterval(() => {
-          const followed = JSON.parse(localStorage.getItem("followedProducts")) || [];
-          const notified = JSON.parse(localStorage.getItem("notifiedProducts")) || [];
+          const followed =
+            JSON.parse(localStorage.getItem("followedProducts")) || [];
+          const notified =
+            JSON.parse(localStorage.getItem("notifiedProducts")) || [];
           fetch("/api/products")
             .then((res) => res.json())
             .then((products) => {
@@ -169,7 +221,10 @@
                 if (now >= start && !notified.includes(String(product.id))) {
                   showNoti(`⏰ ประมูลเริ่มแล้ว: ${product.name}`);
                   notified.push(String(product.id));
-                  localStorage.setItem("notifiedProducts", JSON.stringify(notified));
+                  localStorage.setItem(
+                    "notifiedProducts",
+                    JSON.stringify(notified)
+                  );
                 }
               });
             });
