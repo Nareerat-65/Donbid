@@ -16,7 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // ✅ Routes
 const authRoutes = require("./routes/auth");
-const productRouter = require("./routes/products");
+const productRouter = require("./routes/products")(io);
 const bidsRoute = require("./routes/bids");
 const coinRoutes = require("./routes/coins");
 const confirmRouter = require("./routes/confirm");
