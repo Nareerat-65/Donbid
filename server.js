@@ -137,9 +137,7 @@ io.on("connection", (socket) => {
 
       callAIAndBroadcast(productId, welcomePrompt, "auction welcome");
 
-      setTimeout(() => {
-        sendIdleMessage(productId);
-      }, 30 * 1000);
+      resetIdleTimer(productId);
     }
 
     if (!auctionEndTimes[productId]) {
@@ -178,10 +176,7 @@ io.on("connection", (socket) => {
     callAIAndBroadcast(productId, promptBid, "ai message"); // ✅ ส่งเฉพาะห้องนี้
 
     // 🛠 รีเซ็ต idle timer
-    if (idleTimers[productId]) clearTimeout(idleTimers[productId]);
-    idleTimers[productId] = setTimeout(() => {
-      sendIdleMessage(productId);
-    }, 30_000);
+    resetIdleTimer(productId);
   });
 
   // เวลา user ออกจากห้อง (disconnect)
@@ -257,6 +252,16 @@ async function sendCloseMessage(productId) {
     console.error("sendCloseMessage error:", err);
   }
 }
+function resetIdleTimer(productId) {
+  if (participants[productId].idleTimer) {
+    clearTimeout(participants[productId].idleTimer);
+  }
+
+  participants[productId].idleTimer = setTimeout(() => {
+    sendIdleMessage(productId);
+  }, 30 * 1000);
+}
+
 
 setInterval(async () => {
   const now = Date.now();
