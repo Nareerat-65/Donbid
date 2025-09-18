@@ -60,12 +60,34 @@ module.exports = (io) => {
             [values]
           );
         }
+
+        const [newProducts] = await conn.query(
+          `SELECT 
+           p.*,
+           COALESCE(
+             (SELECT MAX(b.bid_price) FROM bids b WHERE b.product_id = p.id),
+             p.start_price
+           ) AS current_price
+         FROM products p
+         WHERE p.id = ?`,
+          [productId]
+        );
+
+        let product = newProducts[0];
+
+        const [images] = await conn.query(
+          `SELECT image_path FROM product_images WHERE product_id = ?`,
+          [productId]
+        );
+
+        product.images = images.map((img) => img.image_path);
+
         await conn.commit();
 
         // ✅ แจ้ง client ทุกคนว่ามีสินค้าใหม่
-        io.emit("product-added", { productId, name, start_price });
+        io.emit("product-added", product);
 
-        res.json({ message: "เพิ่มสินค้าสำเร็จ" });
+        res.json({ message: "เพิ่มสินค้าสำเร็จ", product });
       } catch (err) {
         await conn.rollback();
         console.error(err);
