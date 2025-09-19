@@ -133,51 +133,29 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/socket.io/socket.io.js"></script>
     <script>
       let allProducts = [];
+      const socket = io();
+
+      // โหลดสินค้าทั้งหมดครั้งเดียว
       async function loadProducts() {
         try {
           const res = await fetch("/api/products");
-          const products = await res.json();
-
-          allProducts = products; // เก็บข้อมูลสินค้าไว้ในตัวแปร global
-
+          allProducts = await res.json();
           renderProducts(allProducts);
+          scheduleAllAuctionNoti();
         } catch (err) {
           console.error("❌ โหลดสินค้าไม่สำเร็จ:", err);
         }
       }
 
-      function updateFollowButton(followBtn, isFollowed) {
-        followBtn.textContent = isFollowed ? "✅ กำลังติดตาม" : "⭐ ติดตาม";
-        followBtn.classList.toggle("followed", isFollowed);
-      }
-
-      function handleFollow(productId, productName, followBtn) {
-        let followed =
-          JSON.parse(localStorage.getItem("followedProducts")) || [];
-        const isFollowed = followed.includes(String(productId));
-
-        if (isFollowed) {
-          followed = followed.filter((id) => id !== String(productId));
-          updateFollowButton(followBtn, false);
-          showNoti(`❌ ยกเลิกติดตาม ${productName}`);
-        } else {
-          followed.push(String(productId));
-          updateFollowButton(followBtn, true);
-          showNoti(`⭐ ติดตาม ${productName} แล้ว`);
-        }
-        localStorage.setItem("followedProducts", JSON.stringify(followed));
-      }
-
+      // ฟังก์ชัน renderProducts ใช้ข้อมูลจาก allProducts
       function renderProducts(products) {
         const productList = document.querySelector(".product-list");
         productList.innerHTML = "";
-
         const now = new Date();
-        let followed =
-          JSON.parse(localStorage.getItem("followedProducts")) || [];
-
+        let followed = JSON.parse(localStorage.getItem("followedProducts")) || [];
         products.forEach((p) => {
           const end = new Date(p.end_time);
           if (now >= end) return;
@@ -191,41 +169,51 @@
                 )
                 .join("")
             : `<img src="https://via.placeholder.com/300x150" alt="${p.name}" class="product-image">`;
-
           const isFollowed = followed.includes(String(p.id));
-
           const card = document.createElement("div");
           card.className = "product-card";
           card.innerHTML = `
-                    <div class="images">${imageGallery}</div>
-                    <div class="product-info">
-                        <div class="product-name">${p.name}</div>
-                        <div class="product-price">฿${Number(
-                          p.current_price
-                        ).toFixed(2)}</div>
-                        <div class="product-time">กำลังโหลด...</div>
-                        <button class="follow-btn" data-id="${p.id}"></button>
-                        <a href="../auction_room/auction-product.html?id=${
-                          p.id
-                        }" 
-                        class="buy-btn ${!isAuctionStarted ? "disabled" : ""}">
-                            เริ่มประมูล
-                        </a>
-                    </div>
-                `;
-
+        <div class="images">${imageGallery}</div>
+        <div class="product-info">
+          <div class="product-name">${p.name}</div>
+          <div class="product-price">฿${Number(p.current_price).toFixed(2)}</div>
+          <div class="product-time">กำลังโหลด...</div>
+          <button class="follow-btn" data-id="${p.id}"></button>
+          <a href="../auction_room/auction-product.html?id=${p.id}" 
+             class="buy-btn ${!isAuctionStarted ? "disabled" : ""}">
+              เริ่มประมูล
+          </a>
+        </div>
+      `;
           const timeElem = card.querySelector(".product-time");
           startCountdownText(p.start_time, p.end_time, timeElem);
-
           productList.appendChild(card);
-
-          // หลังจาก appendChild(card);
           const followBtn = card.querySelector(".follow-btn");
           updateFollowButton(followBtn, isFollowed);
           followBtn.addEventListener("click", () =>
             handleFollow(p.id, p.name, followBtn)
           );
         });
+      }
+
+      // ฟังก์ชัน follow/unfollow
+      function updateFollowButton(followBtn, isFollowed) {
+        followBtn.textContent = isFollowed ? "✅ กำลังติดตาม" : "⭐ ติดตาม";
+        followBtn.classList.toggle("followed", isFollowed);
+      }
+      function handleFollow(productId, productName, followBtn) {
+        let followed = JSON.parse(localStorage.getItem("followedProducts")) || [];
+        const isFollowed = followed.includes(String(productId));
+        if (isFollowed) {
+          followed = followed.filter((id) => id !== String(productId));
+          updateFollowButton(followBtn, false);
+          showNoti(`❌ ยกเลิกติดตาม ${productName}`);
+        } else {
+          followed.push(String(productId));
+          updateFollowButton(followBtn, true);
+          showNoti(`⭐ ติดตาม ${productName} แล้ว`);
+        }
+        localStorage.setItem("followedProducts", JSON.stringify(followed));
       }
 
       function showNoti(message) {
@@ -240,88 +228,46 @@
         });
       }
 
-      function scheduleAuctionNoti(product) {
-        const start = new Date(product.start_time).getTime();
-        let notified =
-          JSON.parse(localStorage.getItem("notifiedProducts")) || [];
-
-        if (notified.includes(String(product.id))) return;
-
-        const checkAndNotify = () => {
-          const now = Date.now();
-
-          // ถ้ายังไม่เคยแจ้งและถึงเวลาหรือเลยเวลาเริ่ม
-          if (now >= start && !notified.includes(String(product.id))) {
-            if (
-              "Notification" in window &&
-              Notification.permission === "granted"
-            ) {
-              new Notification("🎉 ประมูลเริ่มแล้ว!", {
-                body: `สินค้าที่คุณติดตาม: ${product.name}`,
-                icon: "/pic/Logo.png",
-                badge: "/pic/Logo.png",
-              });
-            } else {
-              showNoti(`⏰ ประมูลเริ่มแล้ว: ${product.name}`);
-            }
-
-            notified.push(String(product.id));
-            localStorage.setItem("notifiedProducts", JSON.stringify(notified));
-          }
-
-          // ถ้ายังไม่ถึงเวลา ให้รอเช็กต่อ
-          if (!notified.includes(String(product.id))) {
-            setTimeout(checkAndNotify, 5000); // เช็กทุก 5 วินาที
-          }
-        };
-
-        // เริ่มตรวจสอบทันที
-        checkAndNotify();
-      }
-
-      function startRealtimeAuctionNoti() {
-        setInterval(() => {
-          const followed = JSON.parse(localStorage.getItem("followedProducts")) || [];
-          const notified = JSON.parse(localStorage.getItem("notifiedProducts")) || [];
-          fetch("/api/products")
-            .then((res) => res.json())
-            .then((products) => {
-              products.forEach((product) => {
-                if (!followed.includes(String(product.id))) return;
-                const start = new Date(product.start_time).getTime();
-                const now = Date.now();
-                if (now >= start && !notified.includes(String(product.id))) {
+      // ฟังก์ชันแจ้งเตือนประมูล (client-side, ไม่ fetch ซ้ำ)
+      function scheduleAllAuctionNoti() {
+        const followed = JSON.parse(localStorage.getItem("followedProducts")) || [];
+        let notified = JSON.parse(localStorage.getItem("notifiedProducts")) || [];
+        allProducts
+          .filter((p) => followed.includes(String(p.id)))
+          .forEach((product) => {
+            const start = new Date(product.start_time).getTime();
+            if (notified.includes(String(product.id))) return;
+            const checkAndNotify = () => {
+              const now = Date.now();
+              if (now >= start && !notified.includes(String(product.id))) {
+                if ("Notification" in window && Notification.permission === "granted") {
+                  new Notification("🎉 ประมูลเริ่มแล้ว!", {
+                    body: `สินค้าที่คุณติดตาม: ${product.name}`,
+                    icon: "/pic/Logo.png",
+                    badge: "/pic/Logo.png",
+                  });
+                } else {
                   showNoti(`⏰ ประมูลเริ่มแล้ว: ${product.name}`);
-                  notified.push(String(product.id));
-                  localStorage.setItem("notifiedProducts", JSON.stringify(notified));
                 }
-              });
-            });
-        }, 5000); // ตรวจสอบทุก 5 วินาที
+                notified.push(String(product.id));
+                localStorage.setItem("notifiedProducts", JSON.stringify(notified));
+              }
+              if (!notified.includes(String(product.id))) {
+                setTimeout(checkAndNotify, 5000);
+              }
+            };
+            checkAndNotify();
+          });
       }
 
-      // โหลดสินค้าทั้งหมดมาเช็ก
-      fetch("/api/products")
-        .then((res) => res.json())
-        .then((products) => {
-          const followed =
-            JSON.parse(localStorage.getItem("followedProducts")) || [];
-          products
-            .filter((p) => followed.includes(String(p.id)))
-            .forEach(scheduleAuctionNoti);
-        });
-
-      // ฟังก์ชันเปิด-ปิด ตัวกรอง
+      // ฟังก์ชันเปิด-ปิด ตัวกรอง (client-side)
       const fillterButton = document.getElementById("fillterButton");
       const filterBlock = document.querySelector(".fillter-block");
-
       fillterButton.addEventListener("click", (e) => {
         e.stopPropagation();
         filterBlock.style.display =
           filterBlock.style.display === "block" ? "none" : "block";
       });
-
-      // ถ้าคลิกที่อื่นนอก filterBlock → ปิด
       document.addEventListener("click", (e) => {
         if (
           filterBlock.style.display === "block" &&
@@ -332,68 +278,44 @@
         }
       });
 
+      // ฟังก์ชันค้นหา (client-side)
       const searchInput = document.getElementById("searchInput");
       const searchButton = document.getElementById("searchButton");
-
       function searchProducts() {
         const keyword = searchInput.value.toLowerCase();
-        const cards = document.querySelectorAll(".product-list .product-card");
-
-        cards.forEach((card) => {
-          const productName = card
-            .querySelector(".product-name")
-            .textContent.toLowerCase();
-          card.style.display =
-            keyword === "" || productName.includes(keyword) ? "" : "none";
-        });
+        const filtered = allProducts.filter((p) =>
+          p.name.toLowerCase().includes(keyword)
+        );
+        renderProducts(filtered);
       }
-
-      // คลิกปุ่มค้นหา
       searchButton.addEventListener("click", searchProducts);
-
-      // สำหรับแบบ real-time
       searchInput.addEventListener("input", searchProducts);
+      searchInput.addEventListener("keyup", (e) => e.key === "Enter" && searchProducts());
 
-      // พิมพ์แล้ว Enter
-      searchInput.addEventListener(
-        "keyup",
-        (e) => e.key === "Enter" && searchProducts()
-      );
-
-      // ฟังก์ชันกรองสินค้า
+      // ฟังก์ชันกรองสินค้า (client-side)
       function applyFilters() {
         let filtered = [...allProducts];
         const now = new Date();
-
-        // ราคา
-        const minPrice =
-          parseFloat(document.getElementById("minPrice").value) || 0;
-        const maxPrice =
-          parseFloat(document.getElementById("maxPrice").value) || Infinity;
+        const minPrice = parseFloat(document.getElementById("minPrice").value) || 0;
+        const maxPrice = parseFloat(document.getElementById("maxPrice").value) || Infinity;
         filtered = filtered.filter(
           (p) => p.current_price >= minPrice && p.current_price <= maxPrice
         );
-
-        // สถานะ
         const auctionStatus = document.getElementById("auctionStatus").value;
         filtered = filtered.filter((p) => {
           const start = new Date(p.start_time);
           const end = new Date(p.end_time);
-
           if (auctionStatus === "upcoming") return now < start;
           if (auctionStatus === "ongoing") return now >= start && now < end;
           if (auctionStatus === "ended") return now >= end;
           return true;
         });
-
-        // เรียงลำดับ
         const sortBy = document.getElementById("sortBy").value;
         filtered.sort((a, b) => {
           const startA = new Date(a.start_time);
           const startB = new Date(b.start_time);
           const endA = new Date(a.end_time);
           const endB = new Date(b.end_time);
-
           switch (sortBy) {
             case "newest":
               return startB - startA;
@@ -407,45 +329,31 @@
               return 0;
           }
         });
-
-        // ประเภทของสินค้า
         const cate = document.getElementById("cate").value;
         if (cate) {
           filtered = filtered.filter((p) => p.category === cate);
         }
-
         renderProducts(filtered);
       }
+      document.getElementById("applyFilterButton").addEventListener("click", applyFilters);
+      document.querySelector(".fillter-block button").addEventListener("click", () => {
+        document.getElementById("minPrice").value = "";
+        document.getElementById("maxPrice").value = "";
+        document.getElementById("auctionStatus").value = "all";
+        document.getElementById("sortBy").value = "newest";
+        document.getElementById("cate").value = "";
+        renderProducts(allProducts);
+      });
 
-      // ✅ ปุ่ม Apply
-      document
-        .getElementById("applyFilterButton")
-        .addEventListener("click", applyFilters);
-
-      // ✅ ปุ่ม Reset
-      document
-        .querySelector(".fillter-block button")
-        .addEventListener("click", () => {
-          document.getElementById("minPrice").value = "";
-          document.getElementById("maxPrice").value = "";
-          document.getElementById("auctionStatus").value = "all";
-          document.getElementById("sortBy").value = "newest";
-          document.getElementById("cate").value = "";
-          renderProducts(allProducts);
-        });
-
+      // ฟังก์ชันนับถอยหลัง
       function startCountdownText(startTimeStr, endTimeStr, element) {
         const btn = element.closest(".product-info").querySelector(".buy-btn");
-
         let interval;
-
         function update() {
           const now = new Date();
           const start = new Date(startTimeStr);
           const end = new Date(endTimeStr);
-
-          if (status === "live" || (now >= start && now < end)) {
-            const diff = Math.floor((end - now) / 1000);
+          if (now >= start && now < end) {
             element.textContent = `กำลังประมูล`;
             btn.classList.remove("disabled");
           } else if (now < start) {
@@ -458,11 +366,9 @@
             clearInterval(interval);
           }
         }
-
         interval = setInterval(update, 1000);
         update();
       }
-
       function formatDuration(seconds) {
         const hours = Math.floor(seconds / 3600);
         const mins = Math.floor((seconds % 3600) / 60);
@@ -476,6 +382,7 @@
         }
       }
 
+      // ฟังก์ชัน parseJwt
       function parseJwt(token) {
         try {
           const base64Url = token.split(".")[1];
@@ -492,18 +399,23 @@
         }
       }
 
+      // ดักฟัง event จาก server เมื่อมีการเพิ่มสินค้าใหม่ (real-time)
+      socket.on("product-added", (product) => {
+        allProducts.unshift(product);
+        renderProducts(allProducts);
+        scheduleAllAuctionNoti();
+      });
+
       window.onload = function () {
         if (Notification.permission === "default") {
           Notification.requestPermission();
         }
-
         const token = localStorage.getItem("token");
         if (!token) {
           alert("กรุณาเข้าสู่ระบบก่อน");
           window.location.href = "/login/login.html";
           return;
         }
-
         const payload = parseJwt(token);
         if (payload && payload.username) {
           const iconLink = document.querySelector(".personal-icon a");
@@ -524,10 +436,9 @@
           localStorage.removeItem("token");
           window.location.href = "/login/login.html";
         }
-
         loadProducts();
-        startRealtimeAuctionNoti(); // เรียกฟังก์ชันแจ้งเตือน real-time
       };
     </script>
   </body>
 </html>
+          
