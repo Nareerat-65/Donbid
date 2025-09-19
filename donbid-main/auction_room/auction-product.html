@@ -315,13 +315,14 @@
         }
       }
 
-      function fetchAIMessage(prompt, fallbackMsg, productId) {
+      function fetchAIMessage(prompt, fallbackMsg, productId, type = null) {
         fetch("/api/ai/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             message: prompt,
             product_id: productId,
+            type,
           }),
         })
           .then((res) => res.json())
@@ -358,7 +359,7 @@
         รายละเอียด: ${product.description}\n
         ราคาเริ่มต้น: ${product.start_price} บาท`;
 
-        fetchAIMessage(prompt, "ยินดีต้อนรับเข้าสู่การประมูล!", product.id);
+        fetchAIMessage(prompt, "ยินดีต้อนรับเข้าสู่การประมูล!", product.id, "welcome");
       }
 
       let idleTimer;
@@ -390,11 +391,7 @@
       // ✅ เมื่อมีการเสนอราคาใหม่ ให้ AI ประกาศชื่อผู้เสนอและจำนวนเงิน
       async function announceBidAI(username, amount) {
         const prompt = `แจ้งให้ทุกคนทราบแบบไม่ยาวมาก ${username} เพิ่งเสนอราคา ${amount} บาท สำหรับสินค้านี้ แบบผู้ดำเนินการประมูลพร้อมกระตุ้นให้ผู้เข้าร่วมประมูลคนอื่น ๆ รู้สึกตื่นเต้นและอยากเข้าร่วมการประมูลนี้ ไม่ต้องมีสัญลักษณ์พิเศษ`;
-        fetchAIMessage(
-          prompt,
-          `ขอแสดงความยินดี ${username} ที่เสนอราคา ${amount} บาท!`,
-          productId
-        );
+        fetchAIMessage(prompt,`ขอแสดงความยินดี ${username} ที่เสนอราคา ${amount} บาท!`,productId,"bid");
       }
 
       document.getElementById("customBidBtn").addEventListener("click", async () => {

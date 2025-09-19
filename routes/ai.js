@@ -8,10 +8,12 @@ const sdk = require('microsoft-cognitiveservices-speech-sdk');
 router.post('/chat', async (req, res) => {
   const userMsg = req.body.message;
   const productId = req.body.product_id;
+  const type = req.body.type;
 
   console.log("👉 req.body =", req.body);
   console.log("👉 userMsg =", userMsg);
   console.log("👉 productId =", productId);
+  console.log("👉 type =", type);
 
   if (!userMsg) return res.status(400).json({ error: 'Missing message' });
 
@@ -22,30 +24,34 @@ router.post('/chat', async (req, res) => {
   }
 
   try {
-    const response = await axios.post(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
-      {
-        contents: [{ parts: [{ text: userMsg }] }]
-      },
-      {
-        headers: { 'Content-Type': 'application/json' },
-        params: { key: apiKey }
-      }
-    );
-    const reply = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || 'ขออภัย AI ไม่สามารถตอบได้';
-    console.log("👉 AI reply =", reply);
-
-    try {
-      const [result] = await db.query(
-        "INSERT INTO auction_logs (product_id, message, created_at) VALUES (?, ?, NOW())",
-        [parseInt(productId), reply]  // aiResponse เก็บประโยคที่ AI ตอบ
+    // 🔍 ถ้า type = welcome ให้เช็คก่อนว่ามีแล้วหรือยัง
+    if (type === "welcome") {
+      const [rows] = await db.query(
+        "SELECT id FROM auction_logs WHERE product_id = ? AND type = 'welcome' LIMIT 1",
+        [productId]
       );
-      console.log("👉 Insert result =", result);
-      res.json({ reply });
-    } catch (err) {
-      console.error("❌ Insert Error:", err);
-      res.status(500).json({ error: "DB Insert Failed", details: err.message });
+      if (rows.length > 0) {
+        return res.json({ reply: rows[0].message }); // ส่งข้อความเดิมกลับไป ไม่สร้างใหม่
+      }
     }
+
+    // 🧠 สร้างข้อความจาก Gemini
+    const response = await axios.post(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+      { contents: [{ parts: [{ text: userMsg }] }] },
+      { headers: { "Content-Type": "application/json" }, params: { key: apiKey } }
+    );
+
+    const reply = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || "ขออภัย AI ไม่สามารถตอบได้";
+
+    if (type === "welcome" || type === "bid") {
+      await db.query(
+        "INSERT INTO auction_logs (product_id, message, type, created_at) VALUES (?, ?, ?, NOW())",
+        [parseInt(productId), reply, type]
+      );
+    }
+
+    res.json({ reply });
 
   } catch (err) {
     // ✅ แสดงรายละเอียด error จาก Gemini API
