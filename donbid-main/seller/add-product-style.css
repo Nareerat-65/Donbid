@@ -53,23 +53,26 @@ body {
 /* Form */
 form {
   background: white;
-  padding: 25px;
-  border-radius: 12px;
-  max-width: 600px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-  margin: auto;
-  transition: all 0.3s ease;
-  margin-top: 50px;
-  margin-bottom: 50;
+  padding: 32px;
+  border-radius: 18px;
+  max-width: 1200px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+  margin: 40px auto 40px auto;
+  transition: box-shadow 0.2s;
+  font-size: 1.08em;
 }
 
 form:hover {
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 20px rgba(255,193,7,0.10);
 }
 
 h2 {
-  color: #333;
-  margin-bottom: 15px;
+  color: #ff9900;
+  margin-bottom: 18px;
+  font-size: 2em;
+  font-family: 'Kanit', sans-serif;
+  text-shadow: 0 2px 8px rgba(255,193,7,0.08);
+  letter-spacing: 1px;
 }
 
 label {
@@ -158,6 +161,45 @@ button:hover {
 /* Add product form section */
 .add-product-form {
   margin-top: 30px;
+}
+
+/* ปฏิทิน FullCalendar */
+#calendar {
+  max-width: 1200px;
+  min-width: 800px;
+  height: 700px;
+  margin: 40px auto 0 auto;
+  font-size: 1.1em;
+  background: linear-gradient(120deg, #fffbe6 95%, #ffe0b2 100%);
+  border-radius: 18px;
+  box-shadow: 0 2px 8px rgba(255,193,7,0.04);
+  padding: 18px 0;
+  transition: box-shadow 0.2s;
+}
+#calendar:hover {
+  box-shadow: 0 4px 12px rgba(255,193,7,0.07);
+}
+
+/* Tooltip สำหรับ event */
+.fc-tooltip {
+  position: absolute;
+  z-index: 9999;
+  background: #fffbe6;
+  color: #333;
+  border: 2px solid #ffa500;
+  border-radius: 12px;
+  padding: 16px 22px;
+  box-shadow: 0 2px 8px rgba(255,193,7,0.04);
+  font-size: 1.05em;
+  pointer-events: none;
+  white-space: pre-line;
+  max-width: 350px;
+  font-family: 'Kanit', sans-serif;
+  animation: fadeIn 0.2s;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px);}
+  to { opacity: 1; transform: translateY(0);}
 }
 
 /* Responsive */
