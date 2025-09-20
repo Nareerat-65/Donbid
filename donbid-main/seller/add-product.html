@@ -127,14 +127,40 @@
         const endInput = document.getElementById("end_time");
 
         const res = await fetch("/api/products");
-        const products = await res.json();
+        let products = await res.json();
 
+        // ดึง seller_username สำหรับแต่ละสินค้า
+        async function enrichProductsWithSeller(products) {
+          return await Promise.all(
+            products.map(async (p) => {
+              if (!p.seller_username) {
+                try {
+                  const res = await fetch(`/api/products/${p.id}`);
+                  const detail = await res.json();
+                  p.seller_username = detail.seller_username || "-";
+                } catch (err) {
+                  p.seller_username = "-";
+                }
+              }
+              return p;
+            })
+          );
+        }
+        products = await enrichProductsWithSeller(products);
+
+        // เพิ่มรายละเอียดลง event
         const events = products.map((p) => ({
           id: p.id,
           title: p.name,
           start: p.start_time,
           end: p.end_time,
           color: "#ff9900",
+          extendedProps: {
+            description: p.description,
+            category: p.category,
+            start_price: p.start_price,
+            seller: p.seller_username || "-",
+          },
         }));
 
         const calendar = new FullCalendar.Calendar(calendarEl, {
@@ -142,6 +168,9 @@
           selectable: true,
           selectMirror: true,
           locale: "th",
+          height: 700, // ขยายความสูง
+          contentHeight: 700,
+          aspectRatio: 1.7, // ขยายความกว้าง
           headerToolbar: {
             left: "prev,next today",
             center: "title",
@@ -271,6 +300,35 @@
               overlay.remove();
             };
           },
+
+          eventMouseEnter: function(info) {
+            const props = info.event.extendedProps;
+            const tooltip = document.createElement("div");
+            tooltip.className = "fc-tooltip";
+            tooltip.innerHTML = `
+              <b>${info.event.title}</b><br>
+              หมวดหมู่: ${props.category || "-"}<br>
+              ราคาเริ่มต้น: ${props.start_price || "-"}<br>
+              ผู้ขาย: ${props.seller || "-"}<br>
+              รายละเอียด: ${props.description || "-"}
+            `;
+            document.body.appendChild(tooltip);
+
+            function positionTooltip(e) {
+              tooltip.style.left = (e.pageX + 16) + "px";
+              tooltip.style.top = (e.pageY + 16) + "px";
+            }
+            positionTooltip(info.jsEvent);
+
+            info.el.addEventListener("mousemove", positionTooltip);
+            info.el._fcTooltip = tooltip;
+          },
+          eventMouseLeave: function(info) {
+            if (info.el._fcTooltip) {
+              info.el._fcTooltip.remove();
+              info.el._fcTooltip = null;
+            }
+          },
         });
 
         calendar.render();
@@ -328,3 +386,4 @@
     </script>
   </body>
 </html>
+
