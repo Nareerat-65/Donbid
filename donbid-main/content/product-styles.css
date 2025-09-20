@@ -70,13 +70,11 @@ header {
 }
 .product-list {
   display: flex;
-  gap: 20px;
+  gap: 30px;
   width: 100%;
   max-width: 80%;
-  margin-left: 10%;
+  margin-left: 15%;
   position: relative;
-  /* overflow-x: auto; */
-  /* -webkit-overflow-scrolling: touch; สำหรับการเลื่อนที่ราบรื่นบน iOS */
   align-items: stretch; /* การ์ดสูงเท่ากัน */
   flex-wrap: wrap;
 }

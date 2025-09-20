@@ -156,7 +156,14 @@
         productList.innerHTML = "";
         const now = new Date();
         let followed = JSON.parse(localStorage.getItem("followedProducts")) || [];
-        products.forEach((p) => {
+
+        const sortedProducts = [...products].sort((a, b) => {
+          const endA = new Date(a.end_time);
+          const endB = new Date(b.end_time);
+          return endA - endB; // มาก → น้อย
+        });
+
+        sortedProducts.forEach((p) => {
           const end = new Date(p.end_time);
           if (now >= end) return;
           const start = new Date(p.start_time);

@@ -71,9 +71,12 @@
           <button class="arrow right">❯</button>
         </div>
 
-        <!-- รายละเอียดสินค้า -->
+        <!-- ส่วนประมูล -->
         <div class="auction">
           <div class="AI-box">
+            <div class="model-AI">
+              <img id="modelFace" src="pic/mouth1.jpg" width="200">
+            </div>
             <div class="timer">
               <p><span id="productTimeRemaining">-- : -- : --</span></p>
             </div>
@@ -371,7 +374,9 @@
       }
 
       async function triggerIdleAI(productId, product) {
-        // ดึงราคาปัจจุบัน
+
+        if (auctionEnded) return;
+        // ดึงราคาปัจจุบั
         const resBid = await fetch(`/api/bids/highest?product_id=${productId}`);
         const highestBid = await resBid.json();
 
@@ -386,6 +391,7 @@
 
         // 🔁 ตั้งใหม่อีกรอบ
         resetIdleTimer(productId, product);
+        
       }
 
       // ✅ เมื่อมีการเสนอราคาใหม่ ให้ AI ประกาศชื่อผู้เสนอและจำนวนเงิน
@@ -509,6 +515,7 @@
         )} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
       }
 
+      let auctionEnded = false; // ตัวแปรสถานะประมูลจบ
       function startCountdown(endTimeStr, element) {
         let called = false;
         let interval;
@@ -558,10 +565,19 @@
             }
           }, 1000);
         }
-
         // 🏁 ปิดประมูลจริง
         async function closeAuction() {
           element.textContent = "หมดเวลาแล้ว";
+          auctionEnded = true;        // ✅ ประกาศว่าจบแล้ว
+          clearTimeout(idleTimer);    // ✅ ยกเลิก idleTimer
+          idleTimer = null;
+
+          document.querySelectorAll(".btn-bid").forEach((btn) => {
+            btn.disabled = true;
+            btn.style.opacity = "0.5";
+            btn.style.cursor = "not-allowed";
+          });
+          
           try {
             const token = localStorage.getItem("token");
             const payload = parseJwt(token); // token ของ user ปัจจุบัน
@@ -578,58 +594,50 @@
 
             if (res.ok) {
               if (data.winner_user_id && data.final_price) {
-                if (
-                  payload &&
-                  Number(payload.id) === Number(data.winner_user_id)
-                ) {
-                  let winnerName = "";
-                  try {
-                    const resHistory = await fetch(
-                      `/api/bids/history?product_id=${productId}`
-                    );
-                    const history = await resHistory.json();
-                    let winnerBid = history.find(
-                      (bid) =>
-                        Number(bid.bid_price) === Number(data.final_price)
-                    );
-                    
-                    // ถ้าอยากให้ชัวร์ว่าใช้ bid ล่าสุด
-                    if (!winnerBid && history.length > 0) {
-                      
-                      winnerBid = history[0];
-                    }
-                    winnerName = winnerBid ? winnerBid.username : "";
-                    
-                  } catch (err) {
-                    console.error("Error fetching bid history:", err);
+                let winnerName = "";
+
+                try {
+                  const resHistory = await fetch(
+                    `/api/bids/history?product_id=${productId}`
+                  );
+                  const history = await resHistory.json();
+
+                  let winnerBid = history.find(
+                    (bid) => Number(bid.bid_price) === Number(data.final_price)
+                  );
+                  if (!winnerBid && history.length > 0) {
+                    winnerBid = history[0];
                   }
+                  winnerName = winnerBid ? winnerBid.username : "";
+                } catch (err) {
+                  console.error("Error fetching bid history:", err);
+                }
 
-                  if (winnerName) {
-                    const winnerId = data.winner_user_id; // เอามาจาก API
-                    const finalPrice = data.final_price; // เอามาจาก API
-                    const prompt = `ขอแสดงความยินดีกับ ${winnerName} ที่ชนะการประมูลสินค้านี้ในราคา ${finalPrice} บาท!`;
+                if (winnerName) {
+                  const winnerId = data.winner_user_id;
+                  const finalPrice = data.final_price;
 
-                    fetchAIMessage(prompt, prompt, productId); // ✅ ประกาศด้วย AI
-                    console.log(
-                      "DEBUG: calling showWinnerPopup with",
-                      winnerName,
-                      data.final_price
-                    );
+                  // ✅ ทุกคนได้ยิน AI ประกาศ
+                  const prompt = `ขอแสดงความยินดีกับ ${winnerName} ที่ชนะการประมูลในราคา ${finalPrice} บาท!`;
+                  fetchAIMessage(prompt, prompt, productId);
+
+                  // ✅ Popup เฉพาะผู้ชนะ
+                  if (payload && Number(payload.id) === Number(winnerId)) {
                     showWinnerPopup(
                       winnerName,
                       finalPrice,
                       `/confirm?winner=${winnerId}`
-                    ); // ✅ แสดง popup
+                    );
                   }
                 }
               } else {
                 const fallbackMsg = data.message || "ไม่มีผู้ชนะการประมูล";
-                fetchAIMessage(fallbackMsg, fallbackMsg, productId); // ✅ กรณีไม่มีผู้ชนะ
+                fetchAIMessage(fallbackMsg, fallbackMsg, productId);
               }
-            } else {
-              alert(data.message || "เกิดข้อผิดพลาดในการบันทึกผลการประมูล");
+            }else {
+              const errMsg = data.message || "ปิดประมูลไม่สำเร็จ";
+              fetchAIMessage(errMsg, errMsg, productId);
             }
-
             if (data.token) localStorage.setItem("token", data.token);
           } catch (err) {
             alert("เกิดข้อผิดพลาดในการบันทึกผลการประมูล");
@@ -651,7 +659,7 @@
           const now = Date.now();
           const initialSeconds = Math.max(0, Math.floor((endTime - now) / 1000));
           updateCountdown(initialSeconds);
-        }
+      }
 
       function showWinnerPopup(winnerName, finalPrice, confirmUrl) {
         // ถ้ามี popup เดิม ให้ลบออกก่อน
