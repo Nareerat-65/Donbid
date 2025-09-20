@@ -178,12 +178,8 @@ header {
 .btn-history:hover {
   background: #e69500;
 }
-.model-AI {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 280px;
-  margin-bottom: 20px;
+video {
+  transition: opacity 0.5s ease; /* fade 0.5 วินาที */
 }
 
 .ai-message-container {
