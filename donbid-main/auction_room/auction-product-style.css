@@ -36,7 +36,7 @@ header {
 .personal-icon {
   max-width: 90px;
   max-height: 90px;
-  margin-left: 20px;  
+  margin-left: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -78,16 +78,21 @@ header {
   height: 400px;
   background: #fffbf5;
   border-radius: 10px;
-  display: flex;              /* ใช้ flex */
-  justify-content: center;    /* จัดให้อยู่กึ่งกลางแนวนอน */
-  align-items: center;        /* จัดให้อยู่กึ่งกลางแนวตั้ง */
-  overflow: hidden;           /* กันรูปเกินกรอบ */
+  display: flex;
+  /* ใช้ flex */
+  justify-content: center;
+  /* จัดให้อยู่กึ่งกลางแนวนอน */
+  align-items: center;
+  /* จัดให้อยู่กึ่งกลางแนวตั้ง */
+  overflow: hidden;
+  /* กันรูปเกินกรอบ */
 }
 
 #productImages img {
   max-width: 100%;
   max-height: 100%;
-  object-fit: contain;        /* ให้รูปย่อ/ขยายพอดีกับกรอบ */
+  object-fit: contain;
+  /* ให้รูปย่อ/ขยายพอดีกับกรอบ */
 }
 
 .arrow {
@@ -103,29 +108,67 @@ header {
 .left {
   left: 20px;
 }
+
 .right {
   right: 20px;
 }
 
-.auction{
+.auction {
   width: 40%;
   height: 400px;
 }
+
 .AI-box {
   width: 100%;
   height: 600px;
   background: #fce6c5;
   border-radius: 10px;
   padding: 20px;
-  position: relative; /* ใช้สำหรับจัดวาง absolute ด้านใน */
+  position: relative;
+  /* ใช้สำหรับจัดวาง absolute ด้านใน */
   margin-bottom: 10px;
+}
+
+.video-container {
+  width: 100%;
+  height: 370px;
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #F69F96;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+}
+
+.video-wrapper {
+  position: relative;
+  width: 390px;
+  height: 370px;
+}
+
+#video1 {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 1;
+}
+
+#video2 {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
 }
 
 .timer {
   width: 90%;
   height: 40px;
   position: absolute;
-  bottom: 5px; /* เท่ากับ padding */
+  bottom: 5px;
+  /* เท่ากับ padding */
   left: 50%;
   transform: translateX(-50%);
   background: white;
@@ -135,12 +178,44 @@ header {
   text-align: center;
   margin-bottom: 3%;
 }
+.ai-message-container {
+  background: #f0f0f0;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  border-radius: 10px;
+  padding: 10px;
+  height: 200px;
+  overflow-y: auto;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+#ai-message {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  /* เว้นระยะระหว่างข้อความ */
+}
+
+.ai-bubble {
+  background-color: #fff;
+  color: #333;
+  padding: 10px 15px;
+  border-radius: 15px;
+  max-width: 90%;
+  align-self: center;
+  /* ข้อความ AI อยู่ด้านซ้าย */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  word-break: break-word;
+}
+
 /* รายละเอียดสินค้า */
 .product-info {
   width: 40%;
   height: 100%;
   text-align: center;
 }
+
 .product-box {
   background: #fce6c5;
   height: 400px;
@@ -159,6 +234,7 @@ header {
   font-size: 16px;
   font-family: 'Kanit', sans-serif;
 }
+
 .btn-bid:hover {
   background: #e69500;
 }
@@ -175,48 +251,23 @@ header {
   cursor: pointer;
   font-family: 'Kanit', sans-serif;
 }
+
 .btn-history:hover {
   background: #e69500;
 }
+
 video {
-  transition: opacity 0.5s ease; /* fade 0.5 วินาที */
+  transition: opacity 0.5s ease;
+  /* fade 0.5 วินาที */
 }
 
-.ai-message-container {
-  background: #f0f0f0; 
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
-  border-radius: 10px;
-  padding: 10px;
-  height: 200px;
-  overflow-y: auto;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-}
-
-#ai-message {
-  display: flex;
-  flex-direction: column;
-  gap: 10px; /* เว้นระยะระหว่างข้อความ */
-}
-
-.ai-bubble {
-  background-color: #fff;
-  color: #333;
-  padding: 10px 15px;
-  border-radius: 15px;
-  max-width: 90%;
-  align-self: center; /* ข้อความ AI อยู่ด้านซ้าย */
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  word-break: break-word;
-}
-
-.product-details h1{
+.product-details h1 {
   font-size: 30px;
   margin-bottom: 12px;
   margin-left: 20px;
   margin-right: 350px;
 }
+
 .product-details p {
   font-size: 18px;
   margin: 5px 0;
@@ -229,12 +280,14 @@ video {
   text-align: center;
   margin-bottom: 20px;
 }
+
 .avatars img {
   width: 24px;
   height: 24px;
   border-radius: 50%;
   margin-left: 4px;
 }
+
 .avatars .more {
   display: inline-block;
   background: #eee;
@@ -263,15 +316,18 @@ video {
   justify-content: center;
   max-width: 100%;
 }
+
 .custom-bid label {
   white-space: nowrap;
 }
+
 .custom-bid input {
   flex: 1;
   max-width: 350px;
   height: 40px;
 
 }
+
 .custom-bid button {
   white-space: nowrap;
 }
@@ -284,12 +340,13 @@ video {
   flex-wrap: wrap;
   justify-content: center;
 }
+
 .quick-bid span {
   white-space: nowrap;
 }
 
 .modal {
-  display: none; 
+  display: none;
   position: fixed;
   z-index: 1000;
   left: 0;
@@ -297,8 +354,9 @@ video {
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: rgba(0,0,0,0.5);
+  background-color: rgba(0, 0, 0, 0.5);
 }
+
 .modal-content {
   background-color: #fff;
   margin: 10% auto;
@@ -307,66 +365,69 @@ video {
   width: 80%;
   max-width: 500px;
 }
+
 .close {
   float: right;
   font-size: 24px;
   cursor: pointer;
 }
+
 .popup {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.6); /* พื้นหลังมืด */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    animation: fadeIn 0.3s ease-in-out;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  /* พื้นหลังมืด */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
 .popup-content {
-    background: #fff;
-    padding: 2rem;
-    border-radius: 20px;
-    max-width: 500px;
-    width: 90%;
-    text-align: center;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+  background: #fff;
+  padding: 2rem;
+  border-radius: 20px;
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
 
-    transform: scale(0.9);
-    animation: popUp 0.3s ease forwards;
+  transform: scale(0.9);
+  animation: popUp 0.3s ease forwards;
 }
 
 /* หัวข้อ */
 .popup-content h2 {
-    color: #ff9900;
-    font-size: 1.7rem;
-    margin-bottom: 1rem;
+  color: #ff9900;
+  font-size: 1.7rem;
+  margin-bottom: 1rem;
 }
 
 /* ข้อความ */
 .popup-content p {
-    font-size: 1.3rem;
-    margin-bottom: 1.5rem;
-    color: #333;
+  font-size: 1.3rem;
+  margin-bottom: 1.5rem;
+  color: #333;
 }
 
 /* ปุ่ม */
 #goConfirmBtn {
-    background: linear-gradient(135deg, #fba423, #ff9900);
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 12px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
+  background: linear-gradient(135deg, #fba423, #ff9900);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 #goConfirmBtn:hover {
-    background: #e69500;
+  background: #e69500;
 }
 
 .avatar {
@@ -385,7 +446,8 @@ video {
 
   position: absolute;
   z-index: 1;
-  bottom: 125%; /* ขึ้นด้านบน */
+  bottom: 125%;
+  /* ขึ้นด้านบน */
   left: 50%;
   transform: translateX(-50%);
   opacity: 0;
@@ -396,5 +458,3 @@ video {
   visibility: visible;
   opacity: 1;
 }
-
-
