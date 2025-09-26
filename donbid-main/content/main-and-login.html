@@ -141,6 +141,7 @@
            class="buy-btn ${!isAuctionStarted ? "disabled" : ""}">
            เริ่มประมูล
         </a>
+        <button class="detail-btn" style="margin-top:8px;">ดูรายละเอียด</button>
       </div>
     `;
 
@@ -154,6 +155,10 @@
         followBtn.addEventListener("click", () =>
           handleFollow(p.id, p.name, followBtn)
         );
+
+        // ปุ่มดูรายละเอียด
+        const detailBtn = card.querySelector(".detail-btn");
+        detailBtn.addEventListener("click", () => showProductDetailPopup(p));
 
         return card;
       }
@@ -374,6 +379,109 @@
           // window.location.href = '/login/login.html';
         }
       };
+
+      // เพิ่มฟังก์ชันแสดง popup รายละเอียดสินค้า
+      async function showProductDetailPopup(product) {
+        // ดึง seller_username จาก API ถ้ายังไม่มี
+        let sellerName = product.seller_username || "-";
+        if (!product.seller_username) {
+          try {
+            const res = await fetch(`/api/products/${product.id}`);
+            const detail = await res.json();
+            sellerName = detail.seller_username || "-";
+          } catch (err) {
+            sellerName = "-";
+          }
+        }
+
+        // สร้าง slider รูปภาพ
+        const images = product.images?.length
+          ? product.images.map(
+              (img, idx) =>
+                `<img src="/uploads/${img}" alt="${product.name}" class="popup-image" style="width:100%;height:500px;object-fit:contain;display:${idx===0?'block':'none'};border-radius:8px;background:#fff;">`
+            )
+          : [`<img src="https://via.placeholder.com/900x500" alt="${product.name}" class="popup-image" style="width:100%;height:500px;object-fit:contain;display:block;border-radius:8px;background:#fff;">`];
+
+        // สร้าง html slider แบบข้อความใต้รูป (ลดกรอบ/เงา)
+        let sliderHtml = `
+          <div id="popup-slider" style="position:relative;max-width:900px;margin:auto;background:#fffbe6;border-radius:18px;padding:24px;box-shadow:0 8px 32px rgba(0,0,0,0.18);">
+            ${images.join("")}
+            ${
+              images.length > 1
+                ? `<button id="popup-prev" class="popup-slider-btn" style="position:absolute;top:50%;left:0;transform:translateY(-50%);">❮</button>
+                   <button id="popup-next" class="popup-slider-btn" style="position:absolute;top:50%;right:0;transform:translateY(-50%);">❯</button>`
+                : ""
+            }
+            <div style="width:100%;text-align:left;font-size:1.15em;line-height:2;margin-top:18px;">
+              <div><b>ชื่อสินค้า:</b> ${product.name}</div>
+              <div><b>ราคา:</b> <span style="color:#ff9900;">฿${Number(product.current_price).toFixed(2)}</span></div>
+              <div><b>รายละเอียด:</b> ${product.description || "-"}</div>
+              <div><b>ผู้ขาย:</b> ${sellerName}</div>
+              <div><b>ประเภทสินค้า:</b> ${product.category || "-"}</div>
+            </div>
+          </div>
+        `;
+
+        // ปุ่มไปหน้าประมูล
+        const now = new Date();
+        const start = new Date(product.start_time);
+        const end = new Date(product.end_time);
+        const isAuctionStarted = now >= start && now < end;
+
+        Swal.fire({
+          html: `${sliderHtml}`,
+          showCancelButton: true,
+          cancelButtonText: "ปิด",
+          confirmButtonText: "ไปหน้าประมูล",
+          confirmButtonColor: "#ff9900",
+          allowOutsideClick: true,
+          customClass: {
+            popup: 'wide-popup'
+          },
+          didOpen: () => {
+            // ปรับขนาด popup slider ให้เต็มจอ
+            const popup = Swal.getPopup();
+            popup.style.width = '60vw';
+            popup.style.maxWidth = '60vw';
+            popup.style.height = 'auto';
+            popup.style.padding = '0';
+            // slider logic
+            let idx = 0;
+            const imgs = Swal.getHtmlContainer().querySelectorAll(".popup-image");
+            function showImg(i) {
+              imgs.forEach((img, j) => {
+                img.style.display = i === j ? "block" : "none";
+              });
+            }
+            if (imgs.length > 1) {
+              Swal.getHtmlContainer().querySelector("#popup-prev").onclick = () => {
+                idx = (idx - 1 + imgs.length) % imgs.length;
+                showImg(idx);
+              };
+              Swal.getHtmlContainer().querySelector("#popup-next").onclick = () => {
+                idx = (idx + 1) % imgs.length;
+                showImg(idx);
+              };
+            }
+          },
+          preConfirm: () => {
+            if (!isAuctionStarted) {
+              Swal.showValidationMessage("ยังไม่ถึงเวลาเริ่มประมูล");
+              return false;
+            }
+            window.location.href = `../auction_room/auction-product.html?id=${product.id}`;
+          },
+          didRender: () => {
+            // disable ปุ่มถ้ายังไม่ถึงเวลา
+            if (!isAuctionStarted) {
+              const confirmBtn = Swal.getConfirmButton();
+              confirmBtn.disabled = true;
+              confirmBtn.style.opacity = "0.6";
+              confirmBtn.title = "ยังไม่ถึงเวลาเริ่มประมูล";
+            }
+          }
+        });
+      }
     </script>
   </body>
 </html>
