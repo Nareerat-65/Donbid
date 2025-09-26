@@ -535,18 +535,13 @@
       async function updateCountdown(seconds, ExtendTime = false) {
         let timeLeft = seconds;
         countdownActive = true;
-        element.textContent = `กำลังจะปิดใน ${timeLeft}`;
-
-        if (ExtendTime) {
-          const msg = `มีผู้เสนอราคาเพิ่ม! ต่อเวลาอีก 60 วินาที`;
-          showAIMessage(msg);
-        }
+        element.textContent = `กำลังจะปิดใน ${timeLeft} วินาที`;
 
         clearInterval(interval); // กันซ้อน
         interval = setInterval(() => {
           timeLeft--;
           if (timeLeft > 0) {
-            element.textContent = `กำลังจะปิดใน ${timeLeft}`;
+            element.textContent = `กำลังจะปิดใน ${timeLeft} วินาที`;
 
             if (timeLeft === 6) {
               showAIMessage("จะปิดประมูลแล้วนะคะ");
@@ -656,13 +651,18 @@
 
       // 🔄 ถ้ามี bid ใหม่ระหว่าง soft close → รีเซ็ตเวลา
       socket.on("auction endtime", ({ productId: pid, endTime, reason }) => {
-        if (pid === productId && !called) {
+         if (pid === productId && !called) {
           const now = Date.now();
           const secondsLeft = Math.max(0, Math.floor((endTime - now) / 1000));
-          clearInterval(interval);
 
-          const isExtend = reason === "bid";
-          updateCountdown(secondsLeft, isExtend); // ใช้เวลาที่เหลือจริง
+          clearInterval(interval);
+          updateCountdown(secondsLeft);
+
+          // ✅ แค่ตอนต่อเวลาเท่านั้น
+          if (reason === "bid-extend") {
+            const msg = "มีผู้เสนอราคาเพิ่ม! ต่อเวลาอีก 60 วินาที";
+            showAIMessage(msg);
+          }
         }
       });
       const endTime = new Date(endTimeStr).getTime();

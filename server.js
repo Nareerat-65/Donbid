@@ -121,14 +121,19 @@ io.on('connection', socket => {
   socket.on('bid placed', (data) => {
     const { productId } = data;
 
-    // ต่อเวลา 60 วิ เมื่อมี bid ใหม่
-    auctionEndTimes[productId] = Date.now() + 60 * 1000;
+     const now = Date.now();
+    const remaining = auctionEndTimes[productId] - now;
 
-    io.to(productId).emit("auction endtime", {
-      productId,
-      endTime: auctionEndTimes[productId],
-      reason: "bid"
-    });
+    // ✅ ถ้าเวลาน้อยกว่า 60 วิ → ต่อเวลาให้เหลือ 60 วิ
+    if (remaining < 60 * 1000) {
+      auctionEndTimes[productId] = now + 60 * 1000;
+
+      io.to(productId).emit("auction endtime", {
+        productId,
+        endTime: auctionEndTimes[productId],
+        reason: "bid-extend"
+      });
+    }
     io.to(productId).emit('new bid', data);
   });
 
