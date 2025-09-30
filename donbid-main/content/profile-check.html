@@ -153,6 +153,7 @@
       <div class="profile-box">Email: <span id="email">-</span></div>
       <div class="profile-box">สถานะ: <span id="status">เปิดใช้งาน</span></div>
     </div>
+
     <button id="logout-btn">ออกจากระบบ</button>
     <button id="change-role">สมัครเป็นผู้ขาย</button>
   </div>
@@ -218,6 +219,11 @@
       img.style.objectFit = 'cover';
       img.style.borderRadius = '50%';
       avatarDiv.appendChild(img);
+
+      // ซ่อนปุ่ม change-role ถ้า role เป็น seller
+      if (payload.role === 'seller') {
+        document.getElementById('change-role').style.display = 'none';
+      }
     };
 
     document.getElementById('logout-btn').onclick = () => {
