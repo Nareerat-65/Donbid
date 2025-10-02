@@ -34,15 +34,65 @@
       color: #333;
     }
 
+    .main {
+      width: 80%;
+      display: flex;
+      gap: 20px;
+      padding: 20px;
+      align-items: center;
+      margin: 40px auto 0 auto;
+    }
+
+    .sidebar {
+      width: 200px;
+      background: #f2f2f2;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      border-radius: 10px;
+      height: fit-content;
+      align-self: flex-start;
+      margin-top: 2%;
+      /* ให้อยู่ด้านซ้าย */
+    }
+
+    .hamburger {
+      display: none;
+      /* Desktop ไม่โชว์ */
+    }
+
+    .sidebar button {
+      padding: 12px;
+      background: #ffa500;
+      color: rgb(255, 255, 255);
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    .sidebar button:hover {
+      background: #ffcf76;
+    }
+
+    .content-area {
+      flex: 1;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
     .profile-container {
-      max-width: 400px;
-      background: white;
-      margin: 32px auto 40px auto;
+      max-width: 500px;
       border-radius: 20px;
       padding: 32px 24px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.10);
       text-align: center;
-      position: relative;
     }
 
     .profile-avatar {
@@ -51,11 +101,7 @@
       border-radius: 50%;
       background: linear-gradient(135deg, #ffeec7 60%, #ccc 100%);
       margin: auto;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
       border: 4px solid #fffbe6;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
 
     .profile-name {
@@ -63,7 +109,6 @@
       font-size: 22px;
       font-weight: bold;
       color: #009688;
-      letter-spacing: 1px;
     }
 
     .profile-grid {
@@ -78,13 +123,13 @@
       background: #f9f9f9;
       border-radius: 8px;
       font-size: 16px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
       color: #333;
     }
 
+    /* ---------- ปุ่ม ---------- */
     #logout-btn,
     #change-role {
-      margin-top: 24px;
+      margin-top: 20px;
       padding: 12px 24px;
       background: linear-gradient(90deg, #ffa500 60%, #ff6f00 100%);
       color: white;
@@ -92,31 +137,54 @@
       border-radius: 8px;
       font-weight: bold;
       cursor: pointer;
-      box-shadow: 0 2px 8px rgba(255, 193, 7, 0.08);
-      transition: background 0.2s, transform 0.2s;
       font-size: 16px;
-      margin-right: 8px;
     }
 
     #logout-btn:hover {
       background: linear-gradient(90deg, #e53935 60%, #c62828 100%);
-      transform: scale(1.04);
     }
 
     #change-role:hover {
       background: linear-gradient(90deg, #009688 60%, #26a69a 100%);
-      transform: scale(1.04);
     }
 
-    @media (max-width: 600px) {
-      .profile-container {
-        max-width: 95vw;
-        padding: 16px 4vw;
+    /* ---------- Responsive ---------- */
+    @media (max-width: 768px) {
+      .main {
+        flex-direction: column;
+        align-items: center;
       }
 
-      .profile-avatar {
-        width: 80px;
-        height: 80px;
+      .hamburger {
+        display: block;
+        /* มือถือโชว์ปุ่ม */
+        background: #009688;
+        color: white;
+        border: none;
+        padding: 12px 16px;
+        font-size: 18px;
+        cursor: pointer;
+        border-radius: 5px;
+        margin: 10px 0;
+        width: 100%;
+      }
+
+      .sidebar {
+        display: none;
+        /* มือถือซ่อน */
+        width: 100%;
+        flex-direction: column;
+        gap: 5px;
+        margin-bottom: 15px;
+      }
+
+      .sidebar.active {
+        display: flex;
+        /* โชว์เมื่อกดปุ่ม */
+      }
+
+      .profile-container {
+        max-width: 95vw;
       }
 
       .profile-grid {
@@ -127,8 +195,6 @@
       #logout-btn,
       #change-role {
         width: 100%;
-        margin-right: 0;
-        margin-top: 16px;
       }
     }
   </style>
@@ -141,24 +207,92 @@
         <img src="../pic/Logo.png" alt="โลโก้" class="logo" width="150" height="150">
       </a>
     </div>
-    <div class="balance">💰 <span id="balance">0</span> บาท</div>
   </div>
 
-  <div class="profile-container">
-    <div class="profile-avatar"></div>
-    <div class="profile-name" id="username">ชื่อผู้ใช้</div>
-    <div class="profile-grid">
-      <div class="profile-box">ID: <span id="userId">-</span></div>
-      <div class="profile-box">บทบาท: <span id="role">-</span></div>
-      <div class="profile-box">Email: <span id="email">-</span></div>
-      <div class="profile-box">สถานะ: <span id="status">เปิดใช้งาน</span></div>
+  <div class="main">
+    <button class="hamburger" id="hamburgerBtn">☰ เมนู</button>
+
+    <div class="sidebar" id="sidebarMenu">
+      <div class="balance">💰 Coin: <span id="balance">0.00</span>
+      <button onclick="location.href='/purchaseCoins/purchaseCoins.html'">
+        +
+      </button>
+      </div>
+      
+
+
+      <button data-page="profile">โปรไฟล์ของฉัน</button>
+      <button data-page="history">ประวัติการซื้อ</button>
+      <button data-page="policy">นโยบาย</button>
     </div>
 
-    <button id="logout-btn">ออกจากระบบ</button>
-    <button id="change-role">สมัครเป็นผู้ขาย</button>
+    <div class="content-area" id="contentArea">
+      <div class="profile-container">
+        <div class="profile-avatar"></div>
+        <div class="profile-name" id="username">ชื่อผู้ใช้</div>
+        <div class="profile-grid">
+          <div class="profile-box">ID: <span id="userId">-</span></div>
+          <div class="profile-box">บทบาท: <span id="role">-</span></div>
+          <div class="profile-box">Email: <span id="email">-</span></div>
+          <div class="profile-box">สถานะ: <span id="status">เปิดใช้งาน</span></div>
+        </div>
+
+        <button id="logout-btn">ออกจากระบบ</button>
+        <button id="change-role">สมัครเป็นผู้ขาย</button>
+      </div>
+    </div>
+
   </div>
 
   <script>
+    document.getElementById("hamburgerBtn").addEventListener("click", function () {
+      document.getElementById("sidebarMenu").classList.toggle("active");
+    });
+
+    // เปลี่ยน content ตามปุ่ม
+    document.getElementById("sidebarMenu").addEventListener("click", (e) => {
+      if (e.target.tagName === "BUTTON") {
+        const page = e.target.dataset.page;
+        const content = document.getElementById("contentArea");
+
+        if (page === "profile") {
+          content.innerHTML = `
+            <div class="profile-container">
+              <div class="profile-avatar"></div>
+              <div class="profile-name" id="username">ชื่อผู้ใช้</div>
+              <div class="profile-grid">
+                <div class="profile-box">ID: <span id="userId">-</span></div>
+                <div class="profile-box">บทบาท: <span id="role">-</span></div>
+                <div class="profile-box">Email: <span id="email">-</span></div>
+                <div class="profile-box">สถานะ: <span id="status">เปิดใช้งาน</span></div>
+              </div>
+
+              <button id="logout-btn">ออกจากระบบ</button>
+              <button id="change-role">สมัครเป็นผู้ขาย</button>
+            </div>
+          `;
+        }
+        if (page === "history") {
+          content.innerHTML = `
+            <h2>ประวัติการซื้อ</h2>
+            <ul>
+              <li>สินค้า A - 500 บาท</li>
+              <li>สินค้า B - 1,200 บาท</li>
+            </ul>
+          `;
+        }
+        if (page === "policy") {
+          content.innerHTML = `
+            <h2>นโยบาย</h2>
+            <p>เงื่อนไขและนโยบายของระบบ...</p>
+          `;
+        }
+
+        // มือถือ → ปิดเมนูอัตโนมัติ
+        document.getElementById("sidebarMenu").classList.remove("active");
+      }
+    });
+
     function parseJwt(token) {
       try {
         const base64Url = token.split('.')[1];
@@ -189,7 +323,7 @@
         if (res.ok && data.coin_balance !== undefined) {
           document.getElementById('balance').textContent = Number(data.coin_balance).toFixed(2);
         }
-      } catch (err) {}
+      } catch (err) { }
 
       const payload = parseJwt(token);
       if (!payload) {
