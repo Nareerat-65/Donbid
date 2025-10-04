@@ -19,14 +19,14 @@ const authRoutes = require('./routes/auth');
 const productRouter = require('./routes/products')(io);
 const bidsRoute = require('./routes/bids');
 const coinRoutes = require('./routes/coins');
-const confirmRouter = require('./routes/confirm');
+const profileRouter = require('./routes/profile');
 const aiRouter = require('./routes/ai');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRouter);
 app.use('/api/bids', bidsRoute);
 app.use('/api/coins', coinRoutes);
-app.use('/api/confirm', confirmRouter);
+app.use('/api/profile', profileRouter);
 app.use('/api/ai', aiRouter);
 
 
