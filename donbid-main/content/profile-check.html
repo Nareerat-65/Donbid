@@ -202,6 +202,72 @@
       color: #666;
     }
 
+    /* ----- Modal ----- */
+    .modal {
+      display: none; /* ซ่อนเริ่มต้น */
+      position: fixed;
+      z-index: 1000;
+      left: 0; 
+      top: 0;
+      width: 100%; 
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.5); /* พื้นหลังมืด */
+    }
+
+    .modal-content {
+      background: #fff;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 10px;
+      width: 400px;
+      max-width: 90%;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      font-size: 16px;
+    }
+
+    .modal-header {
+      font-weight: bold;
+      font-size: 18px;
+      margin-bottom: 10px;
+      color: #009688;
+    }
+
+    .modal-close {
+      float: right;
+      font-size: 20px;
+      cursor: pointer;
+      color: #888;
+    }
+
+    .modal-close:hover {
+      color: #e53935;
+    }
+
+    /* ปุ่มดูข้อมูลจัดส่ง */
+    .product-details button {
+      width: 150px;           /* ความกว้างคงที่ */
+      height: 40px;           /* ความสูงคงที่ */
+      padding: 0;
+      padding: 10px 18px;
+      background: #ffa500 ; 
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 8px;
+    }
+
+    .product-details button:hover {
+      background: #ff8c00;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    }
+
+
     /* ---------- Responsive ---------- */
     @media (max-width: 768px) {
       .main {
@@ -274,7 +340,6 @@
       </div>
       <button data-page="profile">โปรไฟล์ของฉัน</button>
       <button data-page="myProducts">สินค้าของฉัน</button>
-      <button data-page="myProductSell">สินค้าที่ขาย</button>
 
     </div>
 
@@ -283,6 +348,17 @@
     </div>
 
   </div>
+  <!-- Modal -->
+    <div id="deliveryModal" class="modal">
+      <div class="modal-content">
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+        <div class="modal-header">ข้อมูลจัดส่ง</div>
+        <p><b>ชื่อผู้รับ:</b> <span id="modalName"></span></p>
+        <p><b>เบอร์โทร:</b> <span id="modalPhone"></span></p>
+        <p><b>ที่อยู่:</b> <span id="modalAddress"></span></p>
+      </div>
+    </div>
+
 
   <script>
     function renderProfile(payload) {
@@ -391,11 +467,29 @@
         if (res.ok && data.coin_balance !== undefined) {
           document.getElementById('balance').textContent = Number(data.coin_balance).toFixed(2);
         }
-      } catch (err) { }
+      } catch (err) {}
 
       // โหลด profile ครั้งแรก
       renderProfile(payload);
+
+      // สร้างปุ่ม seller
+      const sidebar = document.getElementById("sidebarMenu");
+      if (payload.role === 'seller') {
+        const btn = document.createElement("button");
+        btn.dataset.page = "myProductSell";
+        btn.textContent = "สินค้าที่ขาย";
+        sidebar.appendChild(btn);
+      }
+
+      // ✅ ดึงค่า page จาก URL แล้ว trigger click
+      const urlParams = new URLSearchParams(window.location.search);
+      const page = urlParams.get('page');
+      if (page) {
+        const targetBtn = [...document.querySelectorAll("#sidebarMenu button")].find(b => b.dataset.page === page);
+        if (targetBtn) targetBtn.click();
+      }
     };
+
 
     // sidebar click
     document.getElementById("sidebarMenu").addEventListener("click", (e) => {
@@ -437,40 +531,69 @@
               document.getElementById("myProductsList").innerHTML = "<p>โหลดไม่สำเร็จ</p>";
             });
         }if (page === "myProductSell") {
-          document.getElementById("contentArea").innerHTML = `<h2>สินค้าที่ฉันขาย</h2><div id="myProductSellList">กำลังโหลด...</div>`;
+            document.getElementById("contentArea").innerHTML = `
+              <h2 style="text-align:center;">สินค้าที่ฉันขาย</h2>
+              <div id="myProductSellList">กำลังโหลด...</div>
+            `;
 
-          const token = localStorage.getItem('token');
-          fetch('/api/profile/selling', {
-            headers: { 'Authorization': 'Bearer ' + token }
-          })
+            const token = localStorage.getItem('token');
+            fetch('/api/profile/my-sell-products', {
+              headers: { 'Authorization': 'Bearer ' + token }
+            })
             .then(res => res.json())
             .then(products => {
               const list = document.getElementById("myProductSellList");
               if (!products.length) {
-                list.innerHTML = "<p>ยังไม่มีสินค้าที่คุณขาย</p>";
+                list.innerHTML = "<p>คุณยังไม่ได้ลงขายสินค้า</p>";
                 return;
               }
               list.innerHTML = products.map(p => `
-              <div class="product-card">
-                <img src="${p.images[0] || '../pic/default.png'}" class="product-img"/>
-                <div class="product-details">
-                  <h3>${p.name}</h3>
-                  <p>${p.description || ''}</p>
-                  <p>ราคาปัจจุบัน: ${p.current_price} coins</p>
-                  <small>ปิดการประมูล: ${new Date(p.closed_at).toLocaleString()}</small>
+                <div class="product-card">
+                  <img src="${p.images[0] || '../pic/default.png'}" class="product-img"/>
+                  <div class="product-details">
+                    <h3>${p.name}</h3>
+                    <p>${p.description || ''}</p>
+                    <p>ราคาเริ่มต้น: ${p.start_price} coins</p>
+                    <p>ราคาสุดท้าย: ${p.final_price ? p.final_price + " coins" : "ยังไม่มีผู้ชนะ"}</p>
+                    <p>ผู้ชนะ: ${p.winner_username || '-'}</p>
+                    <small>ปิดการประมูล: ${p.closed_at ? new Date(p.closed_at).toLocaleString() : '-'}</small>
+                    ${p.winner_name ? `
+                      <button onclick="openModal('${p.winner_name}','${p.winner_phone}','${p.winner_address}')">
+                        ดูข้อมูลจัดส่ง
+                      </button>
+                    ` : ''}
+                  </div>
                 </div>
-              </div>
-            `).join('');
+              `).join('');
             })
             .catch(err => {
               console.error(err);
               document.getElementById("myProductSellList").innerHTML = "<p>โหลดไม่สำเร็จ</p>";
             });
-        }
+          }
+
 
         document.getElementById("sidebarMenu").classList.remove("active");
       }
     });
+    function openModal(name, phone, address) {
+      document.getElementById("modalName").innerText = name || '-';
+      document.getElementById("modalPhone").innerText = phone || '-';
+      document.getElementById("modalAddress").innerText = address || '-';
+      document.getElementById("deliveryModal").style.display = "block";
+    }
+
+    function closeModal() {
+      document.getElementById("deliveryModal").style.display = "none";
+    }
+
+    window.onclick = function(event) {
+      const modal = document.getElementById("deliveryModal");
+      if (event.target === modal) {
+        closeModal();
+      }
+    }
+
   </script>
 
 </body>
