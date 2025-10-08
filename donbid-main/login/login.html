@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="login-styles.css">
     <script src="https://kit.fontawesome.com/71703b7c85.js" crossorigin="anonymous"></script>
     <link href='https://fonts.googleapis.com/css?family=Kanit&subset=thai,latin' rel='stylesheet' type='text/css'>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -53,6 +54,16 @@
     </div>
 
     <script>
+        function showAlert(title, message, icon = "error") {
+            Swal.fire({
+                icon: icon,
+                title: title,
+                text: message,
+                confirmButtonColor: "#3085d6",
+                confirmButtonText: "ตกลง",
+            });
+        }
+
         document.getElementById('loginForm').addEventListener('submit', async function (e) {
             e.preventDefault();
             const email = document.querySelector('input[name="email"]').value;
@@ -68,10 +79,9 @@
             const result = await res.json();
             if (res.ok && result.token) {
                 localStorage.setItem('token', result.token);
-                <!-- alert('เข้าสู่ระบบสำเร็จ'); -->
                 window.location.href = '/content/main-and-login.html'; // หรือ main-and-login.html
             } else {
-                alert(result.message || 'เข้าสู่ระบบล้มเหลว');
+                showAlert("❌ ข้อผิดพลาด", result.message || 'เข้าสู่ระบบล้มเหลว');
             }
         });
     </script>
