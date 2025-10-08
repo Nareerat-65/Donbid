@@ -132,11 +132,11 @@
         <div class="product-price">฿${Number(p.current_price).toFixed(2)}</div>
         <div class="product-time">กำลังโหลด...</div>
         <button class="follow-btn" data-id="${p.id}"></button>
+        <button class="detail-btn" style="margin-top:8px;">ดูรายละเอียด</button>
         <a href="../auction_room/auction-product.html?id=${p.id}" 
            class="buy-btn ${!isAuctionStarted ? "disabled" : ""}">
            เริ่มประมูล
         </a>
-        <button class="detail-btn" style="margin-top:8px;">ดูรายละเอียด</button>
       </div>
     `;
 
@@ -434,22 +434,22 @@
             <div style="display:flex;justify-content:center;flex-wrap:wrap;margin-top:12px;">${thumbnails}</div>
           </div>
 
-          <div style="flex:1 1 48%;text-align:left;">
-            <h2 style="font-size:1.3rem;font-weight:700;margin-bottom:8px;">${product.name}</h2>
-            <p style="color:#777;font-size:0.95rem;margin:6px 0;">รหัสสินค้า: ${product.id}</p>
-            <p style="font-size:1.8rem;font-weight:700;color:#d32f2f;">฿${Number(product.current_price).toFixed(2)}</p>
+          <div style="flex:1 1 48%;text-align:left;margin-left:15px;">
+            <h2 style="font-size:40px;font-weight:700;margin-bottom:8px;">${product.name}</h2>
+            <p style="color:#777;font-size:16px;margin:6px 0;">รหัสสินค้า: ${product.id}</p>
+            <p style="font-size:30px;font-weight:700;color:#d32f2f;">฿${Number(product.current_price).toFixed(2)}</p>
             ${
               product.original_price
                 ? `<p style="text-decoration:line-through;color:#888;">฿${Number(product.original_price).toFixed(2)}</p>`
                 : ""
             }
-            <p><b>ผู้ขาย:</b> ${sellerName}</p>
+            <p style="margin-top:12px;"><b>ผู้ขาย:</b> ${sellerName}</p>
             <p><b>ประเภทสินค้า:</b> ${product.category || "-"}</p>
-            <p style="margin-top:12px;line-height:1.6;">${product.description || "-"}</p>
+            <p style="line-height:1.6;"><b>รายละเอียดสินค้า:</b>${product.description || "-"}</p>
 
             <div style="margin-top:20px;">
               <button id="bidBtn" style="
-                background-color:#d32f2f;color:#fff;
+                background-color:#ff9900;color:#fff;
                 font-size:1.1rem;padding:12px 28px;
                 border:none;border-radius:8px;
                 cursor:pointer;transition:0.2s;">
@@ -462,7 +462,7 @@
         Swal.fire({
           html: html,
           showConfirmButton: false,
-          width: "80vw",
+          width: "60vw",
           customClass: { popup: "wide-popup" },
           didOpen: () => {
             const thumbs = Swal.getHtmlContainer().querySelectorAll(".popup-thumb");
