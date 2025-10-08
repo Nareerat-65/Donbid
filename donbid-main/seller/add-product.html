@@ -115,7 +115,7 @@
     </form>
 
     <script>
-      function showAlert(title, message, icon = "error") {
+      function showAlertError(title, message, icon = "error") {
             Swal.fire({
                 icon: icon,
                 title: title,
@@ -124,6 +124,16 @@
                 confirmButtonText: "ตกลง",
             });
         }
+
+        function showAlert(title, message, icon = "success") {
+        Swal.fire({
+            icon: icon,
+            title: title,
+            text: message,
+            confirmButtonColor: "#3085d6",
+            confirmButtonText: "ตกลง",
+        });
+    }
 
       const token = localStorage.getItem("token");
 
@@ -195,7 +205,7 @@
 
             // ตรวจสอบวันย้อนหลัง
             if (clickedDate.setHours(0, 0, 0, 0) < today.setHours(0, 0, 0, 0)) {
-              showAlert("❌ ข้อผิดพลาด", "กรุณาเลือกวันในอนาคต");
+              showAlertError("❌ ข้อผิดพลาด", "กรุณาเลือกวันในอนาคต");
               return;
             }
 
@@ -204,7 +214,7 @@
               .getEvents()
               .filter((ev) => ev.extendedProps.type === "new");
             if (newEvents.length > 0) {
-              showAlert("❌ ข้อผิดพลาด", "สามารถเลือกช่วงเวลาได้แค่ครั้งเดียวต่อสินค้า");
+              showAlertError("❌ ข้อผิดพลาด", "สามารถเลือกช่วงเวลาได้แค่ครั้งเดียวต่อสินค้า");
               return;
             }
 
@@ -251,7 +261,7 @@
               }
 
               if (!startTime) {
-                showAlert("❌ ข้อผิดพลาด", "กรุณาเลือกเวลาให้ครบ");
+                showAlertError("❌ ข้อผิดพลาด", "กรุณาเลือกเวลาให้ครบ");
                 return;
               }
 
@@ -262,7 +272,7 @@
 
               // ตรวจสอบเวลาย้อนหลัง
               if (startDateTime < now) {
-                showAlert("❌ ข้อผิดพลาด", "ไม่สามารถเลือกเวลาที่ผ่านมาแล้วหรือสิ้นสุดก่อนเริ่มได้");
+                showAlertError("❌ ข้อผิดพลาด", "ไม่สามารถเลือกเวลาที่ผ่านมาแล้วหรือสิ้นสุดก่อนเริ่มได้");
                 return;
               }
 
@@ -278,7 +288,7 @@
               });
 
               if (eventsInHour.length >= 5) {
-                showAlert("❌ ข้อผิดพลาด", "จำกัดชั่วโมงละไม่เกิน 5 สินค้า");
+                showAlertError("❌ ข้อผิดพลาด", "จำกัดชั่วโมงละไม่เกิน 5 สินค้า");
                 return;
               }
 
@@ -390,7 +400,7 @@
             showAlert("✅ สำเร็จ", "เพิ่มสินค้าสำเร็จ!");
             window.location.href = "/content/main-and-login.html"; // หรือหน้า seller dashboard
           } else {
-            showAlert("❌ ข้อผิดพลาด", result.message || "เกิดข้อผิดพลาด");
+            showAlertError("❌ ข้อผิดพลาด", result.message || "เกิดข้อผิดพลาด");
           }
         });
     </script>

@@ -362,7 +362,7 @@
 
 
   <script>
-    function showAlert(title, message, icon = "error") {
+    function showAlertError(title, message, icon = "error") {
       Swal.fire({
         icon: icon,
         title: title,
@@ -370,6 +370,15 @@
         confirmButtonColor: "#3085d6",
         confirmButtonText: "ตกลง",
       });
+    }
+    function showAlert(title, message, icon = "success") {
+        Swal.fire({
+            icon: icon,
+            title: title,
+            text: message,
+            confirmButtonColor: "#3085d6",
+            confirmButtonText: "ตกลง",
+        });
     }
 
     function renderProfile(payload) {
@@ -434,7 +443,7 @@
           showAlert("✅ สำเร็จ", result.message);
           location.reload();
         } else {
-          showAlert("❌ ข้อผิดพลาด", result.error || result.message || 'อัปเกรดไม่สำเร็จ');
+          showAlertError("❌ ข้อผิดพลาด", result.error || result.message || 'อัปเกรดไม่สำเร็จ');
         }
       };
     }

@@ -134,7 +134,7 @@
     // ====== Socket.IO Real-time Auction ======
     const socket = io();
 
-    function showAlert(title, message, icon = "error") {
+    function showAlertError(title, message, icon = "error") {
       Swal.fire({
         icon: icon,
         title: title,
@@ -428,14 +428,14 @@
     document.getElementById("customBidBtn").addEventListener("click", async () => {
       const token = localStorage.getItem("token");
       if (!token) {
-        showAlert("❗ ข้อผิดพลาด", "กรุณาเข้าสู่ระบบก่อน");
+        showAlertError("❗ ข้อผิดพลาด", "กรุณาเข้าสู่ระบบก่อน");
         return;
       }
 
       const bidInput = document.querySelector(".custom-bid input");
       const bidAmount = parseFloat(bidInput.value);
       if (isNaN(bidAmount) || bidAmount <= 0) {
-        showAlert("❗ ข้อผิดพลาด", "กรุณาใส่จำนวนเงินที่ถูกต้อง");
+        showAlertError("❗ ข้อผิดพลาด", "กรุณาใส่จำนวนเงินที่ถูกต้อง");
         return;
       }
 
@@ -463,11 +463,11 @@
               payload && payload.username ? payload.username : undefined,
           });
         } else {
-          showAlert("❗ ข้อผิดพลาด", data.message || "เกิดข้อผิดพลาดในการเสนอราคา");
+          showAlertError("❗ ข้อผิดพลาด", data.message || "เกิดข้อผิดพลาดในการเสนอราคา");
         }
       } catch (err) {
         console.error("เกิดข้อผิดพลาดในการเสนอราคา:", err);
-        showAlert("❗ ข้อผิดพลาด", "ระบบขัดข้อง");
+        showAlertError("❗ ข้อผิดพลาด", "ระบบขัดข้อง");
       }
     });
 
@@ -658,7 +658,7 @@
           }
           if (data.token) localStorage.setItem("token", data.token);
         } catch (err) {
-          showAlert("❗ ข้อผิดพลาด", "เกิดข้อผิดพลาดในการบันทึกผลการประมูล");
+          showAlertError("❗ ข้อผิดพลาด", "เกิดข้อผิดพลาดในการบันทึกผลการประมูล");
         }
       }
 
@@ -734,7 +734,7 @@
 
         // ถ้าไม่มี token → redirect ไป login
         if (!token) {
-          showAlert("❗ ข้อผิดพลาด", "กรุณาเข้าสู่ระบบก่อน");
+          showAlertError("❗ ข้อผิดพลาด", "กรุณาเข้าสู่ระบบก่อน");
           window.location.href = "/login/login.html";
           return;
         }
@@ -775,7 +775,7 @@
           }
         } else {
           // token ไม่ถูกต้อง → ลบ token และ redirect
-          showAlert("❗ ข้อผิดพลาด", "Token ไม่ถูกต้อง");
+          showAlertError("❗ ข้อผิดพลาด", "Token ไม่ถูกต้อง");
           localStorage.removeItem("token");
           window.location.href = "/login/login.html";
           return;
@@ -783,7 +783,7 @@
 
       } catch (err) {
         console.error("Error on window.onload:", err);
-        showAlert("❗ ข้อผิดพลาด", err.message || "เกิดข้อผิดพลาดในการโหลดข้อมูล โปรดลองใหม่");
+        showAlertError("❗ ข้อผิดพลาด", err.message || "เกิดข้อผิดพลาดในการโหลดข้อมูล โปรดลองใหม่");
         // ในกรณี error ร้ายแรง อาจ redirect ไป login
         // window.location.href = '/login/login.html';
       }

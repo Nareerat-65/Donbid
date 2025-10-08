@@ -174,14 +174,23 @@
 
 <script>
 
-    function showAlert(title, message, icon = "error") {
-            Swal.fire({
-                icon: icon,
-                title: title,
-                text: message,
-                confirmButtonColor: "#3085d6",
-                confirmButtonText: "ตกลง",
-            });
+    function showAlertError(title, message, icon = "error") {
+        Swal.fire({
+            icon: icon,
+            title: title,
+            text: message,
+            confirmButtonColor: "#3085d6",
+            confirmButtonText: "ตกลง",
+        });
+    }
+    function showAlert(title, message, icon = "success") {
+        Swal.fire({
+            icon: icon,
+            title: title,
+            text: message,
+            confirmButtonColor: "#3085d6",
+            confirmButtonText: "ตกลง",
+        });
     }
 
     document.getElementById('registerForm').addEventListener('submit', async function (e) {
@@ -191,13 +200,13 @@
 
         // ตรวจสอบว่ารหัสผ่านและยืนยันรหัสผ่านตรงกัน
         if (data.password !== this.ConfirmPassword.value) {
-            showAlert("❌ ข้อผิดพลาด", "รหัสผ่านไม่ตรงกัน");
+            showAlertError("❌ ข้อผิดพลาด", "รหัสผ่านไม่ตรงกัน");
             return;
         }
 
         // เช็คเบอร์โทรศัพท์
         if (!/^\d{9,10}$/.test(data.phone)) {
-            showAlert("❌ ข้อผิดพลาด", "กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง");
+            showAlertError("❌ ข้อผิดพลาด", "กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง");
             return;
         }
 
@@ -225,7 +234,7 @@
             showAlert("✅ สำเร็จ", "สมัครสมาชิกสำเร็จ");
             window.location.href = '/login/login.html';
         } else {
-            showAlert("❌ ข้อผิดพลาด", result.message || result.error || 'เกิดข้อผิดพลาด');
+            showAlertError("❌ ข้อผิดพลาด", result.message || result.error || 'เกิดข้อผิดพลาด');
         }
     });
 </script>

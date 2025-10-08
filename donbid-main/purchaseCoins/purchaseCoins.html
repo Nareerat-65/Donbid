@@ -90,7 +90,7 @@
         </div>
     </div>
     <script>
-        function showAlert(title, message, icon = "error") {
+        function showAlertError(title, message, icon = "error") {
             Swal.fire({
                 icon: icon,
                 title: title,
@@ -99,6 +99,15 @@
                 confirmButtonText: "ตกลง",
             });
         }
+        function showAlert(title, message, icon = "success") {
+        Swal.fire({
+            icon: icon,
+            title: title,
+            text: message,
+            confirmButtonColor: "#3085d6",
+            confirmButtonText: "ตกลง",
+        });
+    }
 
 
         // 🆕 ตัวแปรสำหรับเก็บยอดที่เลือก
@@ -120,7 +129,7 @@
         async function selectPackage(amount) {
             const token = localStorage.getItem('token');
             if (!token) {
-                showAlert("❌ ข้อผิดพลาด", "กรุณาเข้าสู่ระบบก่อนเติมเงิน");
+                showAlertError("❌ ข้อผิดพลาด", "กรุณาเข้าสู่ระบบก่อนเติมเงิน");
                 return;
             }
 
@@ -145,18 +154,18 @@
                     document.getElementById('coinBalance').textContent = Number(data.coin_balance).toFixed(2);
 
                 } else {
-                    showAlert("❌ ข้อผิดพลาด", data.message || 'เกิดข้อผิดพลาด');
+                    showAlertError("❌ ข้อผิดพลาด", data.message || 'เกิดข้อผิดพลาด');
                 }
             } catch (err) {
                 console.error(err);
-                showAlert("❌ ข้อผิดพลาด", 'เชื่อมต่อกับเซิร์ฟเวอร์ไม่ได้');
+                showAlertError("❌ ข้อผิดพลาด", 'เชื่อมต่อกับเซิร์ฟเวอร์ไม่ได้');
             }
         }
 
         async function confirmPayment() {
             const token = localStorage.getItem('token');
             if (!token) {
-                showAlert("❌ ข้อผิดพลาด", "กรุณาเข้าสู่ระบบก่อนเติมเงิน");
+                showAlertError("❌ ข้อผิดพลาด", "กรุณาเข้าสู่ระบบก่อนเติมเงิน");
                 return;
             }
 
@@ -181,11 +190,11 @@
                     document.getElementById('coinBalance').textContent = Number(data.coin_balance).toFixed(2);
                     closePopup(); // 🆕 ปิด popup หลังเติมสำเร็จ
                 } else {
-                    showAlert("❌ ข้อผิดพลาด", data.message || 'เกิดข้อผิดพลาด');
+                    showAlertError("❌ ข้อผิดพลาด", data.message || 'เกิดข้อผิดพลาด');
                 }
             } catch (err) {
                 console.error(err);
-                showAlert("❌ ข้อผิดพลาด", 'เชื่อมต่อกับเซิร์ฟเวอร์ไม่ได้');
+                showAlertError("❌ ข้อผิดพลาด", 'เชื่อมต่อกับเซิร์ฟเวอร์ไม่ได้');
             }
         }
 

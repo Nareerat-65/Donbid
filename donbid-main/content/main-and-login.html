@@ -175,7 +175,7 @@
         }
       }
 
-      function showAlert(title, message, icon = "error") {
+      function showAlertError(title, message, icon = "error") {
       Swal.fire({
         icon: icon,
         title: title,
@@ -327,7 +327,7 @@
 
           // ถ้าไม่มี token → redirect ไป login
           if (!token) {
-            showAlert("❗ ข้อผิดพลาด", "กรุณาเข้าสู่ระบบก่อน");
+            showAlertError("❗ ข้อผิดพลาด", "กรุณาเข้าสู่ระบบก่อน");
             window.location.href = "/login/login.html";
             return;
           }
@@ -368,7 +368,7 @@
             }
           } else {
             // token ไม่ถูกต้อง → ลบ token และ redirect
-            showAlert("❗ ข้อผิดพลาด", "Token ไม่ถูกต้อง");
+            showAlertError("❗ ข้อผิดพลาด", "Token ไม่ถูกต้อง");
             localStorage.removeItem("token");
             window.location.href = "/login/login.html";
             return;
@@ -379,7 +379,7 @@
           startRealtimeAuctionNoti();
         } catch (err) {
           console.error("Error on window.onload:", err);
-          showAlert("❗ ข้อผิดพลาด", err.message || "เกิดข้อผิดพลาดในการโหลดข้อมูล โปรดลองใหม่");
+          showAlertError("❗ ข้อผิดพลาด", err.message || "เกิดข้อผิดพลาดในการโหลดข้อมูล โปรดลองใหม่");
           // ในกรณี error ร้ายแรง อาจ redirect ไป login
           // window.location.href = '/login/login.html';
         }
@@ -387,7 +387,6 @@
 
       // เพิ่มฟังก์ชันแสดง popup รายละเอียดสินค้า
       async function showProductDetailPopup(product) {
-        // ดึง seller_username จาก API ถ้ายังไม่มี
         let sellerName = product.seller_username || "-";
         if (!product.seller_username) {
           try {
@@ -399,94 +398,107 @@
           }
         }
 
-        // สร้าง slider รูปภาพ
         const images = product.images?.length
           ? product.images.map(
               (img, idx) =>
-                `<img src="/uploads/${img}" alt="${product.name}" class="popup-image" style="width:100%;height:500px;object-fit:contain;display:${idx===0?'block':'none'};border-radius:8px;background:#fff;">`
+                `<img src="/uploads/${img}" alt="${product.name}" 
+                  class="popup-image" 
+                  style="width:100%;height:480px;object-fit:contain;
+                        border-radius:8px;background:#fff;
+                        display:${idx === 0 ? "block" : "none"};">`
             )
-          : [`<img src="https://via.placeholder.com/900x500" alt="${product.name}" class="popup-image" style="width:100%;height:500px;object-fit:contain;display:block;border-radius:8px;background:#fff;">`];
+          : [`<img src="https://via.placeholder.com/900x480" 
+              class="popup-image" 
+              style="width:100%;height:480px;object-fit:contain;
+                      border-radius:8px;background:#fff;display:block;">`];
 
-        // สร้าง html slider แบบข้อความใต้รูป (ลดกรอบ/เงา)
-        let sliderHtml = `
-          <div id="popup-slider" style="position:relative;max-width:900px;margin:auto;background:#fffbe6;border-radius:18px;padding:24px;box-shadow:0 8px 32px rgba(0,0,0,0.18);">
-            ${images.join("")}
+        const thumbnails = product.images?.length
+          ? product.images
+              .map(
+                (img, idx) =>
+                  `<img src="/uploads/${img}" 
+                    class="popup-thumb ${idx === 0 ? "selected" : ""}" 
+                    style="width:80px;height:80px;object-fit:cover;border-radius:6px;
+                          border:2px solid ${idx === 0 ? "#ff4d4d" : "#ddd"};
+                          cursor:pointer;margin:4px;">`
+              )
+              .join("")
+          : "";
+
+        const html = `
+        <div style="display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start;max-width:1000px;margin:auto;font-family:'Kanit',sans-serif;">
+          <div style="flex:1 1 48%;text-align:center;">
+            <div class="popup-image-container" style="position:relative;">
+              ${images.join("")}
+            </div>
+            <div style="display:flex;justify-content:center;flex-wrap:wrap;margin-top:12px;">${thumbnails}</div>
+          </div>
+
+          <div style="flex:1 1 48%;text-align:left;">
+            <h2 style="font-size:1.3rem;font-weight:700;margin-bottom:8px;">${product.name}</h2>
+            <p style="color:#777;font-size:0.95rem;margin:6px 0;">รหัสสินค้า: ${product.id}</p>
+            <p style="font-size:1.8rem;font-weight:700;color:#d32f2f;">฿${Number(product.current_price).toFixed(2)}</p>
             ${
-              images.length > 1
-                ? `<button id="popup-prev" class="popup-slider-btn" style="position:absolute;top:50%;left:0;transform:translateY(-50%);">❮</button>
-                   <button id="popup-next" class="popup-slider-btn" style="position:absolute;top:50%;right:0;transform:translateY(-50%);">❯</button>`
+              product.original_price
+                ? `<p style="text-decoration:line-through;color:#888;">฿${Number(product.original_price).toFixed(2)}</p>`
                 : ""
             }
-            <div style="width:100%;text-align:left;font-size:1.15em;line-height:2;margin-top:18px;">
-              <div><b>ชื่อสินค้า:</b> ${product.name}</div>
-              <div><b>ราคา:</b> <span style="color:#ff9900;">฿${Number(product.current_price).toFixed(2)}</span></div>
-              <div><b>รายละเอียด:</b> ${product.description || "-"}</div>
-              <div><b>ผู้ขาย:</b> ${sellerName}</div>
-              <div><b>ประเภทสินค้า:</b> ${product.category || "-"}</div>
+            <p><b>ผู้ขาย:</b> ${sellerName}</p>
+            <p><b>ประเภทสินค้า:</b> ${product.category || "-"}</p>
+            <p style="margin-top:12px;line-height:1.6;">${product.description || "-"}</p>
+
+            <div style="margin-top:20px;">
+              <button id="bidBtn" style="
+                background-color:#d32f2f;color:#fff;
+                font-size:1.1rem;padding:12px 28px;
+                border:none;border-radius:8px;
+                cursor:pointer;transition:0.2s;">
+                ไปหน้าประมูล
+              </button>
             </div>
           </div>
-        `;
-
-        // ปุ่มไปหน้าประมูล
-        const now = new Date();
-        const start = new Date(product.start_time);
-        const end = new Date(product.end_time);
-        const isAuctionStarted = now >= start && now < end;
+        </div>`;
 
         Swal.fire({
-          html: `${sliderHtml}`,
-          showCancelButton: true,
-          cancelButtonText: "ปิด",
-          confirmButtonText: "ไปหน้าประมูล",
-          confirmButtonColor: "#ff9900",
-          allowOutsideClick: true,
-          customClass: {
-            popup: 'wide-popup'
-          },
+          html: html,
+          showConfirmButton: false,
+          width: "80vw",
+          customClass: { popup: "wide-popup" },
           didOpen: () => {
-            // ปรับขนาด popup slider ให้เต็มจอ
-            const popup = Swal.getPopup();
-            popup.style.width = '60vw';
-            popup.style.maxWidth = '60vw';
-            popup.style.height = 'auto';
-            popup.style.padding = '0';
-            // slider logic
-            let idx = 0;
+            const thumbs = Swal.getHtmlContainer().querySelectorAll(".popup-thumb");
             const imgs = Swal.getHtmlContainer().querySelectorAll(".popup-image");
-            function showImg(i) {
-              imgs.forEach((img, j) => {
-                img.style.display = i === j ? "block" : "none";
+
+            // 🧩 โค้ดนี้จะให้คลิกเปลี่ยนภาพทีละรูป
+            thumbs.forEach((thumb, idx) => {
+              thumb.addEventListener("click", () => {
+                imgs.forEach((img, i) => {
+                  img.style.display = i === idx ? "block" : "none";
+                });
+                thumbs.forEach((t, j) => {
+                  t.style.borderColor = j === idx ? "#ff4d4d" : "#ddd";
+                });
               });
-            }
-            if (imgs.length > 1) {
-              Swal.getHtmlContainer().querySelector("#popup-prev").onclick = () => {
-                idx = (idx - 1 + imgs.length) % imgs.length;
-                showImg(idx);
-              };
-              Swal.getHtmlContainer().querySelector("#popup-next").onclick = () => {
-                idx = (idx + 1) % imgs.length;
-                showImg(idx);
-              };
+            });
+
+            const bidBtn = Swal.getHtmlContainer().querySelector("#bidBtn");
+            const now = new Date();
+            const start = new Date(product.start_time);
+            const end = new Date(product.end_time);
+            const isAuctionStarted = now >= start && now < end;
+
+            if (!isAuctionStarted) {
+              bidBtn.disabled = true;
+              bidBtn.style.opacity = "0.6";
+              bidBtn.textContent = "ยังไม่ถึงเวลาเริ่มประมูล";
+            } else {
+              bidBtn.onclick = () =>
+                (window.location.href = `../auction_room/auction-product.html?id=${product.id}`);
             }
           },
-          preConfirm: () => {
-            if (!isAuctionStarted) {
-              Swal.showValidationMessage("ยังไม่ถึงเวลาเริ่มประมูล");
-              return false;
-            }
-            window.location.href = `../auction_room/auction-product.html?id=${product.id}`;
-          },
-          didRender: () => {
-            // disable ปุ่มถ้ายังไม่ถึงเวลา
-            if (!isAuctionStarted) {
-              const confirmBtn = Swal.getConfirmButton();
-              confirmBtn.disabled = true;
-              confirmBtn.style.opacity = "0.6";
-              confirmBtn.title = "ยังไม่ถึงเวลาเริ่มประมูล";
-            }
-          }
         });
       }
+
+
     </script>
   </body>
 </html>

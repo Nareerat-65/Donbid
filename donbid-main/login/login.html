@@ -54,7 +54,7 @@
     </div>
 
     <script>
-        function showAlert(title, message, icon = "error") {
+        function showAlertError(title, message, icon = "error") {
             Swal.fire({
                 icon: icon,
                 title: title,
@@ -81,7 +81,7 @@
                 localStorage.setItem('token', result.token);
                 window.location.href = '/content/main-and-login.html'; // หรือ main-and-login.html
             } else {
-                showAlert("❌ ข้อผิดพลาด", result.message || 'เข้าสู่ระบบล้มเหลว');
+                showAlertError("❌ ข้อผิดพลาด", result.message || 'เข้าสู่ระบบล้มเหลว');
             }
         });
     </script>
