@@ -112,6 +112,29 @@ header {
   background-color: #FFA500;
 }
 
+  .loop-typing {
+    font-family: 'Kanit', sans-serif;
+    font-size: 1.5rem;
+    color: #333;
+    border-right: 3px solid #ff9900;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 0;
+    animation: typingLoop 3s steps(30) 1s infinite alternate,
+               blinkLoop 0.7s step-end infinite;
+  }
+
+  @keyframes typingLoop {
+    from { width: 0 }
+    to { width: 100% }
+  }
+
+  @keyframes blinkLoop {
+    50% { border-color: transparent }
+  }
+
+
+
 /* ================== Product Section ================== */
 .all-product {
   color: rgba(0, 0, 0, 0.5);

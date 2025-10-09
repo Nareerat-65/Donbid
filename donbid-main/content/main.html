@@ -1,125 +1,107 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/content/main-styles.css">
-    <title>หน้าหลัก</title>
-    <link href='https://fonts.googleapis.com/css?family=Kanit&subset=thai,latin' rel='stylesheet' type='text/css'>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DonBid - เว็บไซต์ประมูลสินค้า</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Kanit', sans-serif;
+      background: linear-gradient(135deg, #ffeac9, #ffe0b2);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .container {
+      text-align: center;
+      background: #FAF5E6;
+      padding: 60px 80px;
+      border-radius: 25px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      max-width: 700px;
+    }
+    .logo img {
+      width: 150px;
+      margin-bottom: 20px;
+    }
+
+    .typing-text {
+        font-weight: 700;
+      font-size: 2.2rem;
+      color: #ff6f00;
+      white-space: nowrap;
+      overflow: hidden;
+      border-right: 4px solid #ff6f00;
+      width: 0;
+      animation: typing 3s steps(40, end) forwards, blink 0.75s step-end infinite;
+      margin-bottom: 30px;
+    }
+
+    @keyframes typing {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+
+    @keyframes blink {
+      50% { border-color: transparent; }
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 2.2rem;
+    }
+
+    p {
+      color: #555;
+      font-size: 1.1rem;
+      
+    }
+
+    .btn {
+      display: inline-block;
+      background: #FFA500;
+      color: white;
+      text-decoration: none;
+      padding: 15px 40px;
+      border-radius: 40px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      margin: 10px;
+    }
+
+    .btn:hover {
+      background: #e65100;
+      transform: scale(1.05);
+      box-shadow: 0 4px 15px rgba(255, 111, 0, 0.4);
+    }
+
+    .footer {
+      margin-top: 40px;
+      color: #777;
+      font-size: 0.9rem;
+    }
+  </style>
 </head>
-
 <body>
-    <nav name="navbar" class="navbar">
-        <div>
-            <img src="../pic/Logo.png" alt="โลโก้" class="logo">
-        </div>
-        <div class="auth-buttons">
-            <a href="..\singUp\register.html"><button>Sing Up</button></a>
-            <a href="..\login\login.html"><button>Log in</button></a>
-        </div>
-    </nav>
-    <div class="slider">
-        <div class="slides" id="slideContainer">
-            <img src="https://placehold.co/1000x400/transparent/F00.png?text=Sample+Text" alt="Transparent Image">
 
-            <img src="https://placehold.co/1000x400/000000/FFFFFF.png?text=Hello+World" alt="Placeholder Image">
+  <div class="container">
+    <div class="logo"><img src="../pic/Logo.png" alt="โลโก้เว็บไซต์"></div>
+    <div class="typing-text">ยินดีต้อนรับเข้าสู่ DonBid</div>
+    <p>เริ่มประมูลสินค้าสุดพิเศษ พร้อมระบบ AI และการประมูลแบบเรียลไทม์!</p>
 
-            <img src="https://placehold.co/1000x400@2x.png" alt="High Resolution Image">
+    <a href="/login/login.html" class="btn">เข้าสู่ระบบ</a>
+    <a href="\singUp\register.html" class="btn">สมัครสมาชิก</a>
 
-
-        </div>
-        <div class="nav">
-            <button onclick="moveSlide(-1)">❮</button>
-            <button onclick="moveSlide(1)">❯</button>
-        </div>
-        <div class="dots">
-            <span class="dot" onclick="goToSlide(0)"></span>
-            <span class="dot" onclick="goToSlide(1)"></span>
-            <span class="dot" onclick="goToSlide(2)"></span>
-        </div>
-    </div>
-    <!-- <div class="product-section">
-        <h1>สินค้าแนะนำ</h1>
-        <a href="#" class="all-product">สินค้าทั้งหมด >></a>
-    </div> -->
-    <!-- <div class="product-list">
-        <div class="product-card">
-            <img src="https://via.placeholder.com/300x150/FF6F61/fff?text=สินค้า+1" alt="สินค้า 1">
-            <div class="product-info">
-                <div class="product-name">สินค้า 1</div>
-                <div class="product-price">฿199</div>
-                <div class="product-time">00:00:00</div>
-                <a href="#" class="buy-btn">เริ่มประมูล</a>
-            </div>
-        </div>
-
-        <div class="product-card">
-            <img src="https://via.placeholder.com/300x150/6B5B95/fff?text=สินค้า+2" alt="สินค้า 2">
-            <div class="product-info">
-                <div class="product-name">สินค้า 2</div>
-                <div class="product-price">฿259</div>
-                <div class="product-time">00:00:00</div>
-                <a href="#" class="buy-btn">เริ่มประมูล</a>
-            </div>
-        </div>
-
-        <div class="product-card">
-            <img src="https://via.placeholder.com/300x150/88B04B/fff?text=สินค้า+3" alt="สินค้า 3">
-            <div class="product-info">
-                <div class="product-name">สินค้า 3</div>
-                <div class="product-price">฿320</div>
-                <div class="product-time">00:00:00</div>
-                <a href="#" class="buy-btn">เริ่มประมูล</a>
-            </div>
-        </div>
-    </div> -->
-
-
-
-    <script>
-        let currentIndex = 0;
-        const slides = document.getElementById("slideContainer");
-        const totalSlides = slides.children.length;
-        const dotsContainer = document.querySelector(".dots");
-
-        // สร้างจุดสไลด์อัตโนมัติ
-        const dots = [];
-        for (let i = 0; i < totalSlides; i++) {
-            const dot = document.createElement("span");
-            dot.classList.add("dot");
-            dot.addEventListener("click", () => goToSlide(i));
-            dotsContainer.appendChild(dot);
-            dots.push(dot);
-        }
-
-        function updateSlider() {
-            slides.style.transform = `translateX(-${currentIndex * 100}%)`;
-            dots.forEach(dot => dot.classList.remove("active"));
-            dots[currentIndex].classList.add("active");
-        }
-
-        function moveSlide(step) {
-            currentIndex = (currentIndex + step + totalSlides) % totalSlides;
-            updateSlider();
-        }
-
-        function goToSlide(index) {
-            currentIndex = index;
-            updateSlider();
-        }
-
-        // สไลด์อัตโนมัติทุก 3 วินาที
-        setInterval(() => {
-            moveSlide(1);
-        }, 5000);
-
-        updateSlider();
-    </script>
-
+    <div class="footer">© 2025 DonBid - Smart Auction Platform</div>
+  </div>
 
 </body>
-
-
-
 </html>
