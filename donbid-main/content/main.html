@@ -5,90 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DonBid - เว็บไซต์ประมูลสินค้า</title>
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600&display=swap" rel="stylesheet">
-
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Kanit', sans-serif;
-      background: linear-gradient(135deg, #ffeac9, #ffe0b2);
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-    }
-
-    .container {
-      text-align: center;
-      background: #FAF5E6;
-      padding: 60px 80px;
-      border-radius: 25px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-      max-width: 700px;
-    }
-    .logo img {
-      width: 150px;
-      margin-bottom: 20px;
-    }
-
-    .typing-text {
-        font-weight: 700;
-      font-size: 2.2rem;
-      color: #ff6f00;
-      white-space: nowrap;
-      overflow: hidden;
-      border-right: 4px solid #ff6f00;
-      width: 0;
-      animation: typing 3s steps(40, end) forwards, blink 0.75s step-end infinite;
-      margin-bottom: 30px;
-    }
-
-    @keyframes typing {
-      from { width: 0; }
-      to { width: 100%; }
-    }
-
-    @keyframes blink {
-      50% { border-color: transparent; }
-    }
-
-    h1 {
-      color: #333;
-      margin-bottom: 10px;
-      font-size: 2.2rem;
-    }
-
-    p {
-      color: #555;
-      font-size: 1.1rem;
-      
-    }
-
-    .btn {
-      display: inline-block;
-      background: #FFA500;
-      color: white;
-      text-decoration: none;
-      padding: 15px 40px;
-      border-radius: 40px;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      margin: 10px;
-    }
-
-    .btn:hover {
-      background: #e65100;
-      transform: scale(1.05);
-      box-shadow: 0 4px 15px rgba(255, 111, 0, 0.4);
-    }
-
-    .footer {
-      margin-top: 40px;
-      color: #777;
-      font-size: 0.9rem;
-    }
-  </style>
+  <link rel="stylesheet" href="/content/main-styles.css" />
 </head>
 <body>
 
@@ -98,7 +15,7 @@
     <p>เริ่มประมูลสินค้าสุดพิเศษ พร้อมระบบ AI และการประมูลแบบเรียลไทม์!</p>
 
     <a href="/login/login.html" class="btn">เข้าสู่ระบบ</a>
-    <a href="\singUp\register.html" class="btn">สมัครสมาชิก</a>
+    <a href="/singUp/register.html" class="btn">สมัครสมาชิก</a>
 
     <div class="footer">© 2025 DonBid - Smart Auction Platform</div>
   </div>

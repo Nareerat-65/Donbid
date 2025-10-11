@@ -117,7 +117,7 @@ input[type="radio"] {
 }
 
 .submit-btn:hover {
-  background-color: #e69500;
+  background: #e65100;
 }
 
 @media (max-width: 900px) {
