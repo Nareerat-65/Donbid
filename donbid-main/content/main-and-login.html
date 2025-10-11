@@ -46,8 +46,8 @@
           onclick="location.href='/seller/add-product.html'"
           style="
             padding: 10px 20px;
-            background-color: #ff9900;
-            color: white;
+            background-color: #FAF5E6;
+            color: black;
             border: none;
             border-radius: 5px;
             cursor: pointer;
@@ -75,6 +75,58 @@
         <span class="dot" onclick="goToSlide(0)"></span>
         <span class="dot" onclick="goToSlide(1)"></span>
         <span class="dot" onclick="goToSlide(2)"></span>
+      </div>
+    </div>
+    <div class="search">
+      <input
+        type="text"
+        class="searchInput"
+        id="searchInput"
+        placeholder="ค้นหาสินค้า..."
+      />
+      <button id="searchButton" class="searchButton">ค้นหา</button>
+      <div class="product-filter">
+        <button id="filterButton" class="filterButton">กรองสินค้า</button>
+      </div>
+    </div>
+    <div class="filter-block" style="display:none;">
+      <div class="filter-header">ตัวกรองสินค้า</div>
+      <button id="resetFilterBtn" class="resetFilterBtn">Reset</button>
+      <div class="filter-detail">
+        <div class="filter-item">
+          <label for="priceRange">ช่วงราคาสินค้า (บาท):</label>
+          <input type="number" id="minPrice" placeholder="ต่ำสุด" style="width:80px;" />
+          -
+          <input type="number" id="maxPrice" placeholder="สูงสุด" style="width:80px;" />
+        </div>
+        <div class="filter-item">
+          <label for="auctionStatus">สถานะการประมูล:</label>
+          <select id="auctionStatus">
+            <option value="all">ทั้งหมด</option>
+            <option value="upcoming">จะเริ่ม</option>
+            <option value="ongoing">กำลังประมูล</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label for="sortBy">เรียงลำดับตาม:</label>
+          <select id="sortBy">
+            <option value="newest">ใหม่ล่าสุด</option>
+            <option value="priceLowHigh">ราคาต่ำไปสูง</option>
+            <option value="priceHighLow">ราคาสูงไปต่ำ</option>
+            <option value="endingSoon">ใกล้หมดเวลาประมูล</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label for="cate">ประเภทของสินค้า</label>
+          <select id="cate">
+            <option value="">ทั้งหมด</option>
+            <option value="character_model">โมเดลตัวละคร</option>
+            <option value="doll">ตุ๊กตา</option>
+            <option value="card_game">การ์ดเกม</option>
+            <option value="other">อื่น ๆ</option>
+          </select>
+        </div>
+        <button id="applyFilterButton" class="applyFilterButton">ใช้ตัวกรอง</button>
       </div>
     </div>
     <div class="product-section">
@@ -157,22 +209,158 @@
         return card;
       }
 
-      // โหดสินค้าและสร้าง card
-      async function loadProducts(p) {
+      let allProducts = [];
+
+      // โหลดสินค้าทั้งหมดครั้งเดียว
+      async function loadProducts() {
         try {
           const res = await fetch("/api/products");
-          const products = await res.json();
-          const productList = document.querySelector(".product-list");
-          productList.innerHTML = "";
-
-          products.forEach((p) => {
-            const card = createProductCard(p);
-            if (card) productList.appendChild(card);
-          });
+          allProducts = await res.json();
+          allProducts.sort((a, b) => new Date(a.end_time) - new Date(b.end_time));
+          renderProducts(allProducts);
+          startRealtimeAuctionNoti();
         } catch (err) {
           console.error("❌ โหลดสินค้าไม่สำเร็จ:", err);
         }
       }
+
+      // ฟังก์ชัน renderProducts ใช้ข้อมูลจาก allProducts
+      function renderProducts(products) {
+        const productList = document.querySelector(".product-list");
+        productList.innerHTML = "";
+        const now = new Date();
+        let followed = JSON.parse(localStorage.getItem("followedProducts")) || [];
+
+        
+
+        products.forEach((p) => {
+          const end = new Date(p.end_time);
+          if (now >= end) return;
+          const start = new Date(p.start_time);
+          const isAuctionStarted = now >= start;
+          const imageGallery = p.images?.length
+            ? p.images
+                .map(
+                  (img) =>
+                    `<img src="/uploads/${img}" alt="${p.name}" class="product-image">`
+                )
+                .join("")
+            : `<img src="https://via.placeholder.com/300x150" alt="${p.name}" class="product-image">`;
+          const isFollowed = followed.includes(String(p.id));
+          const card = document.createElement("div");
+          card.className = "product-card";
+          card.innerHTML = `
+        <div class="images">${imageGallery}</div>
+        <div class="product-info">
+          <div class="product-name">${p.name}</div>
+          <div class="product-price">฿${Number(p.current_price).toFixed(2)}</div>
+          <div class="product-time">กำลังโหลด...</div>
+          <button class="follow-btn" data-id="${p.id}"></button>
+          <button class="detail-btn" style="margin-top:8px;">ดูรายละเอียด</button>
+          <a href="../auction_room/auction-product.html?id=${p.id}" 
+             class="buy-btn ${!isAuctionStarted ? "disabled" : ""}">
+              เริ่มประมูล
+          </a>
+        </div>
+      `;
+          const timeElem = card.querySelector(".product-time");
+          startCountdownText(p.start_time, p.end_time, timeElem);
+          productList.appendChild(card);
+          const followBtn = card.querySelector(".follow-btn");
+          updateFollowButton(followBtn, isFollowed);
+          followBtn.addEventListener("click", () =>
+            handleFollow(p.id, p.name, followBtn)
+          );
+          const detailBtn = card.querySelector(".detail-btn");
+          detailBtn.addEventListener("click", () => showProductDetailPopup(p));
+        });
+      }
+
+      // ฟังก์ชันค้นหา
+      function searchProducts() {
+        const keyword = document.getElementById("searchInput").value.toLowerCase();
+        const filtered = allProducts.filter((p) =>
+          p.name.toLowerCase().includes(keyword)
+        );
+        renderProducts(filtered);
+      }
+      document.getElementById("searchButton").addEventListener("click", searchProducts);
+      document.getElementById("searchInput").addEventListener("input", searchProducts);
+      document.getElementById("searchInput").addEventListener("keyup", (e) => e.key === "Enter" && searchProducts());
+
+      // ฟังก์ชันเปิด-ปิด ตัวกรอง
+      document.getElementById("filterButton").addEventListener("click", (e) => {
+        e.stopPropagation();
+        const filterBlock = document.querySelector(".filter-block");
+        filterBlock.style.display =
+          filterBlock.style.display === "block" ? "none" : "block";
+      });
+      document.addEventListener("click", (e) => {
+        const filterBlock = document.querySelector(".filter-block");
+        if (
+          filterBlock.style.display === "block" &&
+          !filterBlock.contains(e.target) &&
+          e.target !== document.getElementById("filterButton")
+        ) {
+          filterBlock.style.display = "none";
+        }
+      });
+
+      // ฟังก์ชันกรองสินค้า
+      function applyFilters() {
+        let filtered = [...allProducts];
+        const now = new Date();
+        const minPrice = parseFloat(document.getElementById("minPrice").value) || 0;
+        const maxPrice = parseFloat(document.getElementById("maxPrice").value) || Infinity;
+        filtered = filtered.filter(
+          (p) => p.current_price >= minPrice && p.current_price <= maxPrice
+        );
+        const auctionStatus = document.getElementById("auctionStatus").value;
+        filtered = filtered.filter((p) => {
+          const start = new Date(p.start_time);
+          const end = new Date(p.end_time);
+          if (auctionStatus === "upcoming") return now < start;
+          if (auctionStatus === "ongoing") return now >= start && now < end;
+          return true;
+        });
+        const sortBy = document.getElementById("sortBy").value;
+        filtered.sort((a, b) => {
+          const startA = new Date(a.start_time);
+          const startB = new Date(b.start_time);
+          const endA = new Date(a.end_time);
+          const endB = new Date(b.end_time);
+          switch (sortBy) {
+            case "newest":
+              // ใหม่ล่าสุด = เวลาสร้างล่าสุด (start_time มากไปน้อย)
+              return startB - startA;
+            case "priceLowHigh":
+              // ราคาต่ำไปสูง
+              return a.current_price - b.current_price;
+            case "priceHighLow":
+              // ราคาสูงไปต่ำ
+              return b.current_price - a.current_price;
+            case "endingSoon":
+              // ใกล้หมดเวลาประมูล = end_time น้อยไปมาก
+              return endA - endB;
+            default:
+              return 0;
+          }
+        });
+        const cate = document.getElementById("cate").value;
+        if (cate) {
+          filtered = filtered.filter((p) => p.category === cate);
+        }
+        renderProducts(filtered);
+      }
+      document.getElementById("applyFilterButton").addEventListener("click", applyFilters);
+      document.getElementById("resetFilterBtn").addEventListener("click", () => {
+        document.getElementById("minPrice").value = "";
+        document.getElementById("maxPrice").value = "";
+        document.getElementById("auctionStatus").value = "all";
+        document.getElementById("sortBy").value = "newest";
+        document.getElementById("cate").value = "";
+        renderProducts(allProducts);
+      });
 
       function showAlertError(title, message, icon = "error") {
       Swal.fire({
