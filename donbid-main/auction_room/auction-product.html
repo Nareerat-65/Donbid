@@ -194,6 +194,30 @@
 
         // set innerHTML
         imagesContainer.innerHTML = imageGallery;
+
+        const productImages = document.querySelectorAll(".product-image");
+        let currentIndex = 0;
+
+        // ฟังก์ชันแสดงรูปตาม index
+        function showImage(index) {
+          productImages.forEach((img, i) => {
+            img.style.display = i === index ? "block" : "none";
+          });
+        }
+
+        // เริ่มต้นแสดงรูปแรก
+        showImage(currentIndex);
+
+        // ปุ่มลูกศรซ้ายขวา
+        document.querySelector(".arrow.left").addEventListener("click", () => {
+          currentIndex = (currentIndex - 1 + productImages.length) % productImages.length;
+          showImage(currentIndex);
+        });
+
+        document.querySelector(".arrow.right").addEventListener("click", () => {
+          currentIndex = (currentIndex + 1) % productImages.length;
+          showImage(currentIndex);
+        });
         // แสดงข้อมูลสินค้า
         console.log(product);
         document.getElementById("productName").textContent = product.name;

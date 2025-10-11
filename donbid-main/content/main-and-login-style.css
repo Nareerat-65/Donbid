@@ -231,7 +231,7 @@ header {
 }
 
 .buy-btn:hover {
-  background: #e69500;
+  background: #e65100;
 }
 
 /* ปุ่มติดตาม */
@@ -303,7 +303,7 @@ header {
   transition: background 0.2s;
 }
 #popup-prev:hover, #popup-next:hover {
-  background: #e69500 !important;
+  background: #e65100 !important;
 }
 
 /* ข้อความรายละเอียดใน popup */

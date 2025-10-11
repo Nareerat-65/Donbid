@@ -64,7 +64,6 @@ header {
   justify-content: center;
 }
 
-/* สไลด์รูป/วิดีโอ */
 .media-carousel {
   position: relative;
   width: 60%;
@@ -72,6 +71,7 @@ header {
   background: #fce6c5;
   border-radius: 10px;
   padding: 20px;
+  overflow: hidden;
 }
 
 .media-display {
@@ -79,30 +79,48 @@ header {
   background: #fffbf5;
   border-radius: 10px;
   display: flex;
-  /* ใช้ flex */
   justify-content: center;
-  /* จัดให้อยู่กึ่งกลางแนวนอน */
   align-items: center;
-  /* จัดให้อยู่กึ่งกลางแนวตั้ง */
   overflow: hidden;
-  /* กันรูปเกินกรอบ */
+}
+
+#productImages {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+  width: 100%;
+  height: 100%;
 }
 
 #productImages img {
-  max-width: 100%;
-  max-height: 100%;
+  width: 100%;
+  height: auto;
   object-fit: contain;
-  /* ให้รูปย่อ/ขยายพอดีกับกรอบ */
+  flex-shrink: 0;
+  border-radius: 10px;
+  max-height: 400px;
 }
 
 .arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: none;
+  background: linear-gradient(45deg, #ffb84d, #ff9900);
+  color: white;
   border: none;
   font-size: 30px;
   cursor: pointer;
+  border-radius: 40px;
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, background 0.3s ease;
+}
+
+.arrow:hover {
+  background: #e65100;
+  transform: translateY(-50%) scale(1.1);
 }
 
 .left {
@@ -236,7 +254,7 @@ header {
 }
 
 .btn-bid:hover {
-  background: #e69500;
+  background: #e65100;
 }
 
 .btn-history {
@@ -253,7 +271,7 @@ header {
 }
 
 .btn-history:hover {
-  background: #e69500;
+  background: #e65100;
 }
 
 video {
@@ -415,20 +433,6 @@ video {
 }
 
 /* ปุ่ม */
-#goConfirmBtn {
-  background: linear-gradient(135deg, #fba423, #ff9900);
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 12px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-#goConfirmBtn:hover {
-  background: #e69500;
-}
 
 .avatar {
   position: relative;
@@ -443,7 +447,6 @@ video {
   text-align: center;
   padding: 4px 8px;
   border-radius: 4px;
-
   position: absolute;
   z-index: 1;
   bottom: 125%;

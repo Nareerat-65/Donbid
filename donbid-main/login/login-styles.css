@@ -50,7 +50,7 @@ body {
 
 .forgot-password:hover {
     text-decoration: underline;
-    color: #e69500;
+    background: #e65100;
 }
 
 
@@ -83,7 +83,7 @@ body {
 }
 .signup-link:hover {
     text-decoration: underline;
-    color: #e69500;
+    background: #e65100;
 }
 
 
@@ -178,7 +178,7 @@ button {
     background: linear-gradient(90deg,#FFA500 60%,#ff9900 100%);
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     padding: 14px 32px;
     font-size: 18px;
     font-weight: bold;
@@ -187,6 +187,6 @@ button {
     transition: background 0.2s, transform 0.2s;
 }
 button:hover {
-    background: linear-gradient(90deg,#e69500 60%,#FFA500 100%);
+    background: #e65100;
     transform: scale(1.04);
 }

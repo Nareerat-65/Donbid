@@ -125,7 +125,7 @@ button {
 }
 
 button:hover {
-  background-color: #cd8111;
+  background: #e65100;
   transform: translateY(-2px);
 }
 
