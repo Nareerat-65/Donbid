@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="auction-product-style.css" />
   <link href="https://fonts.googleapis.com/css?family=Kanit&subset=thai,latin" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   <title>ประมูล</title>
 </head>
 
@@ -127,9 +129,21 @@
   <audio id="ttsAudio"></audio>
 
   <script src="/socket.io/socket.io.js"></script>
+  
   <script>
     // ====== Socket.IO Real-time Auction ======
     const socket = io();
+
+    function showAlertError(title, message, icon = "error") {
+      Swal.fire({
+        icon: icon,
+        title: title,
+        text: message,
+        confirmButtonColor: "#3085d6",
+        confirmButtonText: "ตกลง",
+      });
+    }
+
 
     // เมื่อมี bid ใหม่จาก server ให้ update UI
     socket.on("new bid", function (data) {
@@ -414,14 +428,14 @@
     document.getElementById("customBidBtn").addEventListener("click", async () => {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert("กรุณาเข้าสู่ระบบก่อน");
+        showAlertError("❗ ข้อผิดพลาด", "กรุณาเข้าสู่ระบบก่อน");
         return;
       }
 
       const bidInput = document.querySelector(".custom-bid input");
       const bidAmount = parseFloat(bidInput.value);
       if (isNaN(bidAmount) || bidAmount <= 0) {
-        alert("กรุณาใส่จำนวนเงินที่ถูกต้อง");
+        showAlertError("❗ ข้อผิดพลาด", "กรุณาใส่จำนวนเงินที่ถูกต้อง");
         return;
       }
 
@@ -440,7 +454,6 @@
 
         const data = await res.json();
         if (res.ok) {
-          alert("เสนอราคาสำเร็จ");
           // ส่ง event ไป server เพื่อ broadcast ให้ทุก client
           const payload = parseJwt(token);
           socket.emit("bid placed", {
@@ -450,11 +463,11 @@
               payload && payload.username ? payload.username : undefined,
           });
         } else {
-          alert(data.message || "เกิดข้อผิดพลาดในการเสนอราคา");
+          showAlertError("❗ ข้อผิดพลาด", data.message || "เกิดข้อผิดพลาดในการเสนอราคา");
         }
       } catch (err) {
         console.error("เกิดข้อผิดพลาดในการเสนอราคา:", err);
-        alert("ระบบขัดข้อง");
+        showAlertError("❗ ข้อผิดพลาด", "ระบบขัดข้อง");
       }
     });
 
@@ -645,7 +658,7 @@
           }
           if (data.token) localStorage.setItem("token", data.token);
         } catch (err) {
-          alert("เกิดข้อผิดพลาดในการบันทึกผลการประมูล");
+          showAlertError("❗ ข้อผิดพลาด", "เกิดข้อผิดพลาดในการบันทึกผลการประมูล");
         }
       }
 
@@ -694,8 +707,8 @@
         window.location.href = "/content/main-and-login.html";
       });
       document.getElementById("goMyProductBtn").addEventListener("click", () => {
-          window.location.href = `confirm-product.html?id=${productId}`; //ปรับ URL ตามต้องการ
-        });
+          window.location.href = `../content/profile-check.html?page=myProducts`; //ปรับ URL ตามต้องการ
+      });
     }
 
     function pad(n) {
@@ -721,7 +734,7 @@
 
         // ถ้าไม่มี token → redirect ไป login
         if (!token) {
-          alert("กรุณาเข้าสู่ระบบก่อน");
+          showAlertError("❗ ข้อผิดพลาด", "กรุณาเข้าสู่ระบบก่อน");
           window.location.href = "/login/login.html";
           return;
         }
@@ -762,7 +775,7 @@
           }
         } else {
           // token ไม่ถูกต้อง → ลบ token และ redirect
-          alert("Token ไม่ถูกต้อง");
+          showAlertError("❗ ข้อผิดพลาด", "Token ไม่ถูกต้อง");
           localStorage.removeItem("token");
           window.location.href = "/login/login.html";
           return;
@@ -770,7 +783,7 @@
 
       } catch (err) {
         console.error("Error on window.onload:", err);
-        alert(err.message || "เกิดข้อผิดพลาดในการโหลดข้อมูล โปรดลองใหม่");
+        showAlertError("❗ ข้อผิดพลาด", err.message || "เกิดข้อผิดพลาดในการโหลดข้อมูล โปรดลองใหม่");
         // ในกรณี error ร้ายแรง อาจ redirect ไป login
         // window.location.href = '/login/login.html';
       }
@@ -841,6 +854,7 @@
         return null;
       }
     }
+    
   </script>
 </body>
 

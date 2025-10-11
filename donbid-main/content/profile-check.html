@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href='https://fonts.googleapis.com/css?family=Kanit&subset=thai,latin' rel='stylesheet' type='text/css'>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <title>โปรไฟล์ผู้ใช้</title>
 
   <style>
@@ -35,7 +36,8 @@
     }
 
     .main {
-      width: 80%;
+      width: 90%;
+      max-width: 1500px;
       display: flex;
       gap: 20px;
       padding: 20px;
@@ -84,12 +86,20 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      align-items: stretch;
+
+      width: 100%;
+    }
+
+    .content-area h2 {
+      text-align: center;
+      margin-bottom: 16px;
+      /* เพิ่มระยะห่างด้านล่าง */
     }
 
     .profile-container {
       max-width: 500px;
+      margin: 0 auto;
       border-radius: 20px;
       padding: 32px 24px;
       text-align: center;
@@ -147,6 +157,117 @@
     #change-role:hover {
       background: linear-gradient(90deg, #009688 60%, #26a69a 100%);
     }
+
+    .product-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      /* ช่องว่างระหว่างรูปกับรายละเอียด */
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 12px;
+      margin: 12px auto;
+      margin-bottom: 12px;
+      background-color: #fff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      width: 80%;
+      /* ขยายเต็ม parent */
+      max-width: 800px;
+    }
+
+    .product-img {
+      width: 200px;
+      height: 210px;
+      object-fit: cover;
+      border-radius: 6px;
+      flex-shrink: 0;
+      /* ป้องกันรูปย่อจนเกินไป */
+    }
+
+    .product-details {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .product-details h3 {
+      margin: 0 0 6px 0;
+      font-size: 1.2em;
+    }
+
+    .product-details p {
+      margin: 4px 0;
+    }
+
+    .product-details small {
+      color: #666;
+    }
+
+    /* ----- Modal ----- */
+    .modal {
+      display: none; /* ซ่อนเริ่มต้น */
+      position: fixed;
+      z-index: 1000;
+      left: 0; 
+      top: 0;
+      width: 100%; 
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.5); /* พื้นหลังมืด */
+    }
+
+    .modal-content {
+      background: #fff;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 10px;
+      width: 400px;
+      max-width: 90%;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      font-size: 16px;
+    }
+
+    .modal-header {
+      font-weight: bold;
+      font-size: 18px;
+      margin-bottom: 10px;
+      color: #009688;
+    }
+
+    .modal-close {
+      float: right;
+      font-size: 20px;
+      cursor: pointer;
+      color: #888;
+    }
+
+    .modal-close:hover {
+      color: #e53935;
+    }
+
+    /* ปุ่มดูข้อมูลจัดส่ง */
+    .product-details button {
+      width: 150px;           /* ความกว้างคงที่ */
+      height: 40px;           /* ความสูงคงที่ */
+      padding: 0;
+      padding: 10px 18px;
+      background: #ffa500 ; 
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 8px;
+    }
+
+    .product-details button:hover {
+      background: #ff8c00;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    }
+
 
     /* ---------- Responsive ---------- */
     @media (max-width: 768px) {
@@ -214,85 +335,120 @@
 
     <div class="sidebar" id="sidebarMenu">
       <div class="balance">💰 Coin: <span id="balance">0.00</span>
-      <button onclick="location.href='/purchaseCoins/purchaseCoins.html'">
-        +
-      </button>
+        <button onclick="location.href='/purchaseCoins/purchaseCoins.html'">
+          +
+        </button>
       </div>
-      
-
-
       <button data-page="profile">โปรไฟล์ของฉัน</button>
-      <button data-page="history">ประวัติการซื้อ</button>
-      <button data-page="policy">นโยบาย</button>
+      <button data-page="myProducts">สินค้าของฉัน</button>
+
     </div>
 
     <div class="content-area" id="contentArea">
-      <div class="profile-container">
-        <div class="profile-avatar"></div>
-        <div class="profile-name" id="username">ชื่อผู้ใช้</div>
-        <div class="profile-grid">
-          <div class="profile-box">ID: <span id="userId">-</span></div>
-          <div class="profile-box">บทบาท: <span id="role">-</span></div>
-          <div class="profile-box">Email: <span id="email">-</span></div>
-          <div class="profile-box">สถานะ: <span id="status">เปิดใช้งาน</span></div>
-        </div>
-
-        <button id="logout-btn">ออกจากระบบ</button>
-        <button id="change-role">สมัครเป็นผู้ขาย</button>
-      </div>
+      <!-- เนื้อหาจะเปลี่ยนตามปุ่มที่กด -->
     </div>
 
   </div>
+  <!-- Modal -->
+    <div id="deliveryModal" class="modal">
+      <div class="modal-content">
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+        <div class="modal-header">ข้อมูลจัดส่ง</div>
+        <p><b>ชื่อผู้รับ:</b> <span id="modalName"></span></p>
+        <p><b>เบอร์โทร:</b> <span id="modalPhone"></span></p>
+        <p><b>ที่อยู่:</b> <span id="modalAddress"></span></p>
+      </div>
+    </div>
+
 
   <script>
-    document.getElementById("hamburgerBtn").addEventListener("click", function () {
-      document.getElementById("sidebarMenu").classList.toggle("active");
-    });
+    function showAlertError(title, message, icon = "error") {
+      Swal.fire({
+        icon: icon,
+        title: title,
+        text: message,
+        confirmButtonColor: "#3085d6",
+        confirmButtonText: "ตกลง",
+      });
+    }
+    function showAlert(title, message, icon = "success") {
+        Swal.fire({
+            icon: icon,
+            title: title,
+            text: message,
+            confirmButtonColor: "#3085d6",
+            confirmButtonText: "ตกลง",
+        });
+    }
 
-    // เปลี่ยน content ตามปุ่ม
-    document.getElementById("sidebarMenu").addEventListener("click", (e) => {
-      if (e.target.tagName === "BUTTON") {
-        const page = e.target.dataset.page;
-        const content = document.getElementById("contentArea");
+    function renderProfile(payload) {
+      const content = document.getElementById("contentArea");
+      content.innerHTML = `
+        <div class="profile-container">
+          <div class="profile-avatar"></div>
+          <div class="profile-name" id="username">ชื่อผู้ใช้</div>
+          <div class="profile-grid">
+            <div class="profile-box">ID: <span id="userId">-</span></div>
+            <div class="profile-box">บทบาท: <span id="role">-</span></div>
+            <div class="profile-box">Email: <span id="email">-</span></div>
+            <div class="profile-box">สถานะ: <span id="status">เปิดใช้งาน</span></div>
+          </div>
 
-        if (page === "profile") {
-          content.innerHTML = `
-            <div class="profile-container">
-              <div class="profile-avatar"></div>
-              <div class="profile-name" id="username">ชื่อผู้ใช้</div>
-              <div class="profile-grid">
-                <div class="profile-box">ID: <span id="userId">-</span></div>
-                <div class="profile-box">บทบาท: <span id="role">-</span></div>
-                <div class="profile-box">Email: <span id="email">-</span></div>
-                <div class="profile-box">สถานะ: <span id="status">เปิดใช้งาน</span></div>
-              </div>
+          <button id="logout-btn">ออกจากระบบ</button>
+          <button id="change-role">สมัครเป็นผู้ขาย</button>
+        </div>
+      `;
 
-              <button id="logout-btn">ออกจากระบบ</button>
-              <button id="change-role">สมัครเป็นผู้ขาย</button>
-            </div>
-          `;
-        }
-        if (page === "history") {
-          content.innerHTML = `
-            <h2>ประวัติการซื้อ</h2>
-            <ul>
-              <li>สินค้า A - 500 บาท</li>
-              <li>สินค้า B - 1,200 บาท</li>
-            </ul>
-          `;
-        }
-        if (page === "policy") {
-          content.innerHTML = `
-            <h2>นโยบาย</h2>
-            <p>เงื่อนไขและนโยบายของระบบ...</p>
-          `;
-        }
+      // เติมข้อมูลโปรไฟล์
+      document.getElementById('username').textContent = payload.username || '-';
+      document.getElementById('userId').textContent = payload.id || '-';
+      document.getElementById('role').textContent = payload.role || '-';
+      document.getElementById('email').textContent = payload.email || '-';
 
-        // มือถือ → ปิดเมนูอัตโนมัติ
-        document.getElementById("sidebarMenu").classList.remove("active");
+      // แสดงรูปโปรไฟล์
+      const avatarDiv = document.querySelector('.profile-avatar');
+      avatarDiv.innerHTML = '';
+      let profileImgUrl = '../pic/personal-icon.png';
+      if (payload && payload.profile_img) {
+        profileImgUrl = payload.profile_img;
       }
-    });
+      const img = document.createElement('img');
+      img.src = profileImgUrl;
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.objectFit = 'cover';
+      img.style.borderRadius = '50%';
+      avatarDiv.appendChild(img);
 
+      // ปุ่ม logout
+      document.getElementById('logout-btn').onclick = () => {
+        localStorage.removeItem('token');
+        window.location.href = '/login/login.html';
+      };
+
+      // ปุ่มเปลี่ยน role
+      const changeRoleBtn = document.getElementById('change-role');
+      if (payload.role === 'seller') {
+        changeRoleBtn.style.display = 'none';
+      }
+      changeRoleBtn.onclick = async () => {
+        const token = localStorage.getItem('token');
+        const res = await fetch('/api/auth/user/upgrade-role', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const result = await res.json();
+        if (res.ok && result.token) {
+          localStorage.setItem('token', result.token);
+          showAlert("✅ สำเร็จ", result.message);
+          location.reload();
+        } else {
+          showAlertError("❌ ข้อผิดพลาด", result.error || result.message || 'อัปเกรดไม่สำเร็จ');
+        }
+      };
+    }
+
+    // parse jwt
     function parseJwt(token) {
       try {
         const base64Url = token.split('.')[1];
@@ -314,17 +470,6 @@
         return;
       }
 
-      // ดึง coin จาก API
-      try {
-        const res = await fetch('/api/coins/balance', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await res.json();
-        if (res.ok && data.coin_balance !== undefined) {
-          document.getElementById('balance').textContent = Number(data.coin_balance).toFixed(2);
-        }
-      } catch (err) { }
-
       const payload = parseJwt(token);
       if (!payload) {
         alert('Token ไม่ถูกต้อง');
@@ -333,57 +478,144 @@
         return;
       }
 
-      document.getElementById('username').textContent = payload.username || '-';
-      document.getElementById('userId').textContent = payload.id || '-';
-      document.getElementById('role').textContent = payload.role || '-';
-      document.getElementById('email').textContent = payload.email || '-';
-
-      // แสดงรูปโปรไฟล์
-      const avatarDiv = document.querySelector('.profile-avatar');
-      avatarDiv.innerHTML = '';
-      let profileImgUrl = '../pic/personal-icon.png';
-      if (payload && payload.profile_img) {
-        profileImgUrl = payload.profile_img;
-      }
-      const img = document.createElement('img');
-      img.src = profileImgUrl;
-      img.alt = 'โปรไฟล์';
-      img.style.width = '100%';
-      img.style.height = '100%';
-      img.style.objectFit = 'cover';
-      img.style.borderRadius = '50%';
-      avatarDiv.appendChild(img);
-
-      // ซ่อนปุ่ม change-role ถ้า role เป็น seller
-      if (payload.role === 'seller') {
-        document.getElementById('change-role').style.display = 'none';
-      }
-    };
-
-    document.getElementById('logout-btn').onclick = () => {
-      localStorage.removeItem('token');
-      window.location.href = '/login/login.html';
-    };
-
-    document.getElementById('change-role').onclick = async () => {
-      const token = localStorage.getItem('token');
-      const res = await fetch('/api/auth/user/upgrade-role', {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + token
+      // โหลด coin
+      try {
+        const res = await fetch('/api/coins/balance', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (res.ok && data.coin_balance !== undefined) {
+          document.getElementById('balance').textContent = Number(data.coin_balance).toFixed(2);
         }
-      });
+      } catch (err) {}
 
-      const result = await res.json();
-      if (res.ok && result.token) {
-        localStorage.setItem('token', result.token); // 💡 ใช้ token ใหม่
-        alert(result.message);
-        location.reload(); // reload เพื่อแสดง role ใหม่
-      } else {
-        alert(result.error || result.message || 'อัปเกรดไม่สำเร็จ');
+      // โหลด profile ครั้งแรก
+      renderProfile(payload);
+
+      // สร้างปุ่ม seller
+      const sidebar = document.getElementById("sidebarMenu");
+      if (payload.role === 'seller') {
+        const btn = document.createElement("button");
+        btn.dataset.page = "myProductSell";
+        btn.textContent = "สินค้าที่ขาย";
+        sidebar.appendChild(btn);
+      }
+
+      // ✅ ดึงค่า page จาก URL แล้ว trigger click
+      const urlParams = new URLSearchParams(window.location.search);
+      const page = urlParams.get('page');
+      if (page) {
+        const targetBtn = [...document.querySelectorAll("#sidebarMenu button")].find(b => b.dataset.page === page);
+        if (targetBtn) targetBtn.click();
       }
     };
+
+
+    // sidebar click
+    document.getElementById("sidebarMenu").addEventListener("click", (e) => {
+      if (e.target.tagName === "BUTTON") {
+        const page = e.target.dataset.page;
+        const payload = parseJwt(localStorage.getItem('token'));
+
+        if (page === "profile") {
+          renderProfile(payload);  // ✅ กดแล้วโหลดใหม่
+        }
+        if (page === "myProducts") {
+          document.getElementById("contentArea").innerHTML = `<h2>สินค้าที่ฉันชนะ</h2><div id="myProductsList">กำลังโหลด...</div>`;
+
+          const token = localStorage.getItem('token');
+          fetch('/api/profile', {
+            headers: { 'Authorization': 'Bearer ' + token }
+          })
+            .then(res => res.json())
+            .then(products => {
+              const list = document.getElementById("myProductsList");
+              if (!products.length) {
+                list.innerHTML = "<p>ยังไม่มีสินค้าที่คุณชนะ</p>";
+                return;
+              }
+              list.innerHTML = products.map(p => `
+              <div class="product-card">
+                <img src="${p.images[0] || '../pic/default.png'}" class="product-img"/>
+                <div class="product-details">
+                  <h3>${p.name}</h3>
+                  <p>${p.description || ''}</p>
+                  <p>ราคาสุดท้าย: ${p.final_price} coins</p>
+                  <small>ปิดการประมูล: ${new Date(p.closed_at).toLocaleString()}</small>
+                </div>
+              </div>
+            `).join('');
+            })
+            .catch(err => {
+              console.error(err);
+              document.getElementById("myProductsList").innerHTML = "<p>โหลดไม่สำเร็จ</p>";
+            });
+        }if (page === "myProductSell") {
+            document.getElementById("contentArea").innerHTML = `
+              <h2 style="text-align:center;">สินค้าที่ฉันขาย</h2>
+              <div id="myProductSellList">กำลังโหลด...</div>
+            `;
+
+            const token = localStorage.getItem('token');
+            fetch('/api/profile/my-sell-products', {
+              headers: { 'Authorization': 'Bearer ' + token }
+            })
+            .then(res => res.json())
+            .then(products => {
+              const list = document.getElementById("myProductSellList");
+              if (!products.length) {
+                list.innerHTML = "<p>คุณยังไม่ได้ลงขายสินค้า</p>";
+                return;
+              }
+              list.innerHTML = products.map(p => `
+                <div class="product-card">
+                  <img src="${p.images[0] || '../pic/default.png'}" class="product-img"/>
+                  <div class="product-details">
+                    <h3>${p.name}</h3>
+                    <p>${p.description || ''}</p>
+                    <p>ราคาเริ่มต้น: ${p.start_price} coins</p>
+                    <p>ราคาสุดท้าย: ${p.final_price ? p.final_price + " coins" : "ยังไม่มีผู้ชนะ"}</p>
+                    <p>ผู้ชนะ: ${p.winner_username || '-'}</p>
+                    <small>ปิดการประมูล: ${p.closed_at ? new Date(p.closed_at).toLocaleString() : '-'}</small>
+                    ${p.winner_name ? `
+                      <button onclick="openModal('${p.winner_name}','${p.winner_phone}','${p.winner_address}')">
+                        ดูข้อมูลจัดส่ง
+                      </button>
+                    ` : ''}
+                  </div>
+                </div>
+              `).join('');
+            })
+            .catch(err => {
+              console.error(err);
+              document.getElementById("myProductSellList").innerHTML = "<p>โหลดไม่สำเร็จ</p>";
+            });
+          }
+
+
+        document.getElementById("sidebarMenu").classList.remove("active");
+      }
+    });
+    function openModal(name, phone, address) {
+      document.getElementById("modalName").innerText = name || '-';
+      document.getElementById("modalPhone").innerText = phone || '-';
+      document.getElementById("modalAddress").innerText = address || '-';
+      document.getElementById("deliveryModal").style.display = "block";
+    }
+
+    function closeModal() {
+      document.getElementById("deliveryModal").style.display = "none";
+    }
+
+    window.onclick = function(event) {
+      const modal = document.getElementById("deliveryModal");
+      if (event.target === modal) {
+        closeModal();
+      }
+    }
+
   </script>
+
 </body>
 
 </html>
