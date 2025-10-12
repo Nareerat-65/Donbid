@@ -6,7 +6,7 @@
 body {
       margin: 0;
       font-family: 'Kanit', sans-serif;
-      background-color: #f4f4f4;
+      background-color: #FAF5E6;
     }
 
 @media (max-width: 900px) {
@@ -39,21 +39,6 @@ body {
     }
 }
 
-.forgot-password {
-    display: block;
-    margin-top: 16px;
-    font-size: 15px;
-    color: #FFA500;
-    text-decoration: none;
-    transition: color 0.2s;
-}
-
-.forgot-password:hover {
-    text-decoration: underline;
-    background: #e65100;
-}
-
-
 .options {
     display: block;
     align-items: center;
@@ -62,14 +47,6 @@ body {
     padding: 0 2px;
     font-size: 15px;
 }
-
-.remember-me {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    color: #555;
-}
-
 .signup-link {
     color: #FFA500;
     text-decoration: none;
@@ -113,7 +90,12 @@ body {
 }
 
 .navbar {
-    background-color: #FAF5E6;
+    background-color: #ffb948;
+}
+.navbar .logo {
+  height: 175px;
+  width: auto;
+  margin: 0 20px;
 }
 
 .container {

@@ -13,38 +13,45 @@
 
 <body>
   <nav name="navbar" class="navbar">
-    <div>
-      <a href="../content/main-and-login.html" class="logo-link">
-        <img src="../pic/Logo.png" alt="โลโก้" class="logo" />
-      </a>
-    </div>
+      <div>
+        <a href="../content/main-and-login.html" class="logo-link">
+          <img src="../pic/Logo2.png" alt="โลโก้" class="logo" />
+        </a>
+      </div>
 
-    <div class="balance">💰 Coin: <span id="coinBalance">0.00</span></div>
-    <button onclick="location.href='/purchaseCoins/purchaseCoins.html'">
-      +
-    </button>
+      <div class="personal-icon">
+        <a href="../content/profile-check.html" class="logo-link">
+          <img src="../pic/personal-icon.png" alt="ไอค่อน" class="personal-icon" />
+        </a>
+        <span id="usernameDisplay"></span>
 
-    <div class="personal-icon">
-      <a href="../content/profile-check.html" class="logo-link">
-        <img src="../pic/personal-icon.png" alt="ไอค่อน" class="personal-icon" />
-      </a>
-      <span id="usernameDisplay" style="margin-left: 10px; font-weight: bold"></span>
-    </div>
+        <!-- ห่อ balance + ปุ่ม ใน div ใหม่ -->
+        <div class="balance-wrapper">
+          <div class="balance">💰 Coin: <span id="coinBalance">0.00</span></div>
+          <button onclick="location.href='/purchaseCoins/purchaseCoins.html'">+</button>
+        </div>
+      </div>
 
-    <!-- เพิ่มสินค้าเฉพาะ Seller -->
-    <div id="addProductBtnContainer" style="text-align: right; padding: 10px; display: none">
-      <button onclick="location.href='/seller/add-product.html'" style="
+      <!-- เพิ่มสินค้าเฉพาะ Seller -->
+      <div
+        id="addProductBtnContainer"
+        style="text-align: right; padding: 10px; display: none"
+      >
+        <button
+          onclick="location.href='/seller/add-product.html'"
+          style="
             padding: 10px 20px;
-            background-color: #ff9900;
-            color: white;
+            background-color: #FAF5E6;
+            color: black;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-          ">
-        + เพิ่มสินค้า
-      </button>
-    </div>
-  </nav>
+          "
+        >
+          + เพิ่มสินค้า
+        </button>
+      </div>
+    </nav>
 
   <div class="auction-container">
     <div class="auction-content">
@@ -847,7 +854,7 @@
         data.participants.slice(0, 5).forEach((p, i) => {
           avatarsEl.innerHTML += `
               <div class="avatar">
-                <img src="https://i.pravatar.cc/24?img=${i + 1}" />
+                <img src="../pic/personal-icon.png?img=${i + 1}" />
                 <span class="tooltip">${p.username}</span>
               </div>
             `;

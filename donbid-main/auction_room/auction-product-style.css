@@ -6,7 +6,7 @@
 
 body {
   font-family: 'Kanit', sans-serif;
-  background: #ffffff;
+  background: #FAF5E6;
   color: #333;
 }
 
@@ -16,37 +16,82 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap; /* ให้ย่อเมื่อจอเล็ก */
 }
 
 .navbar {
-  background-color: #FAF5E6;
-  /* padding: 10px 20px;*/
+  background-color: #ffb948;
   display: flex;
   align-items: center;
+  flex-wrap: wrap; /* ให้ย่อ */
+  justify-content: space-between;
+  width: 100%;
+}
+
+.buy-btn.disabled {
+  pointer-events: none;
+  background-color: gray;
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .navbar .logo {
-  height: 150px;
-  width: 150px;
-  margin-left: 50px;
-  margin-right: 1350px;
-
+  height: 175px;
+  width: auto;
+  margin: 0 20px;
 }
 
 .personal-icon {
-  max-width: 90px;
-  max-height: 90px;
-  margin-left: 20px;
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* เรียงแนวตั้ง */
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  max-width: 200px;
+  text-align: center;
+  margin-left: auto; /* ย้ายกลุ่มไปทางขวาของ navbar */
+}
+
+.personal-icon img {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-left: 0; /* ให้แน่ใจว่า <img class="personal-icon"> ภายในจะไม่ถูกดัน */
 }
 
 #usernameDisplay {
   font-weight: bold;
+  font-size: 1rem;
+  color: #333;
+}
+
+.balance {
   font-size: 0.9rem;
   color: #333;
+}
+.balance-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px; /* ช่องว่างระหว่าง Coin กับปุ่ม + */
+}
+
+.balance-wrapper button {
+  padding: 2px 6px; /* ปรับขนาดปุ่มให้เหมาะกับบรรทัดเดียว */
+}
+
+.personal-icon button {
+  background-color: #FAF5E6;
+  color: black;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.personal-icon button:hover {
+  background-color: #e88e00;
 }
 
 .auction-container {

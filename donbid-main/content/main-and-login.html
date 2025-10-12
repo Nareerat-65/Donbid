@@ -13,28 +13,22 @@
   <body>
     <nav name="navbar" class="navbar">
       <div>
-        <a href="" class="logo-link">
+        <a class="logo-link">
           <img src="../pic/Logo2.png" alt="โลโก้" class="logo" />
         </a>
       </div>
 
-      <div class="balance">💰 Coin: <span id="coinBalance">0.00</span></div>
-      <button onclick="location.href='/purchaseCoins/purchaseCoins.html'">
-        +
-      </button>
-
       <div class="personal-icon">
         <a href="../content/profile-check.html" class="logo-link">
-          <img
-            src="../pic/personal-icon.png"
-            alt="ไอค่อน"
-            class="personal-icon"
-          />
+          <img src="../pic/personal-icon.png" alt="ไอค่อน" class="personal-icon" />
         </a>
-        <span
-          id="usernameDisplay"
-          style="margin-left: 10px; font-weight: bold"
-        ></span>
+        <span id="usernameDisplay"></span>
+
+        <!-- ห่อ balance + ปุ่ม ใน div ใหม่ -->
+        <div class="balance-wrapper">
+          <div class="balance">💰 Coin: <span id="coinBalance">0.00</span></div>
+          <button onclick="location.href='/purchaseCoins/purchaseCoins.html'">+</button>
+        </div>
       </div>
 
       <!-- เพิ่มสินค้าเฉพาะ Seller -->
@@ -76,6 +70,10 @@
         <span class="dot" onclick="goToSlide(1)"></span>
         <span class="dot" onclick="goToSlide(2)"></span>
       </div>
+    </div>
+    
+    <div class="product-section">
+      <h1>สินค้าแนะนำ</h1>
     </div>
     <div class="search">
       <input
@@ -128,10 +126,6 @@
         </div>
         <button id="applyFilterButton" class="applyFilterButton">ใช้ตัวกรอง</button>
       </div>
-    </div>
-    <div class="product-section">
-      <h1>สินค้าแนะนำ</h1>
-      <a href="product.html" class="all-product">สินค้าทั้งหมด >></a>
     </div>
     <div class="product-list"></div>
 
@@ -230,8 +224,6 @@
         productList.innerHTML = "";
         const now = new Date();
         let followed = JSON.parse(localStorage.getItem("followedProducts")) || [];
-
-        
 
         products.forEach((p) => {
           const end = new Date(p.end_time);

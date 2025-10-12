@@ -21,45 +21,23 @@
     <nav name="navbar" class="navbar">
       <div>
         <a href="../content/main-and-login.html" class="logo-link">
-          <img src="../pic/Logo.png" alt="โลโก้" class="logo" />
+          <img src="../pic/Logo2.png" alt="โลโก้" class="logo" />
         </a>
-      </div>
-      <div class="coin-icon">
-        <h1>coin</h1>
-      </div>
-      <div class="personal-icon">
-        <a href="../content/profile-check.html" class="logo-link">
-          <img
-            src="../pic/personal-icon.png"
-            alt="ไอค่อน"
-            class="personal-icon"
-          />
-        </a>
-        <span
-          id="usernameDisplay"
-          style="margin-left: 10px; font-weight: bold"
-        ></span>
       </div>
 
-      <!-- เพิ่มสินค้าเฉพาะ Seller -->
-      <div
-        id="addProductBtnContainer"
-        style="text-align: right; padding: 10px; display: none"
-      >
-        <button
-          onclick="location.href='/seller/add-product.html'"
-          style="
-            padding: 10px 20px;
-            background-color: #ff9900;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-          "
-        >
-          + เพิ่มสินค้า
-        </button>
+      <div class="personal-icon">
+        <a href="../content/profile-check.html" class="logo-link">
+          <img src="../pic/personal-icon.png" alt="ไอค่อน" class="personal-icon" />
+        </a>
+        <span id="usernameDisplay"></span>
+
+        <!-- ห่อ balance + ปุ่ม ใน div ใหม่ -->
+        <div class="balance-wrapper">
+          <div class="balance">💰 Coin: <span id="coinBalance">0.00</span></div>
+          <button onclick="location.href='/purchaseCoins/purchaseCoins.html'">+</button>
+        </div>
       </div>
+
     </nav>
 
     <form id="addProductForm" enctype="multipart/form-data" method="POST">
@@ -115,6 +93,89 @@
     </form>
 
     <script>
+      // ฟังก์ชันช่วย parse JWT
+    function parseJwt(token) {
+      try {
+        const base64Url = token.split(".")[1];
+        const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+        const jsonPayload = decodeURIComponent(
+          atob(base64)
+            .split("")
+            .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+            .join("")
+        );
+        return JSON.parse(jsonPayload);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // ทำงานตอนโหลดหน้าเว็บ
+    window.onload = async function () {
+      try {
+        const token = localStorage.getItem("token");
+
+        // ถ้าไม่มี token → redirect ไป login
+        if (!token) {
+          showAlertError("❗ ข้อผิดพลาด", "กรุณาเข้าสู่ระบบก่อน");
+          window.location.href = "/login/login.html";
+          return;
+        }
+
+        // ดึงยอด coin จาก API
+        const res = await fetch("/api/coins/balance", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.message || "เกิดข้อผิดพลาดในการดึงยอด coin");
+        }
+
+        // แสดง coin balance ใน navbar
+        const coinSpan = document.getElementById("coinBalance");
+        if (coinSpan) {
+          coinSpan.textContent = Number(data.coin_balance).toFixed(2);
+        }
+
+        // อ่าน payload จาก JWT
+        const payload = parseJwt(token);
+
+        if (payload && payload.username) {
+          // แสดงชื่อผู้ใช้ใน navbar
+          const iconLink = document.querySelector(".personal-icon a");
+          if (iconLink)
+            iconLink.setAttribute("title", `คุณ ${payload.username}`);
+
+          const nameSpan = document.getElementById("usernameDisplay");
+          if (nameSpan) nameSpan.textContent = `คุณ ${payload.username}`;
+
+          // ถ้า role เป็น seller → แสดงปุ่มเพิ่มสินค้า
+          if (payload.role === "seller") {
+            const addBtn = document.getElementById("addProductBtnContainer");
+            if (addBtn) addBtn.style.display = "block";
+          }
+        } else {
+          // token ไม่ถูกต้อง → ลบ token และ redirect
+          showAlertError("❗ ข้อผิดพลาด", "Token ไม่ถูกต้อง");
+          localStorage.removeItem("token");
+          window.location.href = "/login/login.html";
+          return;
+        }
+      } catch (err) {
+        console.error("Error on window.onload:", err);
+        showAlertError(
+          "❗ ข้อผิดพลาด",
+          err.message || "เกิดข้อผิดพลาดในการโหลดข้อมูล โปรดลองใหม่"
+        );
+      }
+    };
+
+
+
+
+
       function showAlertError(title, message, icon = "error") {
             Swal.fire({
                 icon: icon,

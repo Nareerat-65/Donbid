@@ -36,28 +36,62 @@ header {
 }
 
 .navbar .logo {
-  height: 150px;
-  width: auto; /* ให้กว้างอัตโนมัติ */
-  margin: 0 20px 0 20px; /* ลด margin ตายตัว */
-}
-
-.balance {
-  margin-left: auto;
+  height: 175px;
+  width: auto;
+  margin: 0 20px;
 }
 
 .personal-icon {
-  max-width: 90px;
-  max-height: 90px;
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* เรียงแนวตั้ง */
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  max-width: 200px;
+  text-align: center;
+  margin-left: auto; /* ย้ายกลุ่มไปทางขวาของ navbar */
+}
+
+.personal-icon img {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-left: 0; /* ให้แน่ใจว่า <img class="personal-icon"> ภายในจะไม่ถูกดัน */
 }
 
 #usernameDisplay {
   font-weight: bold;
+  font-size: 1rem;
+  color: #333;
+}
+
+.balance {
   font-size: 0.9rem;
   color: #333;
+}
+.balance-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px; /* ช่องว่างระหว่าง Coin กับปุ่ม + */
+}
+
+.balance-wrapper button {
+  padding: 2px 6px; /* ปรับขนาดปุ่มให้เหมาะกับบรรทัดเดียว */
+}
+
+.personal-icon button {
+  background-color: #FAF5E6;
+  color: black;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.personal-icon button:hover {
+  background-color: #e88e00;
 }
 
 .slider {
@@ -127,10 +161,10 @@ header {
 .product-section {
   display: flex;
   flex-wrap: wrap; /* ให้ย่ออัตโนมัติ */
-  justify-content: space-between;
+  justify-content: center;
   width: 95%;
   max-width: 1500px;
-  margin: 30px auto 0;
+  margin: 80px auto 0;
   gap: 20px; /* ลด gap ให้อยู่ในสัดส่วน */
 }
 
@@ -330,14 +364,14 @@ header {
   gap: 10px;
 }
 .searchInput {
-  width: 350px;
+  width: 500px;
   height: 40px;
   padding: 10px;
   border-radius: 8px;
   border: 1.5px solid #ffb948;
   margin-right: 10px;
   font-size: 1.05em;
-  background: #fffbe6;
+  background: #ffffff;
   transition: border 0.2s;
 }
 .searchInput:focus {
