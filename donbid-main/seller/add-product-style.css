@@ -76,7 +76,7 @@ header {
 }
 
 .balance-wrapper button {
-  padding: 2px 6px; /* ปรับขนาดปุ่มให้เหมาะกับบรรทัดเดียว */
+  padding: 2px 4px; /* ปรับขนาดปุ่มให้เหมาะกับบรรทัดเดียว */
 }
 
 .personal-icon button {
@@ -88,6 +88,7 @@ header {
   font-size: 1rem;
   cursor: pointer;
   transition: 0.2s;
+  margin-right: 15px;
 }
 
 .personal-icon button:hover {
