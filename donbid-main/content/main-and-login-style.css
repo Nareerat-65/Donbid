@@ -48,7 +48,9 @@ header {
   gap: 6px;
   max-width: 200px;
   text-align: center;
-  margin-left: auto; /* ย้ายกลุ่มไปทางขวาของ navbar */
+  margin-left: auto;/* ย้ายกลุ่มไปทางขวาของ navbar */
+  margin-right: 20px; 
+  margin-right: 20px;
 }
 
 .personal-icon img {

@@ -40,6 +40,31 @@ header {
   width: auto;
   margin: 0 20px;
 }
+.personal-icon {
+  display: flex;
+  flex-direction: column; /* เรียงแนวตั้ง */
+  align-items: center;
+  gap: 6px;
+  max-width: 200px;
+  text-align: center;
+  margin-left: auto;/* ย้ายกลุ่มไปทางขวาของ navbar */
+  margin-right: 20px; 
+  margin-right: 20px;
+}
+
+.personal-icon img {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-left: 0; /* ให้แน่ใจว่า <img class="personal-icon"> ภายในจะไม่ถูกดัน */
+}
+
+#usernameDisplay {
+  font-weight: bold;
+  font-size: 1rem;
+  color: #333;
+}
 
 h1 {
     margin: 20px 0 10px 0;

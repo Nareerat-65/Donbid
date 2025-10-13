@@ -12,11 +12,38 @@
 
 <body>
     <nav name="navbar" class="navbar">
-        <div>
-            <a href="../content/main-and-login.html" class="logo-link">
-                <img src="../pic/Logo2.png" alt="โลโก้" class="logo">
-            </a>
-        </div>
+      <div>
+        <a href="../content/main-and-login.html" class="logo-link">
+          <img src="../pic/Logo2.png" alt="โลโก้" class="logo" />
+        </a>
+      </div>
+
+      <div class="personal-icon">
+        <a href="../content/profile-check.html" class="logo-link">
+          <img src="../pic/personal-icon.png" alt="ไอค่อน" class="personal-icon" />
+        </a>
+        <span id="usernameDisplay"></span>
+      </div>
+
+      <!-- เพิ่มสินค้าเฉพาะ Seller -->
+      <div
+        id="addProductBtnContainer"
+        style="text-align: right; padding: 10px; display: none"
+      >
+        <button
+          onclick="location.href='/seller/add-product.html'"
+          style="
+            padding: 10px 20px;
+            background-color: #FAF5E6;
+            color: black;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+          "
+        >
+          + เพิ่มสินค้า
+        </button>
+      </div>
     </nav>
 
     <div class="content">
@@ -95,14 +122,14 @@
             });
         }
         function showAlert(title, message, icon = "success") {
-        Swal.fire({
-            icon: icon,
-            title: title,
-            text: message,
-            confirmButtonColor: "#3085d6",
-            confirmButtonText: "ตกลง",
-        });
-    }
+            Swal.fire({
+                icon: icon,
+                title: title,
+                text: message,
+                confirmButtonColor: "#3085d6",
+                confirmButtonText: "ตกลง",
+            });
+        }
 
 
         // 🆕 ตัวแปรสำหรับเก็บยอดที่เลือก
@@ -193,18 +220,50 @@
             }
         }
 
-        window.onload = async () => {
-            const token = localStorage.getItem('token');
-            if (!token) return;
+        function parseJwt(token) {
+        try {
+          const base64Url = token.split(".")[1];
+          const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+          const jsonPayload = decodeURIComponent(
+            atob(base64)
+              .split("")
+              .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+              .join("")
+          );
+          return JSON.parse(jsonPayload);
+        } catch (e) {
+          return null;
+        }
+      }
 
-            const res = await fetch('/api/coins/balance', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
+        window.addEventListener("load", async () => {
+            try {
+                const token = localStorage.getItem("token");
+                if (!token) return;
 
-            const data = await res.json();
-            document.getElementById('coinBalance').textContent = Number(data.coin_balance).toFixed(2);
-        };
+                // ดึงยอด coin
+                const res = await fetch("/api/coins/balance", {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                const data = await res.json();
+                document.getElementById("coinBalance").textContent = Number(data.coin_balance).toFixed(2);
 
+                // แสดงชื่อผู้ใช้
+                const payload = parseJwt(token);
+                if (payload && payload.username) {
+                    const nameSpan = document.getElementById("usernameDisplay");
+                    if (nameSpan) nameSpan.textContent = `คุณ ${payload.username}`;
+
+                    // แสดงปุ่ม seller
+                    if (payload.role === "seller") {
+                        const addBtn = document.getElementById("addProductBtnContainer");
+                        if (addBtn) addBtn.style.display = "block";
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        });
     </script>
 
 </body>
