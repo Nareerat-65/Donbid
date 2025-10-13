@@ -115,7 +115,7 @@
     }
 
     .profile-container {
-      max-width: 500px;
+      max-width: 700px;
       margin: 0 auto;
       border-radius: 20px;
       padding: 32px 24px;
@@ -174,6 +174,48 @@
     #change-role:hover {
       background: linear-gradient(90deg, #009688 60%, #26a69a 100%);
     }
+
+    .profile-form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 700px; /* 🔹 เพิ่มความกว้างจาก 500 → 700 */
+      width: 90%;
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: 16px;
+    }
+
+    .profile-form input,
+    .profile-form select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    .save-btn {
+      width: 50%;
+      background-color: #ffa500;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      margin: 20px auto;
+      font-size: 1rem;
+    }
+
+    .save-btn:hover {
+      background-color: #e65100;
+    }
+
+    #addressStatus {
+      text-align: center;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
 
     .product-card {
       display: flex;
@@ -286,6 +328,7 @@
     }
 
 
+
     /* ---------- Responsive ---------- */
     @media (max-width: 768px) {
       .main {
@@ -357,8 +400,9 @@
         </button>
       </div>
       <button data-page="profile">โปรไฟล์ของฉัน</button>
+      <button data-page="address">ข้อมูลที่อยู่เพื่อจัดส่ง</button>
       <button data-page="myProducts">สินค้าของฉัน</button>
-
+      
     </div>
 
     <div class="content-area" id="contentArea">
@@ -537,6 +581,190 @@
         if (page === "profile") {
           renderProfile(payload);  // ✅ กดแล้วโหลดใหม่
         }
+        if (page === "address") {
+          document.getElementById("contentArea").innerHTML = `
+            <h2>ข้อมูลที่อยู่เพื่อจัดส่ง</h2>
+            <form id="addressForm" class="profile-form">
+              <label>ชื่อ-นามสกุล:</label>
+              <input type="text" id="full_name" disabled>
+
+              <label>เบอร์โทรศัพท์:</label>
+              <input type="text" id="phone" disabled>
+
+              <label for="location">ที่อยู่จัดส่ง </label>
+                  <input type="text" id="location" name="location" required>
+
+                  <label for="District ">เขต / อำเภอ </label>
+                  <input type="text" id="District" name="District" required>
+
+                  <label for="province">จังหวัด </label>
+                  <select name="province" id="province">
+                      <option value="">จังหวัด</option>
+                      <option value="กระบี่">กระบี่</option>
+                      <option value="กรุงเทพมหานคร">กรุงเทพมหานคร</option>
+                      <option value="กาญจนบุรี">กาญจนบุรี</option>
+                      <option value="กาฬสินธุ์">กาฬสินธุ์</option>
+                      <option value="กำแพงเพชร">กำแพงเพชร</option>
+                      <option value="ขอนแก่น">ขอนแก่น</option>
+                      <option value="จันทบุรี">จันทบุรี</option>
+                      <option value="ฉะเชิงเทรา">ฉะเชิงเทรา</option>
+                      <option value="ชลบุรี">ชลบุรี</option>
+                      <option value="ชัยนาท">ชัยนาท</option>
+                      <option value="ชัยภูมิ">ชัยภูมิ</option>
+                      <option value="ชุมพร">ชุมพร</option>
+                      <option value="เชียงราย">เชียงราย</option>
+                      <option value="เชียงใหม่">เชียงใหม่</option>
+                      <option value="ตรัง">ตรัง</option>
+                      <option value="ตราด">ตราด</option>
+                      <option value="ตาก">ตาก</option>
+                      <option value="นครนายก">นครนายก</option>
+                      <option value="นครปฐม">นครปฐม</option>
+                      <option value="นครพนม">นครพนม</option>
+                      <option value="นครราชสีมา">นครราชสีมา</option>
+                      <option value="นครศรีธรรมราช">นครศรีธรรมราช</option>
+                      <option value="นครสวรรค์">นครสวรรค์</option>
+                      <option value="นนทบุรี">นนทบุรี</option>
+                      <option value="นราธิวาส">นราธิวาส</option>
+                      <option value="น่าน">น่าน</option>
+                      <option value="บึงกาฬ">บึงกาฬ</option>
+                      <option value="บุรีรัมย์">บุรีรัมย์</option>
+                      <option value="ปทุมธานี">ปทุมธานี</option>
+                      <option value="ประจวบคีรีขันธ์">ประจวบคีรีขันธ์</option>
+                      <option value="ปราจีนบุรี">ปราจีนบุรี</option>
+                      <option value="ปัตตานี">ปัตตานี</option>
+                      <option value="พระนครศรีอยุธยา">พระนครศรีอยุธยา</option>
+                      <option value="พะเยา">พะเยา</option>
+                      <option value="พังงา">พังงา</option>
+                      <option value="พัทลุง">พัทลุง</option>
+                      <option value="พิจิตร">พิจิตร</option>
+                      <option value="พิษณุโลก">พิษณุโลก</option>
+                      <option value="เพชรบุรี">เพชรบุรี</option>
+                      <option value="เพชรบูรณ์">เพชรบูรณ์</option>
+                      <option value="แพร่">แพร่</option>
+                      <option value="ภูเก็ต">ภูเก็ต</option>
+                      <option value="มหาสารคาม">มหาสารคาม</option>
+                      <option value="มุกดาหาร">มุกดาหาร</option>
+                      <option value="แม่ฮ่องสอน">แม่ฮ่องสอน</option>
+                      <option value="ยโสธร">ยโสธร</option>
+                      <option value="ยะลา">ยะลา</option>
+                      <option value="ร้อยเอ็ด">ร้อยเอ็ด</option>
+                      <option value="ระนอง">ระนอง</option>
+                      <option value="ระยอง">ระยอง</option>
+                      <option value="ราชบุรี">ราชบุรี</option>
+                      <option value="ลพบุรี">ลพบุรี</option>
+                      <option value="ลำปาง">ลำปาง</option>
+                      <option value="ลำพูน">ลำพูน</option>
+                      <option value="เลย">เลย</option>
+                      <option value="ศรีสะเกษ">ศรีสะเกษ</option>
+                      <option value="สกลนคร">สกลนคร</option>
+                      <option value="สงขลา">สงขลา</option>
+                      <option value="สตูล">สตูล</option>
+                      <option value="สมุทรปราการ">สมุทรปราการ</option>
+                      <option value="สมุทรสงคราม">สมุทรสงคราม</option>
+                      <option value="สมุทรสาคร">สมุทรสาคร</option>
+                      <option value="สระแก้ว">สระแก้ว</option>
+                      <option value="สระบุรี">สระบุรี</option>
+                      <option value="สิงห์บุรี">สิงห์บุรี</option>
+                      <option value="สุโขทัย">สุโขทัย</option>
+                      <option value="สุพรรณบุรี">สุพรรณบุรี</option>
+                      <option value="สุราษฎร์ธานี">สุราษฎร์ธานี</option>
+                      <option value="สุรินทร์">สุรินทร์</option>
+                      <option value="หนองคาย">หนองคาย</option>
+                      <option value="หนองบัวลำภู">หนองบัวลำภู</option>
+                      <option value="อ่างทอง">อ่างทอง</option>
+                      <option value="อำนาจเจริญ">อำนาจเจริญ</option>
+                      <option value="อุดรธานี">อุดรธานี</option>
+                      <option value="อุตรดิตถ์">อุตรดิตถ์</option>
+                      <option value="อุทัยธานี">อุทัยธานี</option>
+                      <option value="อุบลราชธานี">อุบลราชธานี</option>
+                  </select>
+
+                  <label for="zip_code">รหัสไปรษณีย์ </label>
+                  <input type="text" id="zip_code" name="zip_code" required>
+
+              <button type="submit" class="save-btn">บันทึก</button>
+            </form>
+            <p id="addressStatus"></p>
+          `;
+
+          const token = localStorage.getItem("token");
+
+          // ✅ โหลดข้อมูลที่อยู่เดิม
+          fetch("/api/profile/address", {
+            headers: { Authorization: "Bearer " + token },
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              const status = document.getElementById("addressStatus");
+
+              if (data.error) {
+                status.innerText = data.error;
+                status.style.color = "red";
+                return;
+              }
+
+              // ✅ แสดงข้อมูลผู้ใช้
+              document.getElementById("full_name").value = data.full_name || "";
+              document.getElementById("phone").value = data.phone || "";
+
+              // ✅ แยกข้อมูล address กลับมาใส่ช่อง input
+              if (data.address) {
+                const parts = data.address.split(", ");
+                document.getElementById("location").value = parts[0] || "";
+                document.getElementById("District").value = parts[1] || "";
+                document.getElementById("province").value = parts[2] || "";
+                document.getElementById("zip_code").value = parts[3] || "";
+              }
+
+              status.innerText = "โหลดข้อมูลสำเร็จ ✅";
+              status.style.color = "green";
+              
+            })
+            .catch((err) => {
+              console.error(err);
+              const status = document.getElementById("addressStatus");
+              status.innerText = "❌ โหลดข้อมูลไม่สำเร็จ";
+              status.style.color = "red";
+            });
+
+          // ✅ เมื่อกดบันทึก
+          document
+            .getElementById("addressForm")
+            .addEventListener("submit", (e) => {
+              e.preventDefault();
+
+              const location = document.getElementById("location").value.trim();
+              const district = document.getElementById("District").value.trim();
+              const province = document.getElementById("province").value.trim();
+              const zip = document.getElementById("zip_code").value.trim();
+
+              if (!location || !district || !province || !zip) {
+                showAlertError("❗ ข้อผิดพลาด", "กรุณากรอกข้อมูลให้ครบทุกช่อง");
+                return;
+              }
+
+              const address = `${location}, ${district}, ${province}, ${zip}`;
+    
+              fetch("/api/profile/address", {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: "Bearer " + token,
+                },
+                body: JSON.stringify({ address }),
+              })
+                .then((res) => res.json())
+                .then((data) => {
+                  showAlert("✅ สำเร็จ", "บันทึกข้อมูลสำเร็จ");
+                })
+                .catch((err) => {
+                  console.error(err);
+                  showAlertError("❗ ข้อผิดพลาด", "เกิดข้อผิดพลาดในการบันทึก");
+                });
+            });
+        }
+
+
         if (page === "myProducts") {
           document.getElementById("contentArea").innerHTML = `<h2>สินค้าที่ฉันชนะ</h2><div id="myProductsList">กำลังโหลด...</div>`;
 

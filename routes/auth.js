@@ -20,11 +20,39 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+// CHECK DUPLICATE EMAIL OR USERNAME
+router.post('/check', async (req, res) => {
+  const { username, email } = req.body;
+
+  try {
+    if (!username && !email)
+      return res.status(400).json({ message: 'กรุณาระบุ username หรือ email' });
+
+    const [existing] = await db.query(
+      'SELECT username, email FROM users WHERE username = ? OR email = ?',
+      [username, email]
+    );
+
+    if (existing.length > 0) {
+      const conflict = {};
+      if (existing[0].username === username) conflict.username = true;
+      if (existing[0].email === email) conflict.email = true;
+      return res.status(200).json({ exists: true, conflict });
+    }
+
+    res.status(200).json({ exists: false });
+  } catch (err) {
+    console.error('Check duplicate error:', err);
+    res.status(500).json({ error: 'เกิดข้อผิดพลาดในการตรวจสอบ' });
+  }
+});
+
+
 // REGISTER
 router.post('/register', upload.single('avatar'), async (req, res) => {
   const {
     username, email, password,
-    full_name, gender, birthdate, phone, address
+    full_name, gender, birthdate, phone
   } = req.body;
 
   const avatar_url = req.file ? `/uploads/${req.file.filename}` : null;
@@ -48,9 +76,9 @@ router.post('/register', upload.single('avatar'), async (req, res) => {
 
     await db.query(
       `INSERT INTO user_profiles 
-        (user_id, full_name, gender, birthdate, phone, address, avatar_url)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [userId, full_name, gender, birthdate, phone, address, avatar_url]
+        (user_id, full_name, gender, birthdate, phone, avatar_url)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [userId, full_name, gender, birthdate, phone, avatar_url]
     );
 
     // หลังบันทึก user profile แล้ว ให้สร้าง user_wallet ด้วยยอดเริ่มต้น 0.00

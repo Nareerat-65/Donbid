@@ -103,5 +103,44 @@ router.get('/my-sell-products', auth, async (req, res) => {
   }
 });
 
+// ✅ GET ดึงข้อมูล
+router.get('/address', auth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const [rows] = await db.query(
+      `SELECT full_name, phone, address FROM user_profiles WHERE user_id = ?`,
+      [userId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "ไม่พบข้อมูลที่อยู่ของผู้ใช้" });
+    }
+
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "ไม่สามารถโหลดข้อมูลได้" });
+  }
+});
+
+// ✅ PUT บันทึกเฉพาะที่อยู่
+router.put('/address', auth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { address } = req.body;
+
+    await db.query(
+      `UPDATE user_profiles 
+       SET address = ?, updated_at = NOW()
+       WHERE user_id = ?`,
+      [address, userId]
+    );
+
+    res.json({ message: "บันทึกที่อยู่เรียบร้อยแล้ว" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "ไม่สามารถบันทึกข้อมูลได้" });
+  }
+});
 
 module.exports = router;
