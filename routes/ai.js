@@ -10,11 +10,6 @@ router.post('/chat', async (req, res) => {
   const productId = req.body.product_id;
   const type = req.body.type;
 
-  console.log("👉 req.body =", req.body);
-  console.log("👉 userMsg =", userMsg);
-  console.log("👉 productId =", productId);
-  console.log("👉 type =", type);
-
   if (!userMsg) return res.status(400).json({ error: 'Missing message' });
 
   // ✅ ตรวจสอบว่า API Key ถูกตั้งค่าหรือไม่
@@ -93,7 +88,11 @@ router.post('/tts', async (req, res) => {
   speechConfig.speechSynthesisOutputFormat = sdk.SpeechSynthesisOutputFormat.Audio16Khz16KBitRateMonoMp3;
   try {
     const synthesizer = new sdk.SpeechSynthesizer(speechConfig);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+
     synthesizer.speakTextAsync(text, result => {
+      clearTimeout(timeout);
       if (result) {
         // สร้าง Blob แบบ Uint8Array
         const audioBuffer = Buffer.from(result.audioData); // สำหรับ Node.js
